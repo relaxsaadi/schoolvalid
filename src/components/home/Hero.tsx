@@ -32,13 +32,6 @@ export const Hero = () => {
                 Get Started 
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-accent"
-              >
-                Learn More
-              </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-8">
               {features.map((feature, i) => (
