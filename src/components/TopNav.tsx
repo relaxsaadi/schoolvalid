@@ -14,8 +14,12 @@ export function TopNav({ searchQuery, onSearchChange }: TopNavProps) {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <div className="flex gap-6 md:gap-10">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
+            <span className="absolute right-1 top-1 flex h-3 w-3">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-red-500"></span>
+            </span>
           </Button>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-4">

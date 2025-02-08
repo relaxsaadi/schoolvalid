@@ -7,7 +7,6 @@ import {
   Award,
   Bell,
   Download,
-  Filter,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
@@ -245,6 +244,6 @@ const Dashboard = () => {
       </main>
     </div>
   );
-}
+};
 
 export default Dashboard;
