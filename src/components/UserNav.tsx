@@ -56,7 +56,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -71,6 +71,36 @@ export function UserNav() {
   });
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Load profile data when component mounts
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('full_name, institution_name, logo_url')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        if (profile) {
+          setProfileData({
+            name: profile.full_name || "",
+            institutionName: profile.institution_name || "",
+            logoUrl: profile.logo_url || "",
+          });
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
+    };
+
+    loadProfile();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -100,6 +130,7 @@ export function UserNav() {
       const { error } = await supabase
         .from('profiles')
         .update({
+          full_name: profileData.name,
           institution_name: profileData.institutionName,
           logo_url: profileData.logoUrl,
         })
@@ -113,6 +144,7 @@ export function UserNav() {
       });
       setIsProfileOpen(false);
     } catch (error) {
+      console.error('Error updating profile:', error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -127,8 +159,8 @@ export function UserNav() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full transition-transform hover:scale-105">
             <Avatar className="h-8 w-8">
-              <AvatarImage src="/placeholder.svg" alt="@user" />
-              <AvatarFallback>U</AvatarFallback>
+              <AvatarImage src={profileData.logoUrl || "/placeholder.svg"} alt="@user" />
+              <AvatarFallback>{profileData.name?.charAt(0) || 'U'}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
@@ -139,9 +171,9 @@ export function UserNav() {
         >
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">User</p>
+              <p className="text-sm font-medium leading-none">{profileData.name || "User"}</p>
               <p className="text-xs leading-none text-muted-foreground">
-                user@example.com
+                {profileData.institutionName || "Institution"}
               </p>
             </div>
           </DropdownMenuLabel>
@@ -234,6 +266,7 @@ export function UserNav() {
                 value={profileData.logoUrl}
                 onChange={(e) => setProfileData({ ...profileData, logoUrl: e.target.value })}
                 className="col-span-3"
+                placeholder="https://example.com/logo.png"
               />
             </div>
           </div>
