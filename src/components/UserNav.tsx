@@ -1,3 +1,4 @@
+
 import {
   Cloud,
   CreditCard,
@@ -85,16 +86,21 @@ export function UserNav() {
         }
 
         setCurrentUser(user);
+        console.log("Current user:", user);
 
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('full_name, institution_name, logo_url')
           .eq('id', user.id)
-          .maybeSingle();
+          .single();
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error('Profile error:', profileError);
+          throw profileError;
+        }
 
         if (profile) {
+          console.log("Profile data loaded:", profile);
           setProfileData({
             name: profile.full_name || "",
             institutionName: profile.institution_name || "",
@@ -140,16 +146,28 @@ export function UserNav() {
         throw new Error("You must be logged in to update your profile");
       }
 
-      const { error } = await supabase
+      console.log("Updating profile with data:", {
+        full_name: profileData.name,
+        institution_name: profileData.institutionName,
+        logo_url: profileData.logoUrl,
+      });
+
+      const { data, error } = await supabase
         .from('profiles')
         .update({
           full_name: profileData.name,
           institution_name: profileData.institutionName,
           logo_url: profileData.logoUrl,
         })
-        .eq('id', currentUser.id);
+        .eq('id', currentUser.id)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update error:', error);
+        throw error;
+      }
+
+      console.log("Profile updated successfully:", data);
 
       toast({
         title: "Profile updated",
