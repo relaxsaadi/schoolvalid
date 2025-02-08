@@ -1,5 +1,5 @@
 
-import { Download, Plus } from "lucide-react";
+import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
 import { StudentRecord } from "@/pages/Dashboard";
@@ -13,9 +13,7 @@ export function DashboardHeader({ onAddRecord }: DashboardHeaderProps) {
     <div className="flex items-center justify-between">
       <h2 className="text-4xl font-bold">Dashboard</h2>
       <div className="flex items-center gap-2">
-        <Button className="bg-blue-500 hover:bg-blue-600" onClick={() => {}}>
-          <Plus className="mr-2 h-4 w-4" /> Add Record
-        </Button>
+        <AddRecordDialog onAddRecord={onAddRecord} />
         <Button variant="outline" className="text-gray-600">
           <Download className="mr-2 h-4 w-4" /> Export
         </Button>
