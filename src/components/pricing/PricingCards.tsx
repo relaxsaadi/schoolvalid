@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check } from "lucide-react";
@@ -62,6 +61,8 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
       }
     }
   };
+
+  const MotionButton = motion(Button);
 
   return (
     <div className="mt-12">
@@ -177,15 +178,15 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
                   </motion.li>
                 ))}
               </ul>
-              <Button
-                className="w-full transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              <MotionButton
+                className="w-full transition-all duration-300"
                 variant={plan.is_popular ? "default" : "outline"}
                 onClick={() => onSelectPlan(plan.id)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 Get Started
-              </Button>
+              </MotionButton>
             </Card>
           </motion.div>
         ))}
