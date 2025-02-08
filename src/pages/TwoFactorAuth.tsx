@@ -5,7 +5,7 @@ import { TopNav } from "@/components/TopNav";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { OTPInput } from "@/components/ui/input-otp";
+import { InputOTP } from "@/components/ui/input-otp";
 
 const TwoFactorAuth = () => {
   const [enabled, setEnabled] = useState(false);
@@ -62,7 +62,7 @@ const TwoFactorAuth = () => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Enter verification code</p>
-                    <OTPInput
+                    <InputOTP
                       maxLength={6}
                       value={code}
                       onChange={(value) => setCode(value)}
