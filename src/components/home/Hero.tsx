@@ -1,7 +1,6 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog, ShieldCheck, Key } from "lucide-react";
+import { ArrowRight, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog, ShieldCheck, Key } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge as UIBadge } from "@/components/ui/badge";
 
@@ -64,9 +63,6 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
               >
                 <UIBadge variant="secondary" className="bg-white/20 text-white border-none shadow-sm backdrop-blur-sm hover:bg-white/30 transition-colors duration-300">
                   <ShieldCheck className="w-4 h-4 mr-1" /> GDPR Compliant
-                </UIBadge>
-                <UIBadge variant="secondary" className="bg-white/20 text-white border-none shadow-sm backdrop-blur-sm hover:bg-white/30 transition-colors duration-300">
-                  <Key className="w-4 h-4 mr-1" /> AES-256 Encryption
                 </UIBadge>
               </motion.div>
             </motion.div>
@@ -239,12 +235,6 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
 };
 
 const features = [
-  {
-    title: "Secure Storage",
-    description: "Bank-level encryption for all your sensitive data",
-    icon: Shield,
-    badge: "AES-256 Protected"
-  },
   {
     title: "Easy Management",
     description: "Intuitive interface for managing student records",
