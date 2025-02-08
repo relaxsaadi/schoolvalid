@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog, ShieldCheck, Key } from "lucide-react";
@@ -56,7 +57,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
               </motion.p>
 
               <motion.div
-                className="flex flex-wrap gap-3 mt-4"
+                className="flex flex-wrap gap-4 mt-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.8 }}
@@ -70,7 +71,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
               </motion.div>
             </motion.div>
             <motion.div 
-              className="flex flex-col gap-2 min-[400px]:flex-row"
+              className="flex flex-col gap-2 min-[400px]:flex-row mt-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.8 }}
@@ -99,7 +100,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             </motion.div>
 
             <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-8"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-12"
               variants={{
                 hidden: { opacity: 0 },
                 show: {
@@ -169,12 +170,28 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="mx-auto flex flex-col items-center justify-center w-full gap-6"
+            className="mx-auto flex flex-col items-center justify-center w-full gap-6 relative"
           >
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/10 rounded-3xl backdrop-blur-sm -z-10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            />
+            
+            <motion.h3
+              className="text-xl font-semibold text-white/90 text-center mb-2"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              Trusted Credentials Platform
+            </motion.h3>
+
             <motion.img
               src="https://storage.googleapis.com/msgsndr/R1MobQG4jgSbc6WgB6Wz/media/67a5f106b332665cc1c3dc11.png"
               alt="Certificate"
-              className="w-full h-auto rounded-lg shadow-xl hover:scale-105 transition-transform duration-300"
+              className="w-[90%] h-auto rounded-lg shadow-xl hover:scale-105 transition-transform duration-300"
               whileHover={{ scale: 1.05 }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -286,3 +303,4 @@ const features = [
     icon: Lock,
   }
 ];
+
