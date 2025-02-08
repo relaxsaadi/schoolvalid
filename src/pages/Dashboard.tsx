@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,11 +8,10 @@ import {
   Bell,
   Search,
   Download,
-  Plus,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -20,32 +20,83 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export interface StudentRecord {
   id: string;
-  studentName: string;
-  studentId: string;
-  course: string;
-  createdAt: Date;
+  recipient_name: string;
+  certificate_number: string;
+  course_name: string;
+  created_at: string;
 }
 
 const Dashboard = () => {
   const [records, setRecords] = useState<StudentRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const { toast } = useToast();
+
+  useEffect(() => {
+    fetchRecords();
+  }, []);
+
+  const fetchRecords = async () => {
+    const { data, error } = await supabase
+      .from('certificates')
+      .select('id, recipient_name, certificate_number, course_name, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch records",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setRecords(data || []);
+  };
 
   const filteredRecords = records.filter((record) =>
-    record.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    record.studentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    record.course.toLowerCase().includes(searchQuery.toLowerCase())
+    record.recipient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    record.certificate_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    record.course_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleAddRecord = (newRecord: Omit<StudentRecord, "id" | "createdAt">) => {
-    const record: StudentRecord = {
-      ...newRecord,
-      id: Math.random().toString(36).substring(7),
-      createdAt: new Date(),
-    };
-    setRecords((prev) => [record, ...prev]);
+  const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
+    const { data, error } = await supabase
+      .from('certificates')
+      .insert([{
+        recipient_name: newRecord.recipient_name,
+        certificate_number: newRecord.certificate_number,
+        course_name: newRecord.course_name,
+        status: 'active',
+        blockchain_hash: 'pending',
+        blockchain_timestamp: new Date().toISOString(),
+        issue_date: new Date().toISOString(),
+        valid_through: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
+        year_of_birth: 2000, // Default value
+        email: 'pending@example.com', // Default value
+        provider: 'Default Provider', // Default value
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add record",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setRecords((prev) => [data, ...prev]);
+    toast({
+      title: "Success",
+      description: "Record added successfully",
+    });
   };
 
   return (
@@ -91,7 +142,7 @@ const Dashboard = () => {
                 <p className="text-sm font-medium text-muted-foreground">
                   Total Students
                 </p>
-                <h3 className="text-2xl font-bold">2,547</h3>
+                <h3 className="text-2xl font-bold">{records.length}</h3>
               </div>
             </div>
           </Card>
@@ -102,7 +153,7 @@ const Dashboard = () => {
                 <p className="text-sm font-medium text-muted-foreground">
                   Records
                 </p>
-                <h3 className="text-2xl font-bold">1,234</h3>
+                <h3 className="text-2xl font-bold">{records.length}</h3>
               </div>
             </div>
           </Card>
@@ -113,7 +164,7 @@ const Dashboard = () => {
                 <p className="text-sm font-medium text-muted-foreground">
                   Certificates
                 </p>
-                <h3 className="text-2xl font-bold">892</h3>
+                <h3 className="text-2xl font-bold">{records.length}</h3>
               </div>
             </div>
           </Card>
@@ -124,7 +175,7 @@ const Dashboard = () => {
                 <p className="text-sm font-medium text-muted-foreground">
                   Pending Tasks
                 </p>
-                <h3 className="text-2xl font-bold">15</h3>
+                <h3 className="text-2xl font-bold">0</h3>
               </div>
             </div>
           </Card>
@@ -150,11 +201,11 @@ const Dashboard = () => {
               ) : (
                 filteredRecords.map((record) => (
                   <TableRow key={record.id}>
-                    <TableCell>{record.studentName}</TableCell>
-                    <TableCell>{record.studentId}</TableCell>
-                    <TableCell>{record.course}</TableCell>
+                    <TableCell>{record.recipient_name}</TableCell>
+                    <TableCell>{record.certificate_number}</TableCell>
+                    <TableCell>{record.course_name}</TableCell>
                     <TableCell>
-                      {record.createdAt.toLocaleDateString()}
+                      {new Date(record.created_at).toLocaleDateString()}
                     </TableCell>
                   </TableRow>
                 ))

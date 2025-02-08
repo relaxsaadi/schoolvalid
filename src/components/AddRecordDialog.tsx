@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { StudentRecord } from "@/pages/Dashboard";
 
 interface AddRecordDialogProps {
-  onAddRecord: (record: Omit<StudentRecord, "id" | "createdAt">) => void;
+  onAddRecord: (record: Omit<StudentRecord, "id" | "created_at">) => void;
 }
 
 export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
@@ -27,16 +27,12 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
     const formData = new FormData(e.currentTarget);
     
     const newRecord = {
-      studentName: formData.get("studentName") as string,
-      studentId: formData.get("studentId") as string,
-      course: formData.get("course") as string,
+      recipient_name: formData.get("recipient_name") as string,
+      certificate_number: formData.get("certificate_number") as string,
+      course_name: formData.get("course_name") as string,
     };
     
     onAddRecord(newRecord);
-    toast({
-      title: "Success",
-      description: "Record added successfully",
-    });
     setOpen(false);
     (e.target as HTMLFormElement).reset();
   };
@@ -54,30 +50,30 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="studentName">Student Name</Label>
+            <Label htmlFor="recipient_name">Student Name</Label>
             <Input
-              id="studentName"
-              name="studentName"
+              id="recipient_name"
+              name="recipient_name"
               type="text"
               placeholder="Enter student name"
               required
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="studentId">Student ID</Label>
+            <Label htmlFor="certificate_number">Student ID</Label>
             <Input
-              id="studentId"
-              name="studentId"
+              id="certificate_number"
+              name="certificate_number"
               type="text"
               placeholder="Enter student ID"
               required
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="course">Course</Label>
+            <Label htmlFor="course_name">Course</Label>
             <Input
-              id="course"
-              name="course"
+              id="course_name"
+              name="course_name"
               type="text"
               placeholder="Enter course name"
               required
