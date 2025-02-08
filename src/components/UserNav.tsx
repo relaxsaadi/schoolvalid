@@ -1,4 +1,3 @@
-
 import {
   Cloud,
   CreditCard,
@@ -69,23 +68,31 @@ export function UserNav() {
     institutionName: "",
     logoUrl: "",
   });
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Load profile data when component mounts
+  // Load profile data and check authentication when component mounts
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (userError) throw userError;
+        if (!user) {
+          navigate('/sign-in');
+          return;
+        }
 
-        const { data: profile, error } = await supabase
+        setCurrentUser(user);
+
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('full_name, institution_name, logo_url')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (error) throw error;
+        if (profileError) throw profileError;
 
         if (profile) {
           setProfileData({
@@ -96,11 +103,16 @@ export function UserNav() {
         }
       } catch (error) {
         console.error('Error loading profile:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load profile data. Please try again.",
+        });
       }
     };
 
     loadProfile();
-  }, []);
+  }, [navigate]);
 
   const handleLogout = async () => {
     try {
@@ -124,8 +136,9 @@ export function UserNav() {
 
   const handleProfileUpdate = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
+      if (!currentUser) {
+        throw new Error("You must be logged in to update your profile");
+      }
 
       const { error } = await supabase
         .from('profiles')
@@ -134,7 +147,7 @@ export function UserNav() {
           institution_name: profileData.institutionName,
           logo_url: profileData.logoUrl,
         })
-        .eq('id', user.id);
+        .eq('id', currentUser.id);
 
       if (error) throw error;
 
@@ -143,12 +156,12 @@ export function UserNav() {
         description: "Your profile has been updated successfully",
       });
       setIsProfileOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: error.message || "Failed to update profile. Please try again.",
       });
     }
   };
