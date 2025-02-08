@@ -13,13 +13,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { StudentRecord } from "@/pages/Dashboard";
+import { StudentRecord, Course } from "@/pages/Dashboard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AddRecordDialogProps {
   onAddRecord: (record: Omit<StudentRecord, "id" | "created_at">) => void;
+  courses: Course[];
 }
 
-export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
+export function AddRecordDialog({ onAddRecord, courses }: AddRecordDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   
@@ -78,13 +86,18 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="course_name">Course</Label>
-            <Input
-              id="course_name"
-              name="course_name"
-              type="text"
-              placeholder="Enter course name"
-              required
-            />
+            <Select name="course_name" required>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a course" />
+              </SelectTrigger>
+              <SelectContent>
+                {courses.map((course) => (
+                  <SelectItem key={course.id} value={course.name}>
+                    {course.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="valid_through">Valid Through</Label>
