@@ -98,7 +98,7 @@ const SignUp = () => {
                     required
                   />
                 </div>
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading} className="bg-brand-500 hover:bg-brand-600 text-white">
                   {isLoading ? "Creating account..." : "Sign Up"}
                 </Button>
               </div>
@@ -118,12 +118,12 @@ const SignUp = () => {
         <div className="absolute inset-0 bg-brand-900" />
         <div className="relative z-20 flex items-center text-lg font-medium">
           <GraduationCap className="mr-2 h-6 w-6" />
-          EduArchive
+          APGA
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              "Join thousands of educational institutions who trust EduArchive for secure
+              "Join thousands of educational institutions who trust APGA for secure
               and efficient student record management."
             </p>
             <footer className="text-sm">Prof. Michael Chen - Department Head</footer>
