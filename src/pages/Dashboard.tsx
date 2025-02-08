@@ -6,6 +6,7 @@ import { TopNav } from "@/components/TopNav";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { StatsOverview } from "@/components/dashboard/StatsOverview";
 import { RecordsTable } from "@/components/dashboard/RecordsTable";
+import { useNavigate } from "react-router-dom";
 
 export interface StudentRecord {
   id: string;
@@ -25,10 +26,19 @@ const Dashboard = () => {
   const [records, setRecords] = useState<StudentRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    checkUser();
     fetchRecords();
   }, []);
+
+  const checkUser = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/sign-in");
+    }
+  };
 
   const fetchRecords = async () => {
     const { data, error } = await supabase
