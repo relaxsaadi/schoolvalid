@@ -18,7 +18,6 @@ const Pricing = () => {
         .order('price_monthly');
       
       if (error) throw error;
-      // Transform the features from JSON to string array
       return data.map(plan => ({
         ...plan,
         features: plan.features as string[]
@@ -27,21 +26,33 @@ const Pricing = () => {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"
+        />
+      </div>
+    );
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-background/80">
       <Navigation />
       <main className="flex-1">
         <section className="container px-4 py-16 md:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ 
+              duration: 0.6,
+              type: "spring",
+              stiffness: 100 
+            }}
             className="mx-auto max-w-6xl text-center"
           >
-            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl">
+            <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
               Simple, Transparent Pricing
             </h1>
             <p className="mt-4 text-lg text-muted-foreground">
