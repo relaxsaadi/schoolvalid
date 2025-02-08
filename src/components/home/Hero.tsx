@@ -10,7 +10,7 @@ interface HeroProps {
 
 export const Hero = ({ onGetStarted }: HeroProps) => {
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center py-20 overflow-hidden">
+    <div className="relative flex min-h-screen flex-col items-center justify-center py-12 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-400 opacity-90" />
       
       <div className="container relative px-4 md:px-6">
@@ -165,7 +165,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="mx-auto flex flex-col items-center justify-center w-full gap-6 relative"
+            className="mx-auto flex flex-col items-center justify-start w-full gap-4 relative lg:-mt-12"
           >
             <motion.div
               className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/10 rounded-3xl backdrop-blur-sm -z-10"
@@ -175,25 +175,25 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             />
             
             <motion.h3
-              className="text-2xl font-semibold text-white/90 text-center mb-2"
+              className="text-xl font-semibold text-white/90 text-center mb-1"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              Your Verified Achievements, Recognized Everywhere
+              Trusted Credentials Platform
             </motion.h3>
 
             <motion.img
               src="https://storage.googleapis.com/msgsndr/R1MobQG4jgSbc6WgB6Wz/media/67a7cacf23290201043e3897.png"
               alt="Certificate"
-              className="w-[90%] h-auto rounded-lg shadow-xl hover:scale-105 transition-transform duration-300"
+              className="w-[90%] h-auto rounded-lg shadow-xl hover:scale-105 transition-transform duration-300 lg:absolute lg:right-0 lg:top-16 lg:w-[95%] lg:z-10"
               whileHover={{ scale: 1.05 }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             />
 
-            <div className="relative w-full">
+            <div className="relative w-full mt-8 lg:mt-[420px]">
               <div className="absolute -inset-4">
                 <div className="h-full w-full rotate-6 rounded-3xl bg-gradient-to-r from-orange-300/20 to-purple-400/20 opacity-30 blur-xl animate-pulse">
                 </div>
