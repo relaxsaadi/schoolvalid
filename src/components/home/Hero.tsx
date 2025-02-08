@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog } from "lucide-react";
@@ -48,14 +49,14 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             >
               <Button 
                 size="lg" 
-                className="group relative overflow-hidden bg-brand-500 hover:bg-brand-600 transition-all duration-300"
+                className="group relative overflow-hidden bg-brand-500 hover:bg-brand-600 text-white transition-all duration-300"
                 onClick={onGetStarted}
               >
                 <span className="relative z-10 flex items-center">
                   Get Started 
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-400 to-brand-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-r from-brand-500 to-brand-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </Button>
             </motion.div>
 
