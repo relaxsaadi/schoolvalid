@@ -18,7 +18,11 @@ const Pricing = () => {
         .order('price_monthly');
       
       if (error) throw error;
-      return data;
+      // Transform the features from JSON to string array
+      return data.map(plan => ({
+        ...plan,
+        features: plan.features as string[]
+      }));
     }
   });
 
