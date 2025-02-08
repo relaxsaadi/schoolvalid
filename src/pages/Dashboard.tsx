@@ -8,6 +8,7 @@ import {
   Bell,
   Search,
   Download,
+  Filter,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
@@ -22,6 +23,21 @@ import {
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export interface StudentRecord {
   id: string;
@@ -40,6 +56,8 @@ export interface StudentRecord {
 const Dashboard = () => {
   const [records, setRecords] = useState<StudentRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [dateFilter, setDateFilter] = useState<Date>();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -64,11 +82,19 @@ const Dashboard = () => {
     setRecords(data || []);
   };
 
-  const filteredRecords = records.filter((record) =>
-    record.recipient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    record.certificate_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    record.course_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredRecords = records.filter((record) => {
+    const matchesSearch = 
+      record.recipient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      record.certificate_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      record.course_name.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = !statusFilter || record.status === statusFilter;
+
+    const matchesDate = !dateFilter || 
+      format(new Date(record.created_at), 'yyyy-MM-dd') === format(dateFilter, 'yyyy-MM-dd');
+
+    return matchesSearch && matchesStatus && matchesDate;
+  });
 
   const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
     const { data, error } = await supabase
@@ -117,15 +143,50 @@ const Dashboard = () => {
             </Button>
           </div>
           <div className="flex flex-1 items-center justify-end space-x-4">
-            <div className="w-full max-w-lg relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search records..."
-                className="w-full pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+            <div className="w-full flex items-center gap-4 max-w-lg">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search records..."
+                  className="w-full pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Status</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                </SelectContent>
+              </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "justify-start text-left font-normal w-[140px]",
+                      !dateFilter && "text-muted-foreground"
+                    )}
+                  >
+                    <Filter className="mr-2 h-4 w-4" />
+                    {dateFilter ? format(dateFilter, "PPP") : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={dateFilter}
+                    onSelect={setDateFilter}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </div>
@@ -159,9 +220,11 @@ const Dashboard = () => {
               <FileText className="h-8 w-8 text-brand-500" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Records
+                  Active Records
                 </p>
-                <h3 className="text-2xl font-bold">{records.length}</h3>
+                <h3 className="text-2xl font-bold">
+                  {records.filter(r => r.status === 'active').length}
+                </h3>
               </div>
             </div>
           </Card>
@@ -181,9 +244,11 @@ const Dashboard = () => {
               <Bell className="h-8 w-8 text-brand-500" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Pending Tasks
+                  Pending Records
                 </p>
-                <h3 className="text-2xl font-bold">0</h3>
+                <h3 className="text-2xl font-bold">
+                  {records.filter(r => r.status === 'pending').length}
+                </h3>
               </div>
             </div>
           </Card>
@@ -196,13 +261,14 @@ const Dashboard = () => {
                 <TableHead>Student Name</TableHead>
                 <TableHead>Student ID</TableHead>
                 <TableHead>Course</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Date Added</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredRecords.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center">
+                  <TableCell colSpan={5} className="text-center">
                     No records found
                   </TableCell>
                 </TableRow>
@@ -212,6 +278,16 @@ const Dashboard = () => {
                     <TableCell>{record.recipient_name}</TableCell>
                     <TableCell>{record.certificate_number}</TableCell>
                     <TableCell>{record.course_name}</TableCell>
+                    <TableCell>
+                      <span className={cn(
+                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+                        record.status === 'active' && "bg-green-100 text-green-800",
+                        record.status === 'pending' && "bg-yellow-100 text-yellow-800",
+                        record.status === 'expired' && "bg-red-100 text-red-800"
+                      )}>
+                        {record.status}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       {new Date(record.created_at).toLocaleDateString()}
                     </TableCell>

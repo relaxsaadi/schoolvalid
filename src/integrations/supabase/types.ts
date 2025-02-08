@@ -15,6 +15,7 @@ export type Database = {
           blockchain_timestamp: string
           certificate_number: string
           course_description: string | null
+          course_id: string | null
           course_name: string
           created_at: string | null
           diploma_image_url: string | null
@@ -34,6 +35,7 @@ export type Database = {
           blockchain_timestamp?: string
           certificate_number: string
           course_description?: string | null
+          course_id?: string | null
           course_name: string
           created_at?: string | null
           diploma_image_url?: string | null
@@ -53,6 +55,7 @@ export type Database = {
           blockchain_timestamp?: string
           certificate_number?: string
           course_description?: string | null
+          course_id?: string | null
           course_name?: string
           created_at?: string | null
           diploma_image_url?: string | null
@@ -66,6 +69,38 @@ export type Database = {
           status?: string
           valid_through?: string
           year_of_birth?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
