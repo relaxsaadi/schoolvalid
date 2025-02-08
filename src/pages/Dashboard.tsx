@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -289,21 +288,6 @@ const Dashboard = () => {
                             <Button 
                               variant="ghost" 
                               size="icon"
-                              className="mr-2 hover:scale-110 transition-transform"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Modify Record</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
                               className="hover:text-red-500 hover:scale-110 transition-all"
                               onClick={() => setRecordToDelete(record.id)}
                             >
@@ -348,4 +332,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
