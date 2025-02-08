@@ -38,7 +38,48 @@ const Pricing = () => {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-background/80">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-background/80 relative overflow-hidden">
+      <div className="absolute inset-0 -z-10">
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-r from-blue-100/20 to-cyan-100/20"
+          animate={{ 
+            background: [
+              "linear-gradient(to right, rgba(219,234,254,0.2), rgba(207,250,254,0.2))",
+              "linear-gradient(to right, rgba(207,250,254,0.2), rgba(219,234,254,0.2))",
+              "linear-gradient(to right, rgba(219,234,254,0.2), rgba(207,250,254,0.2))"
+            ]
+          }}
+          transition={{ 
+            duration: 10, 
+            repeat: Infinity,
+            ease: "linear" 
+          }}
+        />
+        <motion.div
+          className="absolute w-64 h-64 rounded-full bg-primary/5 -top-32 -left-32"
+          animate={{ 
+            y: [0, 20, 0],
+            x: [0, 10, 0]
+          }}
+          transition={{ 
+            duration: 5,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute w-96 h-96 rounded-full bg-primary/5 -bottom-48 -right-48"
+          animate={{ 
+            y: [0, -30, 0],
+            x: [0, -20, 0]
+          }}
+          transition={{ 
+            duration: 7,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+      </div>
       <Navigation />
       <main className="flex-1">
         <section className="container px-4 py-16 md:px-6">

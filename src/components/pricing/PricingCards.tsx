@@ -23,6 +23,7 @@ interface PricingCardsProps {
 
 export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
   const [isYearly, setIsYearly] = useState(false);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
 
   const containerVariants = {
@@ -50,6 +51,18 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
     }
   };
 
+  const featureVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100
+      }
+    }
+  };
+
   const popularBadgeVariants = {
     initial: { scale: 0.8, opacity: 0 },
     animate: { 
@@ -59,6 +72,14 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
         type: "spring",
         stiffness: 300,
         damping: 20
+      }
+    },
+    hover: {
+      y: [0, -5, 0],
+      transition: {
+        duration: 1,
+        repeat: Infinity,
+        ease: "easeInOut"
       }
     }
   };
@@ -102,6 +123,8 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
           <motion.div
             key={plan.id}
             variants={cardVariants}
+            onHoverStart={() => setHoveredCard(plan.id)}
+            onHoverEnd={() => setHoveredCard(null)}
             whileHover={{ 
               scale: 1.02,
               transition: { 
@@ -113,8 +136,9 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
             className="relative"
           >
             <Card 
-              className={`relative p-6 h-full transition-shadow duration-300
+              className={`relative p-6 h-full transition-all duration-300
                 ${plan.is_popular ? 'border-brand-500 shadow-lg hover:shadow-brand-500/20' : 'hover:shadow-lg'}
+                ${hoveredCard && hoveredCard !== plan.id ? 'opacity-50' : ''}
               `}
             >
               {plan.is_popular && (
@@ -123,7 +147,7 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
                   variants={popularBadgeVariants}
                   initial="initial"
                   animate="animate"
-                  whileHover={{ scale: 1.1 }}
+                  whileHover="hover"
                 >
                   Most Popular
                 </motion.div>
@@ -162,11 +186,23 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
                   )}
                 </motion.div>
               </AnimatePresence>
-              <ul className="space-y-3 mb-6">
+              <motion.ul 
+                className="space-y-3 mb-6"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  visible: {
+                    transition: {
+                      staggerChildren: 0.1
+                    }
+                  }
+                }}
+              >
                 {plan.features.map((feature, index) => (
                   <motion.li 
                     key={index} 
                     className="flex items-center gap-2"
+                    variants={featureVariants}
                     onHoverStart={() => setHoveredFeature(feature)}
                     onHoverEnd={() => setHoveredFeature(null)}
                     whileHover={{ x: 5 }}
@@ -186,7 +222,7 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
                     </span>
                   </motion.li>
                 ))}
-              </ul>
+              </motion.ul>
               <MotionButton
                 className={`w-full transition-all duration-300 ${plan.is_popular ? 'bg-brand-500 hover:bg-brand-600' : 'border-brand-500 text-brand-500 hover:bg-brand-500 hover:text-white'}`}
                 variant={plan.is_popular ? "default" : "outline"}
