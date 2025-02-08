@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog, ShieldCheck, Key } from "lucide-react";
@@ -188,7 +189,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             </motion.h3>
 
             <motion.img
-              src="https://storage.googleapis.com/msgsndr/R1MobQG4jgSbc6WgB6Wz/media/67a5f106b332665cc1c3dc11.png"
+              src="https://storage.googleapis.com/msgsndr/R1MobQG4jgSbc6WgB6Wz/media/67a7cacf23290201043e3897.png"
               alt="Certificate"
               className="w-[90%] h-auto rounded-lg shadow-xl hover:scale-105 transition-transform duration-300"
               whileHover={{ scale: 1.05 }}
