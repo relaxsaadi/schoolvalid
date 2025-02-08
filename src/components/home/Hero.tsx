@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog } from "lucide-react";
@@ -10,8 +9,8 @@ interface HeroProps {
 
 export const Hero = ({ onGetStarted }: HeroProps) => {
   return (
-    <div className="relative flex min-h-[80vh] flex-col items-center justify-center py-20 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-brand-50/50 to-transparent" />
+    <div className="relative flex min-h-screen flex-col items-center justify-center py-20 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-orange-500 opacity-90" />
       
       <div className="container relative px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
@@ -23,16 +22,17 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
               className="space-y-2"
             >
               <motion.h1 
-                className="relative text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-200"
+                className="relative text-5xl font-bold tracking-tighter sm:text-6xl xl:text-7xl/none text-white drop-shadow-lg"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
               >
-                Secure Student Records Management
-                <div className="absolute -inset-x-2 -inset-y-4 z-[-1] bg-gradient-to-r from-brand-100/20 to-brand-50/20 blur-2xl" />
+                Creating a world where...
+                <br />
+                <span className="mt-2 block">understanding is universal</span>
               </motion.h1>
               <motion.p 
-                className="max-w-[600px] text-gray-600 text-lg md:text-xl dark:text-gray-300"
+                className="max-w-[600px] text-white/90 text-lg md:text-xl mt-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
@@ -49,14 +49,13 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             >
               <Button 
                 size="lg" 
-                className="group relative overflow-hidden bg-brand-500 hover:bg-brand-600 text-white transition-all duration-300"
+                className="group relative overflow-hidden bg-white text-brand-500 hover:bg-white/90 transition-all duration-300"
                 onClick={onGetStarted}
               >
                 <span className="relative z-10 flex items-center">
                   Get Started 
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-500 to-brand-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </Button>
             </motion.div>
 
