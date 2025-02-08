@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog } from "lucide-react";
@@ -23,20 +22,33 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
               className="space-y-2"
             >
               <motion.h1 
-                className="relative text-5xl font-bold tracking-tighter sm:text-6xl xl:text-7xl/none text-white drop-shadow-lg"
+                className="relative text-5xl font-bold tracking-tighter sm:text-6xl xl:text-7xl/none text-white drop-shadow-lg hover:scale-105 transition-transform duration-300 cursor-default"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
+                whileHover={{ 
+                  textShadow: "0 0 8px rgba(255,255,255,0.5)",
+                }}
               >
-                Creating a world where...
+                <span className="inline-block hover:text-orange-300 transition-colors duration-300">Creating</span>{" "}
+                <span className="inline-block hover:text-orange-300 transition-colors duration-300">a</span>{" "}
+                <span className="inline-block hover:text-orange-300 transition-colors duration-300">world</span>{" "}
+                <span className="inline-block hover:text-orange-300 transition-colors duration-300">where...</span>
                 <br />
-                <span className="mt-2 block">understanding is universal</span>
+                <span className="mt-2 block">
+                  <span className="inline-block hover:text-orange-300 transition-colors duration-300">understanding</span>{" "}
+                  <span className="inline-block hover:text-orange-300 transition-colors duration-300">is</span>{" "}
+                  <span className="inline-block hover:text-orange-300 transition-colors duration-300">universal</span>
+                </span>
               </motion.h1>
               <motion.p 
-                className="max-w-[600px] text-white font-medium text-lg md:text-xl mt-6 text-shadow"
+                className="max-w-[600px] text-white font-medium text-lg md:text-xl mt-6 text-shadow hover:scale-102 transition-transform duration-300 cursor-default"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
+                whileHover={{
+                  textShadow: "0 0 8px rgba(255,255,255,0.5)",
+                }}
               >
                 Streamline your institution's record-keeping with our advanced platform. Secure,
                 efficient, and compliant with global standards.
@@ -50,7 +62,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             >
               <Button 
                 size="lg" 
-                className="group relative overflow-hidden bg-white text-brand-500 hover:bg-white/90 transition-all duration-300 shadow-lg"
+                className="group relative overflow-hidden bg-white text-brand-500 hover:bg-white/90 transition-all duration-300 shadow-lg hover:scale-105"
                 onClick={onGetStarted}
               >
                 <span className="relative z-10 flex items-center font-semibold">
@@ -91,7 +103,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                   }}
                 >
                   <Card 
-                    className="group h-full transition-all duration-300 hover:shadow-xl backdrop-blur-sm bg-white/10 border-white/20 hover:bg-white/20"
+                    className="group h-full transition-all duration-300 hover:shadow-xl backdrop-blur-sm bg-white/10 border-white/20 hover:bg-white/20 hover:scale-105 hover:rotate-1"
                   >
                     <div className="flex flex-col p-6">
                       <div className="flex items-center space-x-4">
@@ -102,9 +114,9 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                         >
                           <feature.icon className="h-6 w-6" />
                         </motion.div>
-                        <h3 className="font-semibold text-white">{feature.title}</h3>
+                        <h3 className="font-semibold text-white group-hover:text-orange-300 transition-colors duration-300">{feature.title}</h3>
                       </div>
-                      <p className="mt-2 text-sm text-white/90 font-medium">{feature.description}</p>
+                      <p className="mt-2 text-sm text-white/90 font-medium group-hover:text-white transition-colors duration-300">{feature.description}</p>
                     </div>
                   </Card>
                 </motion.div>
@@ -122,11 +134,11 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                 <div className="h-full w-full rotate-6 rounded-3xl bg-gradient-to-r from-orange-300/20 to-purple-400/20 opacity-30 blur-xl animate-pulse">
                 </div>
               </div>
-              <Card className="relative group flex flex-col space-y-6 overflow-hidden rounded-3xl p-8 backdrop-blur-sm bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-500 hover:shadow-xl hover:scale-[1.02]">
+              <Card className="relative group flex flex-col space-y-6 overflow-hidden rounded-3xl p-8 backdrop-blur-sm bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-500 hover:shadow-xl hover:scale-[1.02] hover:rotate-2">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <h3 className="font-semibold text-white">Student Records</h3>
-                    <p className="text-sm text-white/90">Total Active Records</p>
+                    <h3 className="font-semibold text-white group-hover:text-orange-300 transition-colors duration-300">Student Records</h3>
+                    <p className="text-sm text-white/90 group-hover:text-white transition-colors duration-300">Total Active Records</p>
                   </div>
                   <motion.div
                     whileHover={{ rotate: 360, scale: 1.1 }}
@@ -136,7 +148,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                     <Users className="h-6 w-6" />
                   </motion.div>
                 </div>
-                <div className="text-4xl font-bold text-white">2,547</div>
+                <div className="text-4xl font-bold text-white group-hover:text-orange-300 transition-colors duration-300">2,547</div>
                 <div className="space-y-2">
                   <div className="h-2 w-full rounded-full bg-white/20 overflow-hidden">
                     <motion.div 
@@ -146,7 +158,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                       transition={{ duration: 1, delay: 0.5 }}
                     />
                   </div>
-                  <div className="text-sm text-white/90 font-medium">80% storage used</div>
+                  <div className="text-sm text-white/90 group-hover:text-white transition-colors duration-300 font-medium">80% storage used</div>
                 </div>
               </Card>
             </div>
