@@ -29,6 +29,12 @@ export interface StudentRecord {
   certificate_number: string;
   course_name: string;
   created_at: string;
+  valid_through?: string;
+  status?: string;
+  email?: string;
+  year_of_birth?: number;
+  course_description?: string;
+  diploma_image_url?: string | null;
 }
 
 const Dashboard = () => {
@@ -43,7 +49,7 @@ const Dashboard = () => {
   const fetchRecords = async () => {
     const { data, error } = await supabase
       .from('certificates')
-      .select('id, recipient_name, certificate_number, course_name, created_at')
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -71,14 +77,16 @@ const Dashboard = () => {
         recipient_name: newRecord.recipient_name,
         certificate_number: newRecord.certificate_number,
         course_name: newRecord.course_name,
-        status: 'active',
+        status: newRecord.status,
         blockchain_hash: 'pending',
         blockchain_timestamp: new Date().toISOString(),
         issue_date: new Date().toISOString(),
-        valid_through: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString(),
-        year_of_birth: 2000, // Default value
-        email: 'pending@example.com', // Default value
-        provider: 'Default Provider', // Default value
+        valid_through: newRecord.valid_through,
+        year_of_birth: newRecord.year_of_birth,
+        email: newRecord.email,
+        course_description: newRecord.course_description,
+        diploma_image_url: newRecord.diploma_image_url,
+        provider: 'Default Provider',
       }])
       .select()
       .single();
