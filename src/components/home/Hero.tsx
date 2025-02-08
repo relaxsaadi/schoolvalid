@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog, ShieldCheck, Key } from "lucide-react";
+import { ArrowRight, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge as UIBadge } from "@/components/ui/badge";
 
@@ -34,7 +34,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                 <span className="inline-block hover:text-orange-300 transition-colors duration-300">Creating</span>{" "}
                 <span className="inline-block hover:text-orange-300 transition-colors duration-300">a</span>{" "}
                 <span className="inline-block hover:text-orange-300 transition-colors duration-300">world</span>{" "}
-                <span className="inline-block hover:text-orange-300 transition-colors duration-300">where...</span>
+                <span className="inline-block hover:text-orange-300 transition-colors duration-300">where</span>{" "}
                 <br />
                 <span className="mt-2 block">
                   <span className="inline-block hover:text-orange-300 transition-colors duration-300">understanding</span>{" "}
@@ -43,7 +43,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                 </span>
               </motion.h1>
               <motion.p 
-                className="max-w-[600px] text-white font-medium text-lg md:text-xl mt-6 text-shadow hover:scale-102 transition-transform duration-300 cursor-default"
+                className="max-w-[600px] text-white font-medium text-lg md:text-xl mt-6 leading-relaxed text-shadow hover:scale-102 transition-transform duration-300 cursor-default"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
@@ -51,8 +51,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                   textShadow: "0 0 8px rgba(255,255,255,0.5)",
                 }}
               >
-                Streamline your institution's record-keeping with our advanced platform. Secure,
-                efficient, and compliant with global standards.
+                Revolutionize your institution's record-keeping process with real-time updates, ease of use, and top-grade data security. Trusted, secure, and compliant with global standards.
               </motion.p>
 
               <motion.div
@@ -176,12 +175,12 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             />
             
             <motion.h3
-              className="text-xl font-semibold text-white/90 text-center mb-2"
+              className="text-2xl font-semibold text-white/90 text-center mb-2"
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              Trusted Credentials Platform
+              Your Verified Achievements, Recognized Everywhere
             </motion.h3>
 
             <motion.img
