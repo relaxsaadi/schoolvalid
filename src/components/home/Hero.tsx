@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog, ShieldCheck, Key } from "lucide-react";
@@ -197,16 +196,6 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             />
-            
-            <motion.img
-              src="https://storage.googleapis.com/msgsndr/R1MobQG4jgSbc6WgB6Wz/media/67a7c797232902e2a43e358c.png"
-              alt="Course Completion Badge"
-              className="w-32 h-32 object-contain hover:scale-110 transition-transform duration-300"
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.7 }}
-            />
 
             <div className="relative w-full">
               <div className="absolute -inset-4">
@@ -303,4 +292,3 @@ const features = [
     icon: Lock,
   }
 ];
-
