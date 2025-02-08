@@ -146,8 +146,28 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="mx-auto flex items-center justify-center w-full"
+            className="mx-auto flex flex-col items-center justify-center w-full gap-6"
           >
+            <motion.img
+              src="https://storage.googleapis.com/msgsndr/R1MobQG4jgSbc6WgB6Wz/media/67a5f106b332665cc1c3dc11.png"
+              alt="Certificate"
+              className="w-full h-auto rounded-lg shadow-xl hover:scale-105 transition-transform duration-300"
+              whileHover={{ scale: 1.05 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            />
+            
+            <motion.img
+              src="https://storage.googleapis.com/msgsndr/R1MobQG4jgSbc6WgB6Wz/media/67a7c797232902e2a43e358c.png"
+              alt="Course Completion Badge"
+              className="w-32 h-32 object-contain hover:scale-110 transition-transform duration-300"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.7 }}
+            />
+
             <div className="relative w-full">
               <div className="absolute -inset-4">
                 <div className="h-full w-full rotate-6 rounded-3xl bg-gradient-to-r from-orange-300/20 to-purple-400/20 opacity-30 blur-xl animate-pulse">
