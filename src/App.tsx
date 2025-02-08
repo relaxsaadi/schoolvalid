@@ -12,7 +12,6 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
-import Security from "./pages/Security";
 import ChangePassword from "./pages/ChangePassword";
 import TwoFactorAuth from "./pages/TwoFactorAuth";
 import Certificates from "./pages/Certificates";

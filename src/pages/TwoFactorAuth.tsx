@@ -5,7 +5,7 @@ import { TopNav } from "@/components/TopNav";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { InputOTP } from "@/components/ui/input-otp";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const TwoFactorAuth = () => {
   const [enabled, setEnabled] = useState(false);
@@ -62,11 +62,16 @@ const TwoFactorAuth = () => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <p className="text-sm font-medium">Enter verification code</p>
-                    <InputOTP
-                      maxLength={6}
-                      value={code}
-                      onChange={(value) => setCode(value)}
-                    />
+                    <InputOTP maxLength={6} value={code} onChange={(value) => setCode(value)}>
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
                   </div>
                   <div className="flex space-x-2">
                     <Button onClick={handleVerify}>Verify</Button>
