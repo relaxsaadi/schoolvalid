@@ -8,6 +8,8 @@ import {
   Bell,
   Download,
   Filter,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
@@ -29,6 +31,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   Popover,
   PopoverContent,
@@ -58,6 +76,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateFilter, setDateFilter] = useState<Date>();
+  const [recordToDelete, setRecordToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -80,6 +99,29 @@ const Dashboard = () => {
     }
 
     setRecords(data || []);
+  };
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase
+      .from('certificates')
+      .delete()
+      .match({ id });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete record",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setRecords(records.filter(record => record.id !== id));
+    setRecordToDelete(null);
+    toast({
+      title: "Success",
+      description: "Record deleted successfully",
+    });
   };
 
   const filteredRecords = records.filter((record) => {
@@ -149,7 +191,7 @@ const Dashboard = () => {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="p-6">
+          <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
             <div className="flex items-center space-x-4">
               <Users className="h-8 w-8 text-brand-500" />
               <div>
@@ -160,7 +202,7 @@ const Dashboard = () => {
               </div>
             </div>
           </Card>
-          <Card className="p-6">
+          <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
             <div className="flex items-center space-x-4">
               <FileText className="h-8 w-8 text-brand-500" />
               <div>
@@ -173,7 +215,7 @@ const Dashboard = () => {
               </div>
             </div>
           </Card>
-          <Card className="p-6">
+          <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
             <div className="flex items-center space-x-4">
               <Award className="h-8 w-8 text-brand-500" />
               <div>
@@ -184,7 +226,7 @@ const Dashboard = () => {
               </div>
             </div>
           </Card>
-          <Card className="p-6">
+          <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
             <div className="flex items-center space-x-4">
               <Bell className="h-8 w-8 text-brand-500" />
               <div>
@@ -208,24 +250,28 @@ const Dashboard = () => {
                 <TableHead>Course</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date Added</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredRecords.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">
+                  <TableCell colSpan={6} className="text-center">
                     No records found
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredRecords.map((record) => (
-                  <TableRow key={record.id}>
+                  <TableRow 
+                    key={record.id}
+                    className="transition-colors hover:bg-muted/50 animate-fade-in"
+                  >
                     <TableCell>{record.recipient_name}</TableCell>
                     <TableCell>{record.certificate_number}</TableCell>
                     <TableCell>{record.course_name}</TableCell>
                     <TableCell>
                       <span className={cn(
-                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
                         record.status === 'active' && "bg-green-100 text-green-800",
                         record.status === 'pending' && "bg-yellow-100 text-yellow-800",
                         record.status === 'expired' && "bg-red-100 text-red-800"
@@ -236,6 +282,40 @@ const Dashboard = () => {
                     <TableCell>
                       {new Date(record.created_at).toLocaleDateString()}
                     </TableCell>
+                    <TableCell className="text-right">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              className="mr-2 hover:scale-110 transition-transform"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Modify Record</p>
+                          </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              className="hover:text-red-500 hover:scale-110 transition-all"
+                              onClick={() => setRecordToDelete(record.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Delete Record</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -243,8 +323,29 @@ const Dashboard = () => {
           </Table>
         </div>
       </main>
+
+      <AlertDialog open={!!recordToDelete} onOpenChange={() => setRecordToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the record.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => recordToDelete && handleDelete(recordToDelete)}
+              className="bg-red-500 hover:bg-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
 export default Dashboard;
+
