@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,8 +11,43 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
+import { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+export interface StudentRecord {
+  id: string;
+  studentName: string;
+  studentId: string;
+  course: string;
+  createdAt: Date;
+}
 
 const Dashboard = () => {
+  const [records, setRecords] = useState<StudentRecord[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredRecords = records.filter((record) =>
+    record.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    record.studentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    record.course.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleAddRecord = (newRecord: Omit<StudentRecord, "id" | "createdAt">) => {
+    const record: StudentRecord = {
+      ...newRecord,
+      id: Math.random().toString(36).substring(7),
+      createdAt: new Date(),
+    };
+    setRecords((prev) => [record, ...prev]);
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -30,6 +64,8 @@ const Dashboard = () => {
                 type="search"
                 placeholder="Search records..."
                 className="w-full pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
@@ -40,7 +76,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <div className="flex items-center space-x-2">
-            <AddRecordDialog />
+            <AddRecordDialog onAddRecord={handleAddRecord} />
             <Button variant="outline">
               <Download className="mr-2 h-4 w-4" /> Export
             </Button>
@@ -94,37 +130,37 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-          <Card className="col-span-4 p-6">
-            <h3 className="text-lg font-medium">Recent Activity</h3>
-            <div className="mt-4 space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex items-center space-x-4">
-                  <div className="h-8 w-8 rounded-full bg-brand-100 flex items-center justify-center">
-                    <FileText className="h-4 w-4 text-brand-500" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">New student record added</p>
-                    <p className="text-sm text-muted-foreground">2 hours ago</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-          <Card className="col-span-3 p-6">
-            <h3 className="text-lg font-medium">Quick Actions</h3>
-            <div className="mt-4 space-y-2">
-              <Button className="w-full justify-start" variant="outline">
-                <Plus className="mr-2 h-4 w-4" /> Add New Student
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <FileText className="mr-2 h-4 w-4" /> Generate Report
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <Award className="mr-2 h-4 w-4" /> Issue Certificate
-              </Button>
-            </div>
-          </Card>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Student Name</TableHead>
+                <TableHead>Student ID</TableHead>
+                <TableHead>Course</TableHead>
+                <TableHead>Date Added</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredRecords.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center">
+                    No records found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredRecords.map((record) => (
+                  <TableRow key={record.id}>
+                    <TableCell>{record.studentName}</TableCell>
+                    <TableCell>{record.studentId}</TableCell>
+                    <TableCell>{record.course}</TableCell>
+                    <TableCell>
+                      {record.createdAt.toLocaleDateString()}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </main>
     </div>
