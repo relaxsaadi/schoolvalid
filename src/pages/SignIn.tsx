@@ -21,20 +21,38 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
+      console.log("Attempting to sign in with:", { email });
+      
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: email.trim(),
+        password: password.trim(),
       });
 
       if (error) {
+        console.error("Sign in error:", error);
         throw error;
       }
 
-      if (data.user) {
+      if (data?.user) {
+        console.log("Sign in successful:", data.user);
+        
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) {
+          console.error("Profile fetch error:", profileError);
+        } else {
+          console.log("Profile loaded:", profile);
+        }
+
         toast({
           title: "Success",
           description: "Signed in successfully",
         });
+        
         navigate("/dashboard");
       }
     } catch (error: any) {
@@ -100,6 +118,7 @@ const SignIn = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    autoComplete="current-password"
                     disabled={isLoading}
                     required
                   />
