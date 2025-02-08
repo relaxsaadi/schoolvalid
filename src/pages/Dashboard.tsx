@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,10 +6,10 @@ import {
   Award,
   Bell,
   Search,
-  Plus,
   Download,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { AddRecordDialog } from "@/components/AddRecordDialog";
 
 const Dashboard = () => {
   return (
@@ -39,9 +38,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <div className="flex items-center space-x-2">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" /> Add Record
-            </Button>
+            <AddRecordDialog />
             <Button variant="outline">
               <Download className="mr-2 h-4 w-4" /> Export
             </Button>
