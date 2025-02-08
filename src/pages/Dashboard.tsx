@@ -75,7 +75,6 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateFilter, setDateFilter] = useState<Date>();
-  const [recordToDelete, setRecordToDelete] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -98,29 +97,6 @@ const Dashboard = () => {
     }
 
     setRecords(data || []);
-  };
-
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase
-      .from('certificates')
-      .delete()
-      .match({ id });
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete record",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setRecords(records.filter(record => record.id !== id));
-    setRecordToDelete(null);
-    toast({
-      title: "Success",
-      description: "Record deleted successfully",
-    });
   };
 
   const filteredRecords = records.filter((record) => {
@@ -288,14 +264,13 @@ const Dashboard = () => {
                             <Button 
                               variant="ghost" 
                               size="icon"
-                              className="hover:text-red-500 hover:scale-110 transition-all"
-                              onClick={() => setRecordToDelete(record.id)}
+                              className="hover:text-blue-500 hover:scale-110 transition-all"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Pencil className="h-4 w-4" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Delete Record</p>
+                            <p>Edit Record</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
@@ -307,26 +282,6 @@ const Dashboard = () => {
           </Table>
         </div>
       </main>
-
-      <AlertDialog open={!!recordToDelete} onOpenChange={() => setRecordToDelete(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the record.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => recordToDelete && handleDelete(recordToDelete)}
-              className="bg-red-500 hover:bg-red-600"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };
