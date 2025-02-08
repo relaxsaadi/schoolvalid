@@ -30,6 +30,7 @@ interface AddRecordDialogProps {
 export function AddRecordDialog({ onAddRecord, courses }: AddRecordDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,7 +39,8 @@ export function AddRecordDialog({ onAddRecord, courses }: AddRecordDialogProps) 
     const newRecord = {
       recipient_name: formData.get("recipient_name") as string,
       certificate_number: formData.get("certificate_number") as string,
-      course_name: formData.get("course_name") as string,
+      course_name: selectedCourse?.name || "",
+      course_id: selectedCourse?.id || "",
       valid_through: formData.get("valid_through") as string,
       status: formData.get("status") as string,
       email: formData.get("email") as string,
@@ -50,6 +52,12 @@ export function AddRecordDialog({ onAddRecord, courses }: AddRecordDialogProps) 
     onAddRecord(newRecord);
     setOpen(false);
     (e.target as HTMLFormElement).reset();
+    setSelectedCourse(null);
+  };
+
+  const handleCourseSelect = (courseId: string) => {
+    const course = courses.find(c => c.id === courseId);
+    setSelectedCourse(course || null);
   };
 
   return (
@@ -86,13 +94,17 @@ export function AddRecordDialog({ onAddRecord, courses }: AddRecordDialogProps) 
           </div>
           <div className="grid gap-2">
             <Label htmlFor="course_name">Course</Label>
-            <Select name="course_name" required>
+            <Select
+              value={selectedCourse?.id || ""}
+              onValueChange={handleCourseSelect}
+              required
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a course" />
               </SelectTrigger>
               <SelectContent>
                 {courses.map((course) => (
-                  <SelectItem key={course.id} value={course.name}>
+                  <SelectItem key={course.id} value={course.id}>
                     {course.name}
                   </SelectItem>
                 ))}
