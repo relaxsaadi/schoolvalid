@@ -193,7 +193,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
               transition={{ delay: 0.5 }}
             />
 
-            <div className="relative w-full mt-8 lg:mt-[420px]">
+            <div className="relative w-full mt-16 lg:mt-[460px]">
               <div className="absolute -inset-4">
                 <div className="h-full w-full rotate-6 rounded-3xl bg-gradient-to-r from-[#66C7F4]/20 to-[#00C1D4]/20 opacity-30 blur-xl animate-pulse">
                 </div>
