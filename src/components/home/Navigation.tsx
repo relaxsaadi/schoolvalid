@@ -30,7 +30,7 @@ export const Navigation = () => {
               </Button>
             </Link>
             <Link to="/sign-in">
-              <Button className="nav-link-rotate">
+              <Button className="nav-link-rotate bg-brand-500 hover:bg-brand-600 text-white">
                 Sign In
               </Button>
             </Link>
@@ -40,3 +40,4 @@ export const Navigation = () => {
     </header>
   );
 };
+
