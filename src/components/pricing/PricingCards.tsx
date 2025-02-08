@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check } from "lucide-react";
@@ -97,13 +98,17 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
         initial="hidden"
         animate="visible"
       >
-        {plans.map((plan, i) => (
+        {plans.map((plan) => (
           <motion.div
             key={plan.id}
             variants={cardVariants}
             whileHover={{ 
-              scale: 1.05,
-              transition: { type: "spring", stiffness: 300 }
+              scale: 1.02,
+              transition: { 
+                type: "spring", 
+                stiffness: 300,
+                duration: 0.3
+              }
             }}
             className="relative"
           >
@@ -140,6 +145,10 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: "easeInOut"
+                  }}
                   className="mb-4"
                 >
                   <span className="text-3xl font-bold">
@@ -182,7 +191,13 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
                 className="w-full transition-all duration-300"
                 variant={plan.is_popular ? "default" : "outline"}
                 onClick={() => onSelectPlan(plan.id)}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ 
+                  scale: 1.05,
+                  transition: { 
+                    duration: 0.2,
+                    ease: "easeInOut"
+                  }
+                }}
                 whileTap={{ scale: 0.95 }}
               >
                 Get Started
