@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Award, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog } from "lucide-react";
+import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog } from "lucide-react";
 
 export const Hero = () => {
   return (
@@ -86,11 +86,6 @@ const features = [
     title: "Easy Management",
     description: "Intuitive interface for managing student records",
     icon: Users,
-  },
-  {
-    title: "Certified",
-    description: "Compliant with global education standards",
-    icon: Award,
   },
   {
     title: "Real-Time Updates",
