@@ -104,45 +104,6 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          department: string | null
-          full_name: string | null
-          id: string
-          last_login: string | null
-          role: Database["public"]["Enums"]["user_role"] | null
-          status: string | null
-          theme: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          department?: string | null
-          full_name?: string | null
-          id: string
-          last_login?: string | null
-          role?: Database["public"]["Enums"]["user_role"] | null
-          status?: string | null
-          theme?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          department?: string | null
-          full_name?: string | null
-          id?: string
-          last_login?: string | null
-          role?: Database["public"]["Enums"]["user_role"] | null
-          status?: string | null
-          theme?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -156,7 +117,7 @@ export type Database = {
       }
     }
     Enums: {
-      user_role: "admin" | "instructor" | "student" | "standard"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never

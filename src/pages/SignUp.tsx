@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { GraduationCap } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -32,27 +31,17 @@ const SignUp = () => {
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+      // Here we'll add Supabase authentication later
+      toast({
+        title: "Success",
+        description: "Account created successfully",
       });
-
-      if (error) {
-        throw error;
-      }
-
-      if (data.user) {
-        toast({
-          title: "Success",
-          description: "Account created successfully. You can now sign in.",
-        });
-        navigate("/sign-in");
-      }
-    } catch (error: any) {
+      navigate("/sign-in");
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Something went wrong. Please try again.",
+        description: "Something went wrong. Please try again.",
       });
     } finally {
       setIsLoading(false);
