@@ -114,12 +114,12 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
           >
             <Card 
               className={`relative p-6 h-full transition-shadow duration-300
-                ${plan.is_popular ? 'border-primary shadow-lg hover:shadow-primary/20' : 'hover:shadow-lg'}
+                ${plan.is_popular ? 'border-brand-500 shadow-lg hover:shadow-brand-500/20' : 'hover:shadow-lg'}
               `}
             >
               {plan.is_popular && (
                 <motion.div 
-                  className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-primary-foreground text-sm rounded-full"
+                  className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-brand-500 text-white text-sm rounded-full"
                   variants={popularBadgeVariants}
                   initial="initial"
                   animate="animate"
@@ -179,16 +179,16 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
                       }}
                       transition={{ type: "spring", stiffness: 300 }}
                     >
-                      <Check className="h-4 w-4 text-primary" />
+                      <Check className="h-4 w-4 text-brand-500" />
                     </motion.div>
-                    <span className="text-sm transition-colors duration-200 hover:text-primary">
+                    <span className="text-sm transition-colors duration-200 hover:text-brand-500">
                       {feature}
                     </span>
                   </motion.li>
                 ))}
               </ul>
               <MotionButton
-                className="w-full transition-all duration-300"
+                className={`w-full transition-all duration-300 ${plan.is_popular ? 'bg-brand-500 hover:bg-brand-600' : 'border-brand-500 text-brand-500 hover:bg-brand-500 hover:text-white'}`}
                 variant={plan.is_popular ? "default" : "outline"}
                 onClick={() => onSelectPlan(plan.id)}
                 whileHover={{ 
