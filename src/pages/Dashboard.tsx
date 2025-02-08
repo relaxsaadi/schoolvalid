@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -111,6 +110,8 @@ const Dashboard = () => {
         status: editingRecord.status,
         year_of_birth: editingRecord.year_of_birth,
         course_description: editingRecord.course_description,
+        valid_through: editingRecord.valid_through,
+        diploma_image_url: editingRecord.diploma_image_url,
       })
       .eq('id', editingRecord.id);
 
@@ -319,7 +320,7 @@ const Dashboard = () => {
       </main>
 
       <Dialog open={!!editingRecord} onOpenChange={(open) => !open && setEditingRecord(null)}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Record</DialogTitle>
           </DialogHeader>
@@ -336,6 +337,17 @@ const Dashboard = () => {
               />
             </div>
             <div className="grid gap-2">
+              <Label htmlFor="certificate_number">Certificate Number</Label>
+              <Input
+                id="certificate_number"
+                value={editingRecord?.certificate_number || ''}
+                onChange={(e) => setEditingRecord(curr => curr ? {
+                  ...curr,
+                  certificate_number: e.target.value
+                } : null)}
+              />
+            </div>
+            <div className="grid gap-2">
               <Label htmlFor="course">Course Name</Label>
               <Input
                 id="course"
@@ -343,6 +355,17 @@ const Dashboard = () => {
                 onChange={(e) => setEditingRecord(curr => curr ? {
                   ...curr,
                   course_name: e.target.value
+                } : null)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="course_description">Course Description</Label>
+              <Textarea
+                id="course_description"
+                value={editingRecord?.course_description || ''}
+                onChange={(e) => setEditingRecord(curr => curr ? {
+                  ...curr,
+                  course_description: e.target.value
                 } : null)}
               />
             </div>
@@ -374,6 +397,44 @@ const Dashboard = () => {
                 onChange={(e) => setEditingRecord(curr => curr ? {
                   ...curr,
                   email: e.target.value
+                } : null)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="year_of_birth">Year of Birth</Label>
+              <Input
+                id="year_of_birth"
+                type="number"
+                min="1900"
+                max={new Date().getFullYear()}
+                value={editingRecord?.year_of_birth || ''}
+                onChange={(e) => setEditingRecord(curr => curr ? {
+                  ...curr,
+                  year_of_birth: parseInt(e.target.value)
+                } : null)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="valid_through">Valid Through</Label>
+              <Input
+                id="valid_through"
+                type="date"
+                value={editingRecord?.valid_through ? format(new Date(editingRecord.valid_through), 'yyyy-MM-dd') : ''}
+                onChange={(e) => setEditingRecord(curr => curr ? {
+                  ...curr,
+                  valid_through: e.target.value
+                } : null)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="diploma_image_url">Diploma Image URL</Label>
+              <Input
+                id="diploma_image_url"
+                type="url"
+                value={editingRecord?.diploma_image_url || ''}
+                onChange={(e) => setEditingRecord(curr => curr ? {
+                  ...curr,
+                  diploma_image_url: e.target.value
                 } : null)}
               />
             </div>
