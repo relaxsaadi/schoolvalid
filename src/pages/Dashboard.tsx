@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +9,6 @@ import {
   Download,
   Filter,
   Pencil,
-  Trash2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
@@ -31,15 +31,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import {
   Tooltip,
   TooltipContent,
@@ -75,6 +73,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateFilter, setDateFilter] = useState<Date>();
+  const [editingRecord, setEditingRecord] = useState<StudentRecord | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -97,6 +96,41 @@ const Dashboard = () => {
     }
 
     setRecords(data || []);
+  };
+
+  const handleEdit = async () => {
+    if (!editingRecord) return;
+
+    const { error } = await supabase
+      .from('certificates')
+      .update({
+        recipient_name: editingRecord.recipient_name,
+        certificate_number: editingRecord.certificate_number,
+        course_name: editingRecord.course_name,
+        email: editingRecord.email,
+        status: editingRecord.status,
+        year_of_birth: editingRecord.year_of_birth,
+        course_description: editingRecord.course_description,
+      })
+      .eq('id', editingRecord.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update record",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setRecords(records.map(record => 
+      record.id === editingRecord.id ? editingRecord : record
+    ));
+    setEditingRecord(null);
+    toast({
+      title: "Success",
+      description: "Record updated successfully",
+    });
   };
 
   const filteredRecords = records.filter((record) => {
@@ -265,6 +299,7 @@ const Dashboard = () => {
                               variant="ghost" 
                               size="icon"
                               className="hover:text-blue-500 hover:scale-110 transition-all"
+                              onClick={() => setEditingRecord(record)}
                             >
                               <Pencil className="h-4 w-4" />
                             </Button>
@@ -282,6 +317,77 @@ const Dashboard = () => {
           </Table>
         </div>
       </main>
+
+      <Dialog open={!!editingRecord} onOpenChange={(open) => !open && setEditingRecord(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Record</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Student Name</Label>
+              <Input
+                id="name"
+                value={editingRecord?.recipient_name || ''}
+                onChange={(e) => setEditingRecord(curr => curr ? {
+                  ...curr,
+                  recipient_name: e.target.value
+                } : null)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="course">Course Name</Label>
+              <Input
+                id="course"
+                value={editingRecord?.course_name || ''}
+                onChange={(e) => setEditingRecord(curr => curr ? {
+                  ...curr,
+                  course_name: e.target.value
+                } : null)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={editingRecord?.status}
+                onValueChange={(value) => setEditingRecord(curr => curr ? {
+                  ...curr,
+                  status: value
+                } : null)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={editingRecord?.email || ''}
+                onChange={(e) => setEditingRecord(curr => curr ? {
+                  ...curr,
+                  email: e.target.value
+                } : null)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingRecord(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleEdit}>
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
