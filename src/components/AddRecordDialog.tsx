@@ -36,11 +36,20 @@ export function AddRecordDialog({ onAddRecord, courses }: AddRecordDialogProps) 
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
+    if (!selectedCourse) {
+      toast({
+        title: "Error",
+        description: "Please select a course",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const newRecord = {
       recipient_name: formData.get("recipient_name") as string,
       certificate_number: formData.get("certificate_number") as string,
-      course_name: selectedCourse?.name || "",
-      course_id: selectedCourse?.id || "",
+      course_name: selectedCourse.name,
+      course_id: selectedCourse.id,
       valid_through: formData.get("valid_through") as string,
       status: formData.get("status") as string,
       email: formData.get("email") as string,
@@ -57,7 +66,9 @@ export function AddRecordDialog({ onAddRecord, courses }: AddRecordDialogProps) 
 
   const handleCourseSelect = (courseId: string) => {
     const course = courses.find(c => c.id === courseId);
-    setSelectedCourse(course || null);
+    if (course) {
+      setSelectedCourse(course);
+    }
   };
 
   return (
@@ -93,9 +104,9 @@ export function AddRecordDialog({ onAddRecord, courses }: AddRecordDialogProps) 
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="course_name">Course</Label>
+            <Label htmlFor="course">Course</Label>
             <Select
-              value={selectedCourse?.id || ""}
+              value={selectedCourse?.id || undefined}
               onValueChange={handleCourseSelect}
               required
             >
@@ -104,9 +115,11 @@ export function AddRecordDialog({ onAddRecord, courses }: AddRecordDialogProps) 
               </SelectTrigger>
               <SelectContent>
                 {courses.map((course) => (
-                  <SelectItem key={course.id} value={course.id}>
-                    {course.name}
-                  </SelectItem>
+                  course.id ? (
+                    <SelectItem key={course.id} value={course.id}>
+                      {course.name}
+                    </SelectItem>
+                  ) : null
                 ))}
               </SelectContent>
             </Select>
