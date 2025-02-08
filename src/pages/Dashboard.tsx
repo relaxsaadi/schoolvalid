@@ -1,42 +1,11 @@
 
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  Users,
-  FileText,
-  Award,
-  Bell,
-  Download,
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { AddRecordDialog } from "@/components/AddRecordDialog";
 import { useState, useEffect } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
 import { TopNav } from "@/components/TopNav";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { StatsOverview } from "@/components/dashboard/StatsOverview";
+import { RecordsTable } from "@/components/dashboard/RecordsTable";
 
 export interface StudentRecord {
   id: string;
@@ -55,8 +24,6 @@ export interface StudentRecord {
 const Dashboard = () => {
   const [records, setRecords] = useState<StudentRecord[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
-  const [dateFilter, setDateFilter] = useState<Date>();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -87,12 +54,7 @@ const Dashboard = () => {
       record.certificate_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       record.course_name.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus = !statusFilter || record.status === statusFilter;
-
-    const matchesDate = !dateFilter || 
-      format(new Date(record.created_at), 'yyyy-MM-dd') === format(dateFilter, 'yyyy-MM-dd');
-
-    return matchesSearch && matchesStatus && matchesDate;
+    return matchesSearch;
   });
 
   const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
@@ -137,110 +99,9 @@ const Dashboard = () => {
       <TopNav searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       
       <main className="flex-1 space-y-4 p-8 pt-6">
-        <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-          <div className="flex items-center space-x-2">
-            <AddRecordDialog onAddRecord={handleAddRecord} />
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" /> Export
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <Users className="h-8 w-8 text-brand-500" />
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Total Students
-                </p>
-                <h3 className="text-2xl font-bold">{records.length}</h3>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <FileText className="h-8 w-8 text-brand-500" />
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Active Records
-                </p>
-                <h3 className="text-2xl font-bold">
-                  {records.filter(r => r.status === 'active').length}
-                </h3>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <Award className="h-8 w-8 text-brand-500" />
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Certificates
-                </p>
-                <h3 className="text-2xl font-bold">{records.length}</h3>
-              </div>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex items-center space-x-4">
-              <Bell className="h-8 w-8 text-brand-500" />
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Pending Records
-                </p>
-                <h3 className="text-2xl font-bold">
-                  {records.filter(r => r.status === 'pending').length}
-                </h3>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Student Name</TableHead>
-                <TableHead>Student ID</TableHead>
-                <TableHead>Course</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date Added</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredRecords.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="text-center">
-                    No records found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredRecords.map((record) => (
-                  <TableRow key={record.id}>
-                    <TableCell>{record.recipient_name}</TableCell>
-                    <TableCell>{record.certificate_number}</TableCell>
-                    <TableCell>{record.course_name}</TableCell>
-                    <TableCell>
-                      <span className={cn(
-                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                        record.status === 'active' && "bg-green-100 text-green-800",
-                        record.status === 'pending' && "bg-yellow-100 text-yellow-800",
-                        record.status === 'expired' && "bg-red-100 text-red-800"
-                      )}>
-                        {record.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(record.created_at).toLocaleDateString()}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+        <DashboardHeader onAddRecord={handleAddRecord} />
+        <StatsOverview records={records} />
+        <RecordsTable records={filteredRecords} />
       </main>
     </div>
   );
