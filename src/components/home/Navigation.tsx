@@ -1,8 +1,11 @@
 
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export const Navigation = () => {
+  const location = useLocation();
+  const isPricingPage = location.pathname === '/pricing';
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
@@ -24,9 +27,14 @@ export const Navigation = () => {
             <Button variant="ghost" className="nav-link-fade">
               Features
             </Button>
-            <Button variant="ghost" className="nav-link-bounce">
-              Pricing
-            </Button>
+            <Link to="/pricing">
+              <Button 
+                variant={isPricingPage ? "default" : "ghost"} 
+                className={`nav-link-bounce ${isPricingPage ? 'bg-primary text-primary-foreground' : ''}`}
+              >
+                Pricing
+              </Button>
+            </Link>
             <Link to="/sign-in">
               <Button className="nav-link-rotate">
                 Sign In
