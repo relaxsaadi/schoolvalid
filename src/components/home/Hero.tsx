@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Award, Shield, Users } from "lucide-react";
+import { ArrowRight, Award, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog } from "lucide-react";
 
 export const Hero = () => {
   return (
@@ -88,4 +88,45 @@ const features = [
     description: "Compliant with global education standards",
     icon: Award,
   },
+  {
+    title: "Real-Time Updates",
+    description: "Update issued credentials instantly with a few clicks",
+    icon: RefreshCw,
+  },
+  {
+    title: "Expiration Management",
+    description: "Set and update certificate expiration dates easily",
+    icon: Calendar,
+  },
+  {
+    title: "Change Request Handling",
+    description: "Manage change requests directly from the dashboard",
+    icon: UserCog,
+  },
+  {
+    title: "Advanced Filtering",
+    description: "Filter certificates by group and data efficiently",
+    icon: Filter,
+  },
+  {
+    title: "Certificate Control",
+    description: "Monitor and change certificate statuses seamlessly",
+    icon: FileText,
+  },
+  {
+    title: "PDF Export",
+    description: "Download and print credentials as PDF documents",
+    icon: Download,
+  },
+  {
+    title: "Digital Badges",
+    description: "Issue expirable digital badges for recognition",
+    icon: Badge,
+  },
+  {
+    title: "Access Control",
+    description: "Manage and control credential access permissions",
+    icon: Lock,
+  }
 ];
+
