@@ -43,12 +43,12 @@ const SignIn = () => {
         <div className="absolute inset-0 bg-brand-900" />
         <div className="relative z-20 flex items-center text-lg font-medium">
           <GraduationCap className="mr-2 h-6 w-6" />
-          EduArchive
+          APGA
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              "EduArchive has revolutionized how we manage student records. The platform's security
+              "APGA has revolutionized how we manage student records. The platform's security
               and ease of use have made our administrative tasks significantly more efficient."
             </p>
             <footer className="text-sm">Dr. Sarah Johnson - University Dean</footer>
