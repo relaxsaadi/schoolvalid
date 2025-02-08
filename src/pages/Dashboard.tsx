@@ -95,9 +95,8 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <TopNav searchQuery={searchQuery} onSearchChange={setSearchQuery} />
-      
       <main className="flex-1 space-y-4 p-8 pt-6">
         <DashboardHeader onAddRecord={handleAddRecord} />
         <StatsOverview records={records} />
