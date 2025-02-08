@@ -23,12 +23,12 @@ const Dashboard = () => {
             </Button>
           </div>
           <div className="flex flex-1 items-center justify-end space-x-4">
-            <div className="w-full max-w-lg">
+            <div className="w-full max-w-lg relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
                 placeholder="Search records..."
-                className="w-full"
-                prefix={<Search className="h-4 w-4 text-muted-foreground" />}
+                className="w-full pl-10"
               />
             </div>
           </div>
