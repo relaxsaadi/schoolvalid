@@ -10,7 +10,7 @@ interface HeroProps {
 export const Hero = ({ onGetStarted }: HeroProps) => {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center py-20 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-orange-500 opacity-90" />
+      <div className="absolute inset-0 bg-gradient-to-br from-violet-500 via-indigo-500 to-cyan-500 opacity-90" />
       
       <div className="container relative px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
