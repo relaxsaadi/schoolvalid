@@ -29,16 +29,29 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkUser();
-    fetchRecords();
-  }, []);
+    const checkUser = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
+        navigate("/sign-in");
+        return;
+      }
+      
+      await fetchRecords();
+    };
 
-  const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/sign-in");
-    }
-  };
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        navigate("/sign-in");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const fetchRecords = async () => {
     const { data, error } = await supabase
