@@ -65,6 +65,17 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                 className="group relative overflow-hidden bg-white text-brand-500 hover:bg-white/90 transition-all duration-300 shadow-lg hover:scale-105"
                 onClick={onGetStarted}
               >
+                <motion.div 
+                  className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-cyan-300/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  animate={{
+                    backgroundPosition: ["0% 0%", "100% 0%"],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                  }}
+                />
                 <span className="relative z-10 flex items-center font-semibold">
                   Get Started 
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -114,7 +125,15 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                         >
                           <feature.icon className="h-6 w-6" />
                         </motion.div>
-                        <h3 className="font-semibold text-white group-hover:text-orange-300 transition-colors duration-300">{feature.title}</h3>
+                        <h3 className="font-semibold text-white group-hover:text-orange-300 transition-colors duration-300 relative">
+                          {feature.title}
+                          <motion.div
+                            className="absolute -bottom-1 left-0 h-0.5 w-0 bg-orange-300"
+                            initial={{ width: "0%" }}
+                            whileHover={{ width: "100%" }}
+                            transition={{ duration: 0.3 }}
+                          />
+                        </h3>
                       </div>
                       <p className="mt-2 text-sm text-white/90 font-medium group-hover:text-white transition-colors duration-300">{feature.description}</p>
                     </div>
