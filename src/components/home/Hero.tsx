@@ -1,7 +1,9 @@
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog } from "lucide-react";
+import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog, ShieldCheck, Key } from "lucide-react";
 import { motion } from "framer-motion";
+import { Badge as UIBadge } from "@/components/ui/badge";
 
 interface HeroProps {
   onGetStarted?: () => void;
@@ -53,6 +55,23 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                 Streamline your institution's record-keeping with our advanced platform. Secure,
                 efficient, and compliant with global standards.
               </motion.p>
+
+              <motion.div
+                className="flex flex-wrap gap-3 mt-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.8 }}
+              >
+                <UIBadge variant="secondary" className="bg-white/20 text-white border-none shadow-sm backdrop-blur-sm hover:bg-white/30 transition-colors duration-300">
+                  <ShieldCheck className="w-4 h-4 mr-1" /> GDPR Compliant
+                </UIBadge>
+                <UIBadge variant="secondary" className="bg-white/20 text-white border-none shadow-sm backdrop-blur-sm hover:bg-white/30 transition-colors duration-300">
+                  <Lock className="w-4 h-4 mr-1" /> FERPA Certified
+                </UIBadge>
+                <UIBadge variant="secondary" className="bg-white/20 text-white border-none shadow-sm backdrop-blur-sm hover:bg-white/30 transition-colors duration-300">
+                  <Key className="w-4 h-4 mr-1" /> AES-256 Encryption
+                </UIBadge>
+              </motion.div>
             </motion.div>
             <motion.div 
               className="flex flex-col gap-2 min-[400px]:flex-row"
@@ -136,6 +155,14 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                         </h3>
                       </div>
                       <p className="mt-2 text-sm text-white/90 font-medium group-hover:text-white transition-colors duration-300">{feature.description}</p>
+                      {feature.badge && (
+                        <UIBadge 
+                          variant="secondary" 
+                          className="mt-3 self-start bg-white/10 text-white border-none text-xs"
+                        >
+                          {feature.badge}
+                        </UIBadge>
+                      )}
                     </div>
                   </Card>
                 </motion.div>
@@ -213,6 +240,7 @@ const features = [
     title: "Secure Storage",
     description: "Bank-level encryption for all your sensitive data",
     icon: Shield,
+    badge: "AES-256 Protected"
   },
   {
     title: "Easy Management",
@@ -228,6 +256,7 @@ const features = [
     title: "Expiration Management",
     description: "Set and update certificate expiration dates easily",
     icon: Calendar,
+    badge: "Automated Security"
   },
   {
     title: "Change Request Handling",
@@ -243,6 +272,7 @@ const features = [
     title: "Certificate Control",
     description: "Monitor and change certificate statuses seamlessly",
     icon: FileText,
+    badge: "GDPR Compliant"
   },
   {
     title: "PDF Export",
@@ -258,5 +288,7 @@ const features = [
     title: "Access Control",
     description: "Manage and control credential access permissions",
     icon: Lock,
+    badge: "FERPA Certified"
   }
 ];
+
