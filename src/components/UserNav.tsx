@@ -1,68 +1,12 @@
 
-import {
-  Cloud,
-  CreditCard,
-  Github,
-  Keyboard,
-  LifeBuoy,
-  LogOut,
-  Mail,
-  MessageSquare,
-  Plus,
-  PlusCircle,
-  Settings,
-  User,
-  UserPlus,
-  Users,
-  HelpCircle,
-  Edit,
-} from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ProfileDialog } from "./profile/ProfileDialog";
+import { UserDropdownMenu } from "./profile/UserDropdownMenu";
 
 export function UserNav() {
-  const [open, setOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [profileData, setProfileData] = useState({
     name: "",
@@ -75,7 +19,6 @@ export function UserNav() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
@@ -185,7 +128,6 @@ export function UserNav() {
       });
       setIsProfileOpen(false);
       
-      // Reload profile data to ensure UI is up to date
       loadProfile(session.user.id);
     } catch (error: any) {
       console.error('Error updating profile:', error);
@@ -199,131 +141,19 @@ export function UserNav() {
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full transition-transform hover:scale-105">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={profileData.logoUrl || "/placeholder.svg"} alt="@user" />
-              <AvatarFallback>{profileData.name?.charAt(0) || 'U'}</AvatarFallback>
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent 
-          className="w-56" 
-          align="end" 
-          forceMount
-        >
-          <DropdownMenuLabel className="font-normal">
-            <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{profileData.name || "User"}</p>
-              <p className="text-xs leading-none text-muted-foreground">
-                {profileData.institutionName || "Institution"}
-              </p>
-            </div>
-          </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem 
-              className="cursor-pointer transition-colors hover:bg-accent"
-              onClick={() => setIsProfileOpen(true)}
-            >
-              <User className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
-              <span>Profile</span>
-              <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer transition-colors hover:bg-accent">
-              <Settings className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:rotate-45" />
-              <span>Settings</span>
-              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem className="cursor-pointer transition-colors hover:bg-accent">
-            <HelpCircle className="mr-2 h-4 w-4" />
-            <span>Help & Support</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="my-1 bg-muted/60" />
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <DropdownMenuItem 
-                onSelect={(e) => e.preventDefault()}
-                className="cursor-pointer text-red-600 transition-colors hover:bg-red-100 dark:hover:bg-red-900/50"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-                <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-              </DropdownMenuItem>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  You will be logged out of your account and redirected to the login page.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleLogout}>Log out</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <UserDropdownMenu
+        profileData={profileData}
+        onOpenProfile={() => setIsProfileOpen(true)}
+        onLogout={handleLogout}
+      />
 
-      <Dialog open={isProfileOpen} onOpenChange={setIsProfileOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Edit Profile</DialogTitle>
-            <DialogDescription>
-              Update your profile information here.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                value={profileData.name}
-                onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="institution" className="text-right">
-                Institution
-              </Label>
-              <Input
-                id="institution"
-                value={profileData.institutionName}
-                onChange={(e) => setProfileData({ ...profileData, institutionName: e.target.value })}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="logo" className="text-right">
-                Logo URL
-              </Label>
-              <Input
-                id="logo"
-                value={profileData.logoUrl}
-                onChange={(e) => setProfileData({ ...profileData, logoUrl: e.target.value })}
-                className="col-span-3"
-                placeholder="https://example.com/logo.png"
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsProfileOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleProfileUpdate}>
-              Save changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ProfileDialog
+        isOpen={isProfileOpen}
+        setIsOpen={setIsProfileOpen}
+        profileData={profileData}
+        setProfileData={setProfileData}
+        onSave={handleProfileUpdate}
+      />
     </>
   );
 }
