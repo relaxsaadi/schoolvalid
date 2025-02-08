@@ -4,7 +4,11 @@ import { Card } from "@/components/ui/card";
 import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog } from "lucide-react";
 import { motion } from "framer-motion";
 
-export const Hero = () => {
+interface HeroProps {
+  onGetStarted?: () => void;
+}
+
+export const Hero = ({ onGetStarted }: HeroProps) => {
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center py-20">
       <div className="container px-4 md:px-6">
@@ -28,6 +32,7 @@ export const Hero = () => {
               <Button 
                 size="lg" 
                 className="group transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-primary/90"
+                onClick={onGetStarted}
               >
                 Get Started 
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
