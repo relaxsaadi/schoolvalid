@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog } from "lucide-react";
@@ -32,7 +33,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                 <span className="mt-2 block">understanding is universal</span>
               </motion.h1>
               <motion.p 
-                className="max-w-[600px] text-white/90 text-lg md:text-xl mt-6"
+                className="max-w-[600px] text-white font-medium text-lg md:text-xl mt-6 text-shadow"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
@@ -49,10 +50,10 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             >
               <Button 
                 size="lg" 
-                className="group relative overflow-hidden bg-white text-brand-500 hover:bg-white/90 transition-all duration-300"
+                className="group relative overflow-hidden bg-white text-brand-500 hover:bg-white/90 transition-all duration-300 shadow-lg"
                 onClick={onGetStarted}
               >
-                <span className="relative z-10 flex items-center">
+                <span className="relative z-10 flex items-center font-semibold">
                   Get Started 
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
@@ -90,19 +91,20 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
                   }}
                 >
                   <Card 
-                    className="group h-full transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:bg-gradient-to-br from-white to-brand-50/30 border-brand-100/50"
+                    className="group h-full transition-all duration-300 hover:shadow-xl backdrop-blur-sm bg-white/10 border-white/20 hover:bg-white/20"
                   >
                     <div className="flex flex-col p-6">
                       <div className="flex items-center space-x-4">
                         <motion.div
                           whileHover={{ rotate: 360, scale: 1.1 }}
                           transition={{ type: "spring", stiffness: 200, damping: 10 }}
+                          className="text-orange-300"
                         >
-                          <feature.icon className="h-6 w-6 text-brand-500" />
+                          <feature.icon className="h-6 w-6" />
                         </motion.div>
-                        <h3 className="font-semibold text-gray-900 dark:text-white">{feature.title}</h3>
+                        <h3 className="font-semibold text-white">{feature.title}</h3>
                       </div>
-                      <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{feature.description}</p>
+                      <p className="mt-2 text-sm text-white/90 font-medium">{feature.description}</p>
                     </div>
                   </Card>
                 </motion.div>
@@ -117,34 +119,34 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
           >
             <div className="relative w-full">
               <div className="absolute -inset-4">
-                <div className="h-full w-full rotate-6 rounded-3xl bg-gradient-to-r from-brand-500/20 to-brand-600/20 opacity-30 blur-xl animate-pulse">
+                <div className="h-full w-full rotate-6 rounded-3xl bg-gradient-to-r from-orange-300/20 to-purple-400/20 opacity-30 blur-xl animate-pulse">
                 </div>
               </div>
-              <Card className="relative group flex flex-col space-y-6 overflow-hidden rounded-3xl p-8 bg-gradient-to-br from-white to-brand-50/50 transition-all duration-500 hover:shadow-xl hover:scale-[1.02]">
+              <Card className="relative group flex flex-col space-y-6 overflow-hidden rounded-3xl p-8 backdrop-blur-sm bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-500 hover:shadow-xl hover:scale-[1.02]">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-white">Student Records</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">Total Active Records</p>
+                    <h3 className="font-semibold text-white">Student Records</h3>
+                    <p className="text-sm text-white/90">Total Active Records</p>
                   </div>
                   <motion.div
                     whileHover={{ rotate: 360, scale: 1.1 }}
                     transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                    className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50"
+                    className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-300/20 text-orange-300"
                   >
-                    <Users className="h-6 w-6 text-brand-500" />
+                    <Users className="h-6 w-6" />
                   </motion.div>
                 </div>
-                <div className="text-4xl font-bold text-gray-900 dark:text-white">2,547</div>
+                <div className="text-4xl font-bold text-white">2,547</div>
                 <div className="space-y-2">
-                  <div className="h-2 w-full rounded-full bg-brand-100 overflow-hidden">
+                  <div className="h-2 w-full rounded-full bg-white/20 overflow-hidden">
                     <motion.div 
-                      className="h-full rounded-full bg-brand-500"
+                      className="h-full rounded-full bg-orange-300"
                       initial={{ width: "0%" }}
                       animate={{ width: "80%" }}
                       transition={{ duration: 1, delay: 0.5 }}
                     />
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">80% storage used</div>
+                  <div className="text-sm text-white/90 font-medium">80% storage used</div>
                 </div>
               </Card>
             </div>
