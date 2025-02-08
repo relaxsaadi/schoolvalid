@@ -10,10 +10,10 @@ export const Navigation = () => {
           <Link to="/" className="flex items-center space-x-2 nav-link-scale">
             <img 
               src="https://storage.googleapis.com/msgsndr/R1MobQG4jgSbc6WgB6Wz/media/678a3b3c95673cec4691a6c5.png" 
-              alt="EduArchive Logo" 
+              alt="American Prograde Academy Logo" 
               className="h-6 w-6 object-contain"
             />
-            <span className="inline-block font-bold">EduArchive</span>
+            <span className="inline-block font-bold">American Prograde Academy</span>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-4">
