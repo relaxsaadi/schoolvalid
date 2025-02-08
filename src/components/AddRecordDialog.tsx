@@ -13,43 +13,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { StudentRecord, Course } from "@/pages/Dashboard";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { StudentRecord } from "@/pages/Dashboard";
 
 interface AddRecordDialogProps {
   onAddRecord: (record: Omit<StudentRecord, "id" | "created_at">) => void;
-  courses: Course[];
 }
 
-export function AddRecordDialog({ onAddRecord, courses }: AddRecordDialogProps) {
+export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
-  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
-    if (!selectedCourse) {
-      toast({
-        title: "Error",
-        description: "Please select a course",
-        variant: "destructive",
-      });
-      return;
-    }
-
     const newRecord = {
       recipient_name: formData.get("recipient_name") as string,
       certificate_number: formData.get("certificate_number") as string,
-      course_name: selectedCourse.name,
-      course_id: selectedCourse.id,
+      course_name: formData.get("course_name") as string,
       valid_through: formData.get("valid_through") as string,
       status: formData.get("status") as string,
       email: formData.get("email") as string,
@@ -61,14 +42,6 @@ export function AddRecordDialog({ onAddRecord, courses }: AddRecordDialogProps) 
     onAddRecord(newRecord);
     setOpen(false);
     (e.target as HTMLFormElement).reset();
-    setSelectedCourse(null);
-  };
-
-  const handleCourseSelect = (courseId: string) => {
-    const course = courses.find(c => c.id === courseId);
-    if (course) {
-      setSelectedCourse(course);
-    }
   };
 
   return (
@@ -104,25 +77,14 @@ export function AddRecordDialog({ onAddRecord, courses }: AddRecordDialogProps) 
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="course">Course</Label>
-            <Select
-              value={selectedCourse?.id || undefined}
-              onValueChange={handleCourseSelect}
+            <Label htmlFor="course_name">Course</Label>
+            <Input
+              id="course_name"
+              name="course_name"
+              type="text"
+              placeholder="Enter course name"
               required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a course" />
-              </SelectTrigger>
-              <SelectContent>
-                {courses.map((course) => (
-                  course.id ? (
-                    <SelectItem key={course.id} value={course.id}>
-                      {course.name}
-                    </SelectItem>
-                  ) : null
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="valid_through">Valid Through</Label>

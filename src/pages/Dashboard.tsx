@@ -8,8 +8,6 @@ import {
   Bell,
   Search,
   Download,
-  Plus,
-  Filter,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
@@ -24,28 +22,12 @@ import {
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { AddCourseDialog } from "@/components/AddCourseDialog";
-
-export interface Course {
-  id: string;
-  name: string;
-  description?: string;
-  created_at: string;
-}
 
 export interface StudentRecord {
   id: string;
   recipient_name: string;
   certificate_number: string;
   course_name: string;
-  course_id: string;
   created_at: string;
   valid_through?: string;
   status?: string;
@@ -57,39 +39,17 @@ export interface StudentRecord {
 
 const Dashboard = () => {
   const [records, setRecords] = useState<StudentRecord[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterBy, setFilterBy] = useState<"name" | "course" | "date">("name");
-  const [selectedCourse, setSelectedCourse] = useState<string>("");
   const { toast } = useToast();
 
   useEffect(() => {
     fetchRecords();
-    fetchCourses();
   }, []);
-
-  const fetchCourses = async () => {
-    const { data, error } = await supabase
-      .from('courses')
-      .select('*')
-      .order('name');
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch courses",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setCourses(data || []);
-  };
 
   const fetchRecords = async () => {
     const { data, error } = await supabase
       .from('certificates')
-      .select('*, courses(name)')
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -104,20 +64,19 @@ const Dashboard = () => {
     setRecords(data || []);
   };
 
-  const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
-    const { data: courseData } = await supabase
-      .from('courses')
-      .select('id')
-      .eq('name', newRecord.course_name)
-      .single();
+  const filteredRecords = records.filter((record) =>
+    record.recipient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    record.certificate_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    record.course_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
+  const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
     const { data, error } = await supabase
       .from('certificates')
       .insert([{
         recipient_name: newRecord.recipient_name,
         certificate_number: newRecord.certificate_number,
         course_name: newRecord.course_name,
-        course_id: courseData?.id,
         status: newRecord.status,
         blockchain_hash: 'pending',
         blockchain_timestamp: new Date().toISOString(),
@@ -148,53 +107,6 @@ const Dashboard = () => {
     });
   };
 
-  const handleAddCourse = async (course: { name: string; description?: string }) => {
-    const { data, error } = await supabase
-      .from('courses')
-      .insert([course])
-      .select()
-      .single();
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to add course",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setCourses((prev) => [...prev, data]);
-    toast({
-      title: "Success",
-      description: "Course added successfully",
-    });
-  };
-
-  const filteredRecords = records.filter((record) => {
-    const matchesSearch = (
-      record.recipient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      record.certificate_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      record.course_name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    if (!matchesSearch) return false;
-
-    if (selectedCourse && record.course_id !== selectedCourse) {
-      return false;
-    }
-
-    return true;
-  }).sort((a, b) => {
-    if (filterBy === "date") {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    }
-    if (filterBy === "course") {
-      return a.course_name.localeCompare(b.course_name);
-    }
-    return a.recipient_name.localeCompare(b.recipient_name);
-  });
-
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -223,8 +135,7 @@ const Dashboard = () => {
         <div className="flex items-center justify-between space-y-2">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <div className="flex items-center space-x-2">
-            <AddCourseDialog onAddCourse={handleAddCourse} />
-            <AddRecordDialog onAddRecord={handleAddRecord} courses={courses} />
+            <AddRecordDialog onAddRecord={handleAddRecord} />
             <Button variant="outline">
               <Download className="mr-2 h-4 w-4" /> Export
             </Button>
@@ -259,9 +170,9 @@ const Dashboard = () => {
               <Award className="h-8 w-8 text-brand-500" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Courses
+                  Certificates
                 </p>
-                <h3 className="text-2xl font-bold">{courses.length}</h3>
+                <h3 className="text-2xl font-bold">{records.length}</h3>
               </div>
             </div>
           </Card>
@@ -276,33 +187,6 @@ const Dashboard = () => {
               </div>
             </div>
           </Card>
-        </div>
-
-        <div className="flex gap-4 items-center">
-          <Select value={filterBy} onValueChange={(value: "name" | "course" | "date") => setFilterBy(value)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Sort by..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">Sort by Name</SelectItem>
-              <SelectItem value="course">Sort by Course</SelectItem>
-              <SelectItem value="date">Sort by Date</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-            <SelectTrigger className="w-[250px]">
-              <SelectValue placeholder="Filter by course..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All Courses</SelectItem>
-              {courses.map((course) => (
-                <SelectItem key={course.id} value={course.id}>
-                  {course.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
 
         <div className="rounded-md border">
