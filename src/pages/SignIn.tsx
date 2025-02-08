@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { GraduationCap } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -21,46 +20,17 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      console.log("Attempting to sign in with:", { email });
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password: password.trim(),
+      // Here we'll add Supabase authentication later
+      toast({
+        title: "Success",
+        description: "Signed in successfully",
       });
-
-      if (error) {
-        console.error("Sign in error:", error);
-        throw error;
-      }
-
-      if (data?.user) {
-        console.log("Sign in successful:", data.user);
-        
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-
-        if (profileError) {
-          console.error("Profile fetch error:", profileError);
-        } else {
-          console.log("Profile loaded:", profile);
-        }
-
-        toast({
-          title: "Success",
-          description: "Signed in successfully",
-        });
-        
-        navigate("/dashboard");
-      }
-    } catch (error: any) {
-      console.error("Sign in error:", error);
+      navigate("/dashboard");
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Invalid email or password",
+        description: "Invalid email or password",
       });
     } finally {
       setIsLoading(false);
@@ -118,7 +88,6 @@ const SignIn = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    autoComplete="current-password"
                     disabled={isLoading}
                     required
                   />

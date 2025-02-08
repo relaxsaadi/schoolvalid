@@ -111,9 +111,7 @@ export type Database = {
           department: string | null
           full_name: string | null
           id: string
-          institution_name: string | null
           last_login: string | null
-          logo_url: string | null
           role: Database["public"]["Enums"]["user_role"] | null
           status: string | null
           theme: string | null
@@ -125,9 +123,7 @@ export type Database = {
           department?: string | null
           full_name?: string | null
           id: string
-          institution_name?: string | null
           last_login?: string | null
-          logo_url?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           status?: string | null
           theme?: string | null
@@ -139,9 +135,7 @@ export type Database = {
           department?: string | null
           full_name?: string | null
           id?: string
-          institution_name?: string | null
           last_login?: string | null
-          logo_url?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           status?: string | null
           theme?: string | null
