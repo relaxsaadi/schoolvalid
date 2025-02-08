@@ -1,3 +1,4 @@
+
 import {
   Cloud,
   CreditCard,
@@ -55,7 +56,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -68,51 +69,8 @@ export function UserNav() {
     institutionName: "",
     logoUrl: "",
   });
-  const [currentUser, setCurrentUser] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Load profile data and check authentication when component mounts
-  useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
-        if (userError) throw userError;
-        if (!user) {
-          navigate('/sign-in');
-          return;
-        }
-
-        setCurrentUser(user);
-
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('full_name, institution_name, logo_url')
-          .eq('id', user.id)
-          .maybeSingle();
-
-        if (profileError) throw profileError;
-
-        if (profile) {
-          setProfileData({
-            name: profile.full_name || "",
-            institutionName: profile.institution_name || "",
-            logoUrl: profile.logo_url || "",
-          });
-        }
-      } catch (error) {
-        console.error('Error loading profile:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load profile data. Please try again.",
-        });
-      }
-    };
-
-    loadProfile();
-  }, [navigate]);
 
   const handleLogout = async () => {
     try {
@@ -136,18 +94,16 @@ export function UserNav() {
 
   const handleProfileUpdate = async () => {
     try {
-      if (!currentUser) {
-        throw new Error("You must be logged in to update your profile");
-      }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
 
       const { error } = await supabase
         .from('profiles')
         .update({
-          full_name: profileData.name,
           institution_name: profileData.institutionName,
           logo_url: profileData.logoUrl,
         })
-        .eq('id', currentUser.id);
+        .eq('id', user.id);
 
       if (error) throw error;
 
@@ -156,12 +112,11 @@ export function UserNav() {
         description: "Your profile has been updated successfully",
       });
       setIsProfileOpen(false);
-    } catch (error: any) {
-      console.error('Error updating profile:', error);
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to update profile. Please try again.",
+        description: "Failed to update profile. Please try again.",
       });
     }
   };
@@ -172,8 +127,8 @@ export function UserNav() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full transition-transform hover:scale-105">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={profileData.logoUrl || "/placeholder.svg"} alt="@user" />
-              <AvatarFallback>{profileData.name?.charAt(0) || 'U'}</AvatarFallback>
+              <AvatarImage src="/placeholder.svg" alt="@user" />
+              <AvatarFallback>U</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
@@ -184,9 +139,9 @@ export function UserNav() {
         >
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{profileData.name || "User"}</p>
+              <p className="text-sm font-medium leading-none">User</p>
               <p className="text-xs leading-none text-muted-foreground">
-                {profileData.institutionName || "Institution"}
+                user@example.com
               </p>
             </div>
           </DropdownMenuLabel>
@@ -279,7 +234,6 @@ export function UserNav() {
                 value={profileData.logoUrl}
                 onChange={(e) => setProfileData({ ...profileData, logoUrl: e.target.value })}
                 className="col-span-3"
-                placeholder="https://example.com/logo.png"
               />
             </div>
           </div>
