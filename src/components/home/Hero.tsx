@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog, ShieldCheck, Key } from "lucide-react";
@@ -64,9 +63,6 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
               >
                 <UIBadge variant="secondary" className="bg-white/20 text-white border-none shadow-sm backdrop-blur-sm hover:bg-white/30 transition-colors duration-300">
                   <ShieldCheck className="w-4 h-4 mr-1" /> GDPR Compliant
-                </UIBadge>
-                <UIBadge variant="secondary" className="bg-white/20 text-white border-none shadow-sm backdrop-blur-sm hover:bg-white/30 transition-colors duration-300">
-                  <Lock className="w-4 h-4 mr-1" /> FERPA Certified
                 </UIBadge>
                 <UIBadge variant="secondary" className="bg-white/20 text-white border-none shadow-sm backdrop-blur-sm hover:bg-white/30 transition-colors duration-300">
                   <Key className="w-4 h-4 mr-1" /> AES-256 Encryption
@@ -288,7 +284,5 @@ const features = [
     title: "Access Control",
     description: "Manage and control credential access permissions",
     icon: Lock,
-    badge: "FERPA Certified"
   }
 ];
-
