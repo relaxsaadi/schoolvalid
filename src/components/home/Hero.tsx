@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Shield, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog } from "lucide-react";
+import { motion } from "framer-motion";
 
 export const Hero = () => {
   return (
@@ -9,7 +10,12 @@ export const Hero = () => {
       <div className="container px-4 md:px-6">
         <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
           <div className="flex flex-col justify-center space-y-4">
-            <div className="space-y-2">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="space-y-2"
+            >
               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
                 Secure Student Records Management
               </h1>
@@ -17,59 +23,77 @@ export const Hero = () => {
                 Streamline your institution's record-keeping with our advanced platform. Secure,
                 efficient, and compliant with global standards.
               </p>
-            </div>
+            </motion.div>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <Button size="lg" className="animate-fadeIn">
-                Get Started <ArrowRight className="ml-2 h-4 w-4" />
+              <Button 
+                size="lg" 
+                className="group transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-primary/90"
+              >
+                Get Started 
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </Button>
-              <Button variant="outline" size="lg">
+              <Button 
+                variant="outline" 
+                size="lg"
+                className="transition-all duration-300 hover:scale-105 hover:shadow-lg hover:bg-accent"
+              >
                 Learn More
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-8">
               {features.map((feature, i) => (
-                <Card 
-                  key={feature.title} 
-                  className="animate-fadeIn flex flex-col p-6 shadow-lg h-full" 
-                  style={{
-                    animationDelay: `${i * 150}ms`
-                  }}
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
                 >
-                  <div className="flex items-center space-x-4">
-                    <feature.icon className="h-6 w-6 text-brand-500 shrink-0" />
-                    <h3 className="font-semibold">{feature.title}</h3>
-                  </div>
-                  <p className="mt-2 text-sm text-gray-500">{feature.description}</p>
-                </Card>
+                  <Card 
+                    className="group h-full transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:bg-accent/5"
+                  >
+                    <div className="flex flex-col p-6">
+                      <div className="flex items-center space-x-4">
+                        <feature.icon className="h-6 w-6 text-brand-500 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3" />
+                        <h3 className="font-semibold">{feature.title}</h3>
+                      </div>
+                      <p className="mt-2 text-sm text-gray-500">{feature.description}</p>
+                    </div>
+                  </Card>
+                </motion.div>
               ))}
             </div>
           </div>
-          <div className="mx-auto flex items-center justify-center w-full">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mx-auto flex items-center justify-center w-full"
+          >
             <div className="relative w-full">
               <div className="absolute -inset-4">
-                <div className="h-full w-full rotate-6 rounded-3xl bg-gradient-to-r from-brand-500 to-brand-600 opacity-30 blur-xl">
+                <div className="h-full w-full rotate-6 rounded-3xl bg-gradient-to-r from-brand-500 to-brand-600 opacity-30 blur-xl animate-pulse">
                 </div>
               </div>
-              <Card className="relative flex flex-col space-y-6 overflow-hidden rounded-3xl p-8">
+              <Card className="relative group flex flex-col space-y-6 overflow-hidden rounded-3xl p-8 transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <h3 className="font-semibold">Student Records</h3>
                     <p className="text-sm text-gray-500">Total Active Records</p>
                   </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50">
-                    <Users className="h-6 w-6 text-brand-500" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 transition-transform duration-300 group-hover:scale-110">
+                    <Users className="h-6 w-6 text-brand-500 transition-transform duration-300 group-hover:rotate-12" />
                   </div>
                 </div>
                 <div className="text-4xl font-bold">2,547</div>
                 <div className="space-y-2">
-                  <div className="h-2 w-full rounded-full bg-gray-100">
-                    <div className="h-full w-4/5 rounded-full bg-brand-500"></div>
+                  <div className="h-2 w-full rounded-full bg-gray-100 overflow-hidden">
+                    <div className="h-full w-4/5 rounded-full bg-brand-500 transition-all duration-500 group-hover:bg-brand-600"></div>
                   </div>
                   <div className="text-sm text-gray-500">80% storage used</div>
                 </div>
               </Card>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
@@ -128,4 +152,3 @@ const features = [
     icon: Lock,
   }
 ];
-
