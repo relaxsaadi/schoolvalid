@@ -70,55 +70,65 @@ export function UserNav() {
     logoUrl: "",
   });
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [session, setSession] = useState<any>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Load profile data and check authentication when component mounts
   useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        
-        if (userError) throw userError;
-        if (!user) {
-          navigate('/sign-in');
-          return;
-        }
+    // Set up auth state listener
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) {
+        setCurrentUser(session.user);
+        loadProfile(session.user.id);
+      }
+    });
 
-        setCurrentUser(user);
-        console.log("Current user:", user);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session?.user) {
+        setCurrentUser(session.user);
+        loadProfile(session.user.id);
+      } else {
+        navigate('/sign-in');
+      }
+    });
 
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('full_name, institution_name, logo_url')
-          .eq('id', user.id)
-          .single();
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
-        if (profileError) {
-          console.error('Profile error:', profileError);
-          throw profileError;
-        }
+  const loadProfile = async (userId: string) => {
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('full_name, institution_name, logo_url')
+        .eq('id', userId)
+        .single();
 
-        if (profile) {
-          console.log("Profile data loaded:", profile);
-          setProfileData({
-            name: profile.full_name || "",
-            institutionName: profile.institution_name || "",
-            logoUrl: profile.logo_url || "",
-          });
-        }
-      } catch (error) {
-        console.error('Error loading profile:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to load profile data. Please try again.",
+      if (profileError) {
+        console.error('Profile error:', profileError);
+        throw profileError;
+      }
+
+      if (profile) {
+        console.log("Profile data loaded:", profile);
+        setProfileData({
+          name: profile.full_name || "",
+          institutionName: profile.institution_name || "",
+          logoUrl: profile.logo_url || "",
         });
       }
-    };
-
-    loadProfile();
-  }, [navigate]);
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load profile data. Please try again.",
+      });
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -142,7 +152,7 @@ export function UserNav() {
 
   const handleProfileUpdate = async () => {
     try {
-      if (!currentUser) {
+      if (!session?.user) {
         throw new Error("You must be logged in to update your profile");
       }
 
@@ -159,7 +169,7 @@ export function UserNav() {
           institution_name: profileData.institutionName,
           logo_url: profileData.logoUrl,
         })
-        .eq('id', currentUser.id)
+        .eq('id', session.user.id)
         .select();
 
       if (error) {
@@ -174,6 +184,9 @@ export function UserNav() {
         description: "Your profile has been updated successfully",
       });
       setIsProfileOpen(false);
+      
+      // Reload profile data to ensure UI is up to date
+      loadProfile(session.user.id);
     } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
