@@ -44,8 +44,8 @@ export const Hero = () => {
               ))}
             </div>
           </div>
-          <div className="mx-auto flex items-center justify-center">
-            <div className="relative w-full max-w-[400px]">
+          <div className="mx-auto flex items-center justify-center w-full">
+            <div className="relative w-full">
               <div className="absolute -inset-4">
                 <div className="h-full w-full rotate-6 rounded-3xl bg-gradient-to-r from-brand-500 to-brand-600 opacity-30 blur-xl">
                 </div>
