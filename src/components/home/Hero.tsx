@@ -26,13 +26,17 @@ export const Hero = () => {
                 Learn More
               </Button>
             </div>
-            <div className="grid gap-6 pt-8 md:grid-cols-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-8">
               {features.map((feature, i) => (
-                <Card key={feature.title} className="animate-fadeIn p-6 shadow-lg" style={{
-                  animationDelay: `${i * 150}ms`
-                }}>
+                <Card 
+                  key={feature.title} 
+                  className="animate-fadeIn flex flex-col p-6 shadow-lg h-full" 
+                  style={{
+                    animationDelay: `${i * 150}ms`
+                  }}
+                >
                   <div className="flex items-center space-x-4">
-                    <feature.icon className="h-6 w-6 text-brand-500" />
+                    <feature.icon className="h-6 w-6 text-brand-500 shrink-0" />
                     <h3 className="font-semibold">{feature.title}</h3>
                   </div>
                   <p className="mt-2 text-sm text-gray-500">{feature.description}</p>
@@ -41,7 +45,7 @@ export const Hero = () => {
             </div>
           </div>
           <div className="mx-auto flex items-center justify-center">
-            <div className="relative">
+            <div className="relative w-full max-w-[400px]">
               <div className="absolute -inset-4">
                 <div className="h-full w-full rotate-6 rounded-3xl bg-gradient-to-r from-brand-500 to-brand-600 opacity-30 blur-xl">
                 </div>
