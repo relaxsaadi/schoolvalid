@@ -1,6 +1,5 @@
 
 import { LucideIcon } from "lucide-react";
-import { Card } from "@/components/ui/card";
 
 interface StatCardProps {
   icon: LucideIcon;
@@ -10,16 +9,18 @@ interface StatCardProps {
 
 export function StatCard({ icon: Icon, label, value }: StatCardProps) {
   return (
-    <Card className="p-6">
+    <div className="rounded-xl border bg-white p-6">
       <div className="flex items-center space-x-4">
-        <Icon className="h-8 w-8 text-brand-500" />
+        <div className="rounded-lg p-2">
+          <Icon className="h-6 w-6 text-blue-500" />
+        </div>
         <div>
-          <p className="text-sm font-medium text-muted-foreground">
+          <p className="text-base text-gray-600">
             {label}
           </p>
-          <h3 className="text-2xl font-bold">{value}</h3>
+          <h3 className="text-3xl font-bold">{value}</h3>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

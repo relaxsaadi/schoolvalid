@@ -8,11 +8,10 @@ interface StatsOverviewProps {
 }
 
 export function StatsOverview({ records }: StatsOverviewProps) {
-  const activeRecords = records.filter(r => r.status === 'active').length;
   const pendingRecords = records.filter(r => r.status === 'pending').length;
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <StatCard 
         icon={Users}
         label="Total Students"
@@ -20,8 +19,8 @@ export function StatsOverview({ records }: StatsOverviewProps) {
       />
       <StatCard 
         icon={FileText}
-        label="Active Records"
-        value={activeRecords}
+        label="Records"
+        value={records.length}
       />
       <StatCard 
         icon={Award}
@@ -30,7 +29,7 @@ export function StatsOverview({ records }: StatsOverviewProps) {
       />
       <StatCard 
         icon={Bell}
-        label="Pending Records"
+        label="Pending Tasks"
         value={pendingRecords}
       />
     </div>
