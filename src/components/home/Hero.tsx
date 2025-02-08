@@ -195,28 +195,28 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
 
             <div className="relative w-full mt-8 lg:mt-[420px]">
               <div className="absolute -inset-4">
-                <div className="h-full w-full rotate-6 rounded-3xl bg-gradient-to-r from-orange-300/20 to-purple-400/20 opacity-30 blur-xl animate-pulse">
+                <div className="h-full w-full rotate-6 rounded-3xl bg-gradient-to-r from-[#66C7F4]/20 to-[#00C1D4]/20 opacity-30 blur-xl animate-pulse">
                 </div>
               </div>
               <Card className="relative group flex flex-col space-y-6 overflow-hidden rounded-3xl p-8 backdrop-blur-sm bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-500 hover:shadow-xl hover:scale-[1.02] hover:rotate-2">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <h3 className="font-semibold text-white group-hover:text-orange-300 transition-colors duration-300">Student Records</h3>
+                    <h3 className="font-semibold text-white group-hover:text-[#66C7F4] transition-colors duration-300">Student Records</h3>
                     <p className="text-sm text-white/90 group-hover:text-white transition-colors duration-300">Total Active Records</p>
                   </div>
                   <motion.div
                     whileHover={{ rotate: 360, scale: 1.1 }}
                     transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                    className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-300/20 text-orange-300"
+                    className="flex h-12 w-12 items-center justify-center rounded-full bg-[#66C7F4]/20 text-[#66C7F4]"
                   >
                     <Users className="h-6 w-6" />
                   </motion.div>
                 </div>
-                <div className="text-4xl font-bold text-white group-hover:text-orange-300 transition-colors duration-300">2,547</div>
+                <div className="text-4xl font-bold text-white group-hover:text-[#66C7F4] transition-colors duration-300">2,547</div>
                 <div className="space-y-2">
                   <div className="h-2 w-full rounded-full bg-white/20 overflow-hidden">
                     <motion.div 
-                      className="h-full rounded-full bg-orange-300"
+                      className="h-full rounded-full bg-gradient-to-r from-[#66C7F4] to-[#00C1D4]"
                       initial={{ width: "0%" }}
                       animate={{ width: "80%" }}
                       transition={{ duration: 1, delay: 0.5 }}
