@@ -160,9 +160,10 @@ const Dashboard = () => {
       .single();
 
     if (error) {
+      console.error('Error adding record:', error);
       toast({
         title: "Error",
-        description: "Failed to add record",
+        description: "Failed to add record: " + error.message,
         variant: "destructive",
       });
       return;

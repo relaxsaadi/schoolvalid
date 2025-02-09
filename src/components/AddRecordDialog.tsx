@@ -27,22 +27,38 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
-    const newRecord = {
-      recipient_name: formData.get("recipient_name") as string,
-      certificate_number: formData.get("certificate_number") as string,
-      course_name: formData.get("course_name") as string,
-      valid_through: formData.get("valid_through") as string,
-      status: formData.get("status") as string,
-      email: formData.get("email") as string,
-      year_of_birth: parseInt(formData.get("year_of_birth") as string),
-      course_description: formData.get("course_description") as string,
-      diploma_image_url: formData.get("diploma_image_url") as string || null,
-      provider_description: formData.get("provider_description") as string || '',
-    };
-    
-    onAddRecord(newRecord);
-    setOpen(false);
-    (e.target as HTMLFormElement).reset();
+    try {
+      const newRecord = {
+        recipient_name: formData.get("recipient_name") as string,
+        certificate_number: formData.get("certificate_number") as string,
+        course_name: formData.get("course_name") as string,
+        valid_through: formData.get("valid_through") as string,
+        status: formData.get("status") as string || 'active',
+        email: formData.get("email") as string,
+        year_of_birth: parseInt(formData.get("year_of_birth") as string),
+        course_description: formData.get("course_description") as string || '',
+        diploma_image_url: formData.get("diploma_image_url") as string || null,
+        provider_description: formData.get("provider_description") as string || '',
+      };
+
+      // Validate required fields
+      if (!newRecord.recipient_name || !newRecord.certificate_number || 
+          !newRecord.course_name || !newRecord.valid_through || 
+          !newRecord.email || !newRecord.year_of_birth) {
+        throw new Error("Please fill in all required fields");
+      }
+
+      onAddRecord(newRecord);
+      setOpen(false);
+      (e.target as HTMLFormElement).reset();
+      
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to add record",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -58,7 +74,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="recipient_name">Student Name</Label>
+            <Label htmlFor="recipient_name">Student Name *</Label>
             <Input
               id="recipient_name"
               name="recipient_name"
@@ -68,7 +84,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="certificate_number">Student ID</Label>
+            <Label htmlFor="certificate_number">Student ID *</Label>
             <Input
               id="certificate_number"
               name="certificate_number"
@@ -78,7 +94,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="course_name">Course</Label>
+            <Label htmlFor="course_name">Course *</Label>
             <Input
               id="course_name"
               name="course_name"
@@ -88,7 +104,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="valid_through">Valid Through</Label>
+            <Label htmlFor="valid_through">Valid Through *</Label>
             <Input
               id="valid_through"
               name="valid_through"
@@ -97,7 +113,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="status">Status</Label>
+            <Label htmlFor="status">Status *</Label>
             <Input
               id="status"
               name="status"
@@ -108,7 +124,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Email *</Label>
             <Input
               id="email"
               name="email"
@@ -118,7 +134,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="year_of_birth">Year of Birth</Label>
+            <Label htmlFor="year_of_birth">Year of Birth *</Label>
             <Input
               id="year_of_birth"
               name="year_of_birth"
