@@ -13,9 +13,17 @@ const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [organizationName, setOrganizationName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const createSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)+/g, '');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,14 +40,46 @@ const SignUp = () => {
     }
 
     try {
+      // Create organization first
+      const { data: orgData, error: orgError } = await supabase
+        .from('organizations')
+        .insert([
+          {
+            name: organizationName,
+            slug: createSlug(organizationName),
+          }
+        ])
+        .select()
+        .single();
+
+      if (orgError) throw orgError;
+
+      // Then create user
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            organization_id: orgData.id,
+            role: 'admin', // First user of organization is admin
+          }
+        }
       });
 
       if (error) throw error;
 
       if (data.user) {
+        // Update profile with organization
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            organization_id: orgData.id,
+            role: 'admin'
+          })
+          .eq('id', data.user.id);
+
+        if (profileError) throw profileError;
+
         toast({
           title: "Success",
           description: "Account created successfully. Please check your email to verify your account.",
@@ -71,6 +111,17 @@ const SignUp = () => {
           <Card className="grid gap-6 p-6">
             <form onSubmit={handleSubmit}>
               <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="organization">Organization Name</Label>
+                  <Input
+                    id="organization"
+                    placeholder="Your School or Institution Name"
+                    value={organizationName}
+                    onChange={(e) => setOrganizationName(e.target.value)}
+                    disabled={isLoading}
+                    required
+                  />
+                </div>
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input

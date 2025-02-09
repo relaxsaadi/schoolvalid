@@ -44,15 +44,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { TopNav } from "@/components/TopNav";
+import { Organization } from "@/types/organization";
 
 export interface StudentRecord {
   id: string;
@@ -67,6 +62,7 @@ export interface StudentRecord {
   course_description?: string;
   diploma_image_url?: string | null;
   provider_description?: string | null;
+  organization_id: string;
 }
 
 const Dashboard = () => {
@@ -75,32 +71,57 @@ const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateFilter, setDateFilter] = useState<Date>();
   const [editingRecord, setEditingRecord] = useState<StudentRecord | null>(null);
+  const [organization, setOrganization] = useState<Organization | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchRecords();
+    fetchOrganizationAndRecords();
   }, []);
 
-  const fetchRecords = async () => {
-    const { data, error } = await supabase
-      .from('certificates')
-      .select('*')
-      .order('created_at', { ascending: false });
+  const fetchOrganizationAndRecords = async () => {
+    try {
+      // Get current user's organization
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
 
-    if (error) {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', userData.user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      // Get organization details
+      const { data: orgData, error: orgError } = await supabase
+        .from('organizations')
+        .select('*')
+        .eq('id', profileData.organization_id)
+        .single();
+
+      if (orgError) throw orgError;
+      setOrganization(orgData);
+
+      // Get records for this organization
+      const { data: recordsData, error: recordsError } = await supabase
+        .from('certificates')
+        .select('*')
+        .eq('organization_id', profileData.organization_id)
+        .order('created_at', { ascending: false });
+
+      if (recordsError) throw recordsError;
+      setRecords(recordsData || []);
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to fetch records",
+        description: "Failed to fetch data",
         variant: "destructive",
       });
-      return;
     }
-
-    setRecords(data || []);
   };
 
   const handleEdit = async () => {
-    if (!editingRecord) return;
+    if (!editingRecord || !organization) return;
 
     const { error } = await supabase
       .from('certificates')
@@ -115,6 +136,7 @@ const Dashboard = () => {
         valid_through: editingRecord.valid_through,
         diploma_image_url: editingRecord.diploma_image_url,
         provider_description: editingRecord.provider_description,
+        organization_id: organization.id
       })
       .eq('id', editingRecord.id);
 
@@ -137,7 +159,9 @@ const Dashboard = () => {
     });
   };
 
-  const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
+  const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at" | "organization_id">) => {
+    if (!organization) return;
+
     const { data, error } = await supabase
       .from('certificates')
       .insert([{
@@ -155,6 +179,7 @@ const Dashboard = () => {
         diploma_image_url: newRecord.diploma_image_url,
         provider_description: newRecord.provider_description,
         provider: 'Default Provider',
+        organization_id: organization.id
       }])
       .select()
       .single();
@@ -195,7 +220,14 @@ const Dashboard = () => {
       
       <main className="flex-1 space-y-4 p-8 pt-6">
         <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+            {organization && (
+              <p className="text-muted-foreground">
+                {organization.name}
+              </p>
+            )}
+          </div>
           <div className="flex items-center space-x-2">
             <AddRecordDialog onAddRecord={handleAddRecord} />
             <Button variant="outline">
