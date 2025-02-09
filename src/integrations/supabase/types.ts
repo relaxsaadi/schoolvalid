@@ -23,7 +23,7 @@ export type Database = {
           id: string
           issue_date: string
           normalized_recipient_name: string | null
-          organization_id: string
+          organization_id: string | null
           provider: string
           provider_description: string | null
           recipient_name: string
@@ -44,7 +44,7 @@ export type Database = {
           id?: string
           issue_date: string
           normalized_recipient_name?: string | null
-          organization_id: string
+          organization_id?: string | null
           provider: string
           provider_description?: string | null
           recipient_name: string
@@ -65,7 +65,7 @@ export type Database = {
           id?: string
           issue_date?: string
           normalized_recipient_name?: string | null
-          organization_id?: string
+          organization_id?: string | null
           provider?: string
           provider_description?: string | null
           recipient_name?: string
@@ -79,13 +79,6 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "certificates_organization_id_fk"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
           {

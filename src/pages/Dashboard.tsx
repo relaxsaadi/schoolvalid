@@ -6,10 +6,8 @@ import {
   Award,
   Bell,
   Download,
-  Filter,
   Pencil,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
 import { useState, useEffect } from "react";
 import {
@@ -37,6 +35,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
@@ -44,15 +43,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { TopNav } from "@/components/TopNav";
+import { Organization } from "@/types/organization";
+import { useNavigate } from "react-router-dom";
 
 export interface StudentRecord {
   id: string;
@@ -76,137 +71,230 @@ const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateFilter, setDateFilter] = useState<Date>();
   const [editingRecord, setEditingRecord] = useState<StudentRecord | null>(null);
+  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchRecords();
-  }, []);
+    checkSessionAndFetchData();
+  }, [navigate]);
 
-  const fetchRecords = async () => {
+  const checkSessionAndFetchData = async () => {
     try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error("Session error:", sessionError);
+        throw sessionError;
+      }
+      
+      if (!session) {
+        navigate("/sign-in");
+        return;
+      }
+
+      await fetchOrganizationAndRecords();
+    } catch (error: any) {
+      console.error("Session check error:", error);
+      toast({
+        title: "Authentication Error",
+        description: "Please sign in again.",
+        variant: "destructive",
+      });
+      navigate("/sign-in");
+    }
+  };
+
+  const fetchOrganizationAndRecords = async () => {
+    try {
+      setIsLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
+      
       if (!user) {
+        navigate("/sign-in");
+        return;
+      }
+
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error("Profile fetch error:", profileError);
+        if (profileError.code === 'PGRST116') {
+          // Policy violation error
+          toast({
+            title: "Access Error",
+            description: "You don't have permission to access this resource.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to fetch user profile. Please try again.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
+      if (!profileData?.organization_id) {
         toast({
-          title: "Authentication required",
-          description: "Please sign in to view records",
+          title: "No organization found",
+          description: "Please contact support to set up your organization.",
           variant: "destructive",
         });
         return;
       }
 
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('id', user.id)
-        .maybeSingle();
+      const { data: orgData, error: orgError } = await supabase
+        .from('organizations')
+        .select('*')
+        .eq('id', profileData.organization_id)
+        .single();
 
-      if (profileError) {
-        console.error('Profile error:', profileError);
-        throw new Error("Failed to fetch profile");
+      if (orgError) {
+        console.error("Organization fetch error:", orgError);
+        toast({
+          title: "Error",
+          description: "Failed to load organization data.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      if (!profile?.organization_id) {
-        throw new Error("No organization found for your profile. Please contact support.");
+      if (!orgData) {
+        toast({
+          title: "Organization not found",
+          description: "The organization associated with your account was not found.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      const { data, error } = await supabase
+      setOrganization(orgData);
+
+      const { data: recordsData, error: recordsError } = await supabase
         .from('certificates')
         .select('*')
-        .eq('organization_id', profile.organization_id)
+        .eq('organization_id', profileData.organization_id)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Records error:', error);
-        throw new Error("Failed to fetch records");
+      if (recordsError) {
+        console.error("Records fetch error:", recordsError);
+        toast({
+          title: "Error",
+          description: "Failed to fetch certificates. Please try again.",
+          variant: "destructive",
+        });
+        return;
       }
-
-      setRecords(data || []);
-    } catch (error) {
-      console.error('Fetch records error:', error);
+      
+      setRecords(recordsData || []);
+    } catch (error: any) {
+      console.error("Data fetch error:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "An unexpected error occurred",
+        description: "Failed to fetch data. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleEdit = async () => {
-    if (!editingRecord) return;
+    if (!editingRecord || !organization) return;
 
-    const { error } = await supabase
-      .from('certificates')
-      .update({
-        recipient_name: editingRecord.recipient_name,
-        certificate_number: editingRecord.certificate_number,
-        course_name: editingRecord.course_name,
-        email: editingRecord.email,
-        status: editingRecord.status,
-        year_of_birth: editingRecord.year_of_birth,
-        course_description: editingRecord.course_description,
-        valid_through: editingRecord.valid_through,
-        diploma_image_url: editingRecord.diploma_image_url,
-        provider_description: editingRecord.provider_description,
-      })
-      .eq('id', editingRecord.id);
+    try {
+      const { error } = await supabase
+        .from('certificates')
+        .update({
+          recipient_name: editingRecord.recipient_name,
+          certificate_number: editingRecord.certificate_number,
+          course_name: editingRecord.course_name,
+          email: editingRecord.email,
+          status: editingRecord.status,
+          year_of_birth: editingRecord.year_of_birth,
+          course_description: editingRecord.course_description,
+          valid_through: editingRecord.valid_through,
+          diploma_image_url: editingRecord.diploma_image_url,
+          provider_description: editingRecord.provider_description,
+          organization_id: organization.id
+        })
+        .eq('id', editingRecord.id);
 
-    if (error) {
+      if (error) throw error;
+
+      setRecords(records.map(record => 
+        record.id === editingRecord.id ? editingRecord : record
+      ));
+      setEditingRecord(null);
+      toast({
+        title: "Success",
+        description: "Record updated successfully",
+      });
+    } catch (error: any) {
+      console.error("Update error:", error);
       toast({
         title: "Error",
-        description: "Failed to update record",
+        description: error.message || "Failed to update record",
         variant: "destructive",
       });
-      return;
     }
-
-    setRecords(records.map(record => 
-      record.id === editingRecord.id ? editingRecord : record
-    ));
-    setEditingRecord(null);
-    toast({
-      title: "Success",
-      description: "Record updated successfully",
-    });
   };
 
-  const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
-    const { data, error } = await supabase
-      .from('certificates')
-      .insert([{
-        recipient_name: newRecord.recipient_name,
-        certificate_number: newRecord.certificate_number,
-        course_name: newRecord.course_name,
-        status: newRecord.status,
-        blockchain_hash: 'pending',
-        blockchain_timestamp: new Date().toISOString(),
-        issue_date: new Date().toISOString(),
-        valid_through: newRecord.valid_through,
-        year_of_birth: newRecord.year_of_birth,
-        email: newRecord.email,
-        course_description: newRecord.course_description,
-        diploma_image_url: newRecord.diploma_image_url,
-        provider_description: newRecord.provider_description,
-        provider: 'Default Provider',
-        organization_id: newRecord.organization_id,
-      }])
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error adding record:', error);
+  const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at" | "organization_id">) => {
+    if (!organization) {
       toast({
         title: "Error",
-        description: "Failed to add record: " + error.message,
+        description: "No organization found. Please contact support.",
         variant: "destructive",
       });
       return;
     }
 
-    setRecords((prev) => [data, ...prev]);
-    toast({
-      title: "Success",
-      description: "Record added successfully",
-    });
+    try {
+      const { data, error } = await supabase
+        .from('certificates')
+        .insert([{
+          recipient_name: newRecord.recipient_name,
+          certificate_number: newRecord.certificate_number,
+          course_name: newRecord.course_name,
+          status: newRecord.status || 'pending',
+          blockchain_hash: 'pending',
+          blockchain_timestamp: new Date().toISOString(),
+          issue_date: new Date().toISOString(),
+          valid_through: newRecord.valid_through,
+          year_of_birth: newRecord.year_of_birth,
+          email: newRecord.email,
+          course_description: newRecord.course_description,
+          diploma_image_url: newRecord.diploma_image_url,
+          provider_description: newRecord.provider_description,
+          provider: 'Default Provider',
+          organization_id: organization.id
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setRecords((prev) => [data, ...prev]);
+      toast({
+        title: "Success",
+        description: "Record added successfully",
+      });
+    } catch (error: any) {
+      console.error("Add record error:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add record",
+        variant: "destructive",
+      });
+    }
   };
 
   const filteredRecords = records.filter((record) => {
@@ -223,13 +311,31 @@ const Dashboard = () => {
     return matchesSearch && matchesStatus && matchesDate;
   });
 
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-600 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <TopNav searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       
       <main className="flex-1 space-y-4 p-8 pt-6">
         <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+            {organization && (
+              <p className="text-muted-foreground">
+                {organization.name}
+              </p>
+            )}
+          </div>
           <div className="flex items-center space-x-2">
             <AddRecordDialog onAddRecord={handleAddRecord} />
             <Button variant="outline">
