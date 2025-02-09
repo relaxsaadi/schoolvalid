@@ -14,6 +14,7 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [organizationName, setOrganizationName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -66,12 +67,13 @@ const SignUp = () => {
 
       if (orgError) throw orgError;
 
-      // Update the profile with organization
+      // Update the profile with organization and phone number
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
           organization_id: orgData.id,
-          role: 'admin'
+          role: 'admin',
+          phone_number: phoneNumber
         })
         .eq('id', data.user.id);
 
@@ -129,6 +131,18 @@ const SignUp = () => {
                     autoCapitalize="none"
                     autoComplete="email"
                     autoCorrect="off"
+                    disabled={isLoading}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    placeholder="+1234567890"
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
                     disabled={isLoading}
                     required
                   />

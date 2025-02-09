@@ -246,6 +246,7 @@ export type Database = {
           last_login: string | null
           logo_url: string | null
           organization_id: string | null
+          phone_number: string | null
           role: Database["public"]["Enums"]["user_role"] | null
           status: string | null
           theme: string | null
@@ -261,6 +262,7 @@ export type Database = {
           last_login?: string | null
           logo_url?: string | null
           organization_id?: string | null
+          phone_number?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           status?: string | null
           theme?: string | null
@@ -276,6 +278,7 @@ export type Database = {
           last_login?: string | null
           logo_url?: string | null
           organization_id?: string | null
+          phone_number?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           status?: string | null
           theme?: string | null
