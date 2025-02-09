@@ -83,39 +83,69 @@ const Dashboard = () => {
   }, []);
 
   const fetchRecords = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to view records",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('organization_id')
-      .eq('id', user.id)
-      .single();
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .maybeSingle();
 
-    if (!profile?.organization_id) {
+      if (profileError) {
+        console.error('Profile error:', profileError);
+        toast({
+          title: "Error",
+          description: "Failed to fetch profile",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!profile?.organization_id) {
+        console.error('No organization found for profile:', profile);
+        toast({
+          title: "Error",
+          description: "No organization found for your profile",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('Fetching records for organization:', profile.organization_id);
+      const { data, error } = await supabase
+        .from('certificates')
+        .select('*')
+        .eq('organization_id', profile.organization_id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Records error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch records",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setRecords(data || []);
+    } catch (error) {
+      console.error('Fetch records error:', error);
       toast({
         title: "Error",
-        description: "Organization not found",
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
-      return;
     }
-
-    const { data, error } = await supabase
-      .from('certificates')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch records",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setRecords(data || []);
   };
 
   const handleEdit = async () => {

@@ -44,22 +44,25 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
           .from('profiles')
           .select('organization_id')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
         
         if (profileError) {
+          console.error('Profile error:', profileError);
           throw new Error(profileError.message);
         }
         
         if (!profile?.organization_id) {
-          throw new Error("Organization not found");
+          console.error('No organization found for profile:', profile);
+          throw new Error("No organization found for your profile");
         }
         
+        console.log('Found organization:', profile.organization_id);
         setOrganizationId(profile.organization_id);
       } catch (error) {
         console.error('Error fetching organization:', error);
         toast({
           title: "Error",
-          description: "Failed to fetch organization. Please try logging out and back in.",
+          description: error instanceof Error ? error.message : "Failed to fetch organization",
           variant: "destructive",
         });
         setOpen(false);
@@ -74,7 +77,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
     }
   }, [open, toast]);
   
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     
@@ -108,6 +111,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
       (e.target as HTMLFormElement).reset();
       
     } catch (error) {
+      console.error('Submit error:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to add record",
@@ -143,3 +147,4 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
     </Dialog>
   );
 }
+
