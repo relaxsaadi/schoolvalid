@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -126,7 +127,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
     fetchOrganization();
   }, [open, toast]);
   
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!organization) {
       toast({
@@ -144,18 +145,55 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
       certificate_number: formData.get("certificate_number") as string,
       course_name: formData.get("course_name") as string,
       valid_through: formData.get("valid_through") as string,
-      status: formData.get("status") as string,
+      status: formData.get("status") as string || 'active',
       email: formData.get("email") as string,
       year_of_birth: parseInt(formData.get("year_of_birth") as string),
-      course_description: formData.get("course_description") as string,
+      course_description: formData.get("course_description") as string || null,
       diploma_image_url: formData.get("diploma_image_url") as string || null,
-      provider_description: formData.get("provider_description") as string || '',
-      organization_id: organization.id
+      provider_description: formData.get("provider_description") as string || null,
+      organization_id: organization.id,
+      blockchain_hash: 'pending',
+      blockchain_timestamp: new Date().toISOString(),
+      issue_date: new Date().toISOString(),
+      provider: 'Default Provider'
     };
+
+    console.log('Attempting to add new record:', newRecord);
     
-    onAddRecord(newRecord);
-    setOpen(false);
-    (e.target as HTMLFormElement).reset();
+    try {
+      const { data, error } = await supabase
+        .from('certificates')
+        .insert([newRecord])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error inserting record:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message || "Failed to add record. Please try again.",
+        });
+        return;
+      }
+
+      console.log('Record added successfully:', data);
+      onAddRecord(newRecord);
+      setOpen(false);
+      (e.target as HTMLFormElement).reset();
+      
+      toast({
+        title: "Success",
+        description: "Record added successfully",
+      });
+    } catch (error: any) {
+      console.error('Unexpected error adding record:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+      });
+    }
   };
 
   return (
