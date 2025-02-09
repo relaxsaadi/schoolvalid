@@ -37,9 +37,10 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
       year_of_birth: parseInt(formData.get("year_of_birth") as string),
       course_description: formData.get("course_description") as string,
       diploma_image_url: formData.get("diploma_image_url") as string || null,
-      provider_description: formData.get("provider_description") as string || '',
+      provider_description: (formData.get("provider_description") as string) || '', // Ensure we get the value
     };
     
+    console.log("Submitting record with provider description:", newRecord.provider_description); // Add this log
     onAddRecord(newRecord);
     setOpen(false);
     (e.target as HTMLFormElement).reset();
