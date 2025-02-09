@@ -7,10 +7,8 @@ import {
   Award,
   Bell,
   Download,
-  Filter,
   Pencil,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
 import { useState, useEffect } from "react";
 import {
@@ -38,6 +36,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
@@ -79,32 +78,40 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSessionAndFetchData = async () => {
-      try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) throw sessionError;
-        
-        if (!session) {
-          navigate("/sign-in");
-          return;
-        }
-
-        fetchOrganizationAndRecords();
-      } catch (error: any) {
-        console.error("Session check error:", error);
-        navigate("/sign-in");
-      }
-    };
-
     checkSessionAndFetchData();
   }, [navigate]);
+
+  const checkSessionAndFetchData = async () => {
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error("Session error:", sessionError);
+        throw sessionError;
+      }
+      
+      if (!session) {
+        navigate("/sign-in");
+        return;
+      }
+
+      await fetchOrganizationAndRecords();
+    } catch (error: any) {
+      console.error("Session check error:", error);
+      toast({
+        title: "Authentication Error",
+        description: "Please sign in again.",
+        variant: "destructive",
+      });
+      navigate("/sign-in");
+    }
+  };
 
   const fetchOrganizationAndRecords = async () => {
     try {
       setIsLoading(true);
-      // Get current user's organization
       const { data: { user } } = await supabase.auth.getUser();
+      
       if (!user) {
         navigate("/sign-in");
         return;
@@ -116,18 +123,20 @@ const Dashboard = () => {
         .eq('id', user.id)
         .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("Profile fetch error:", profileError);
+        throw profileError;
+      }
 
       if (!profileData?.organization_id) {
         toast({
           title: "No organization found",
-          description: "Please try again or contact support.",
+          description: "Please contact support to set up your organization.",
           variant: "destructive",
         });
         return;
       }
 
-      // Get organization details
       const { data: orgData, error: orgError } = await supabase
         .from('organizations')
         .select('*')
@@ -138,7 +147,7 @@ const Dashboard = () => {
         console.error("Organization fetch error:", orgError);
         toast({
           title: "Error",
-          description: "Failed to load organization data. Please try again.",
+          description: "Failed to load organization data.",
           variant: "destructive",
         });
         return;
@@ -146,14 +155,17 @@ const Dashboard = () => {
 
       setOrganization(orgData);
 
-      // Get records for this organization
       const { data: recordsData, error: recordsError } = await supabase
         .from('certificates')
         .select('*')
         .eq('organization_id', profileData.organization_id)
         .order('created_at', { ascending: false });
 
-      if (recordsError) throw recordsError;
+      if (recordsError) {
+        console.error("Records fetch error:", recordsError);
+        throw recordsError;
+      }
+      
       setRecords(recordsData || []);
     } catch (error: any) {
       console.error("Data fetch error:", error);
@@ -170,81 +182,85 @@ const Dashboard = () => {
   const handleEdit = async () => {
     if (!editingRecord || !organization) return;
 
-    const { error } = await supabase
-      .from('certificates')
-      .update({
-        recipient_name: editingRecord.recipient_name,
-        certificate_number: editingRecord.certificate_number,
-        course_name: editingRecord.course_name,
-        email: editingRecord.email,
-        status: editingRecord.status,
-        year_of_birth: editingRecord.year_of_birth,
-        course_description: editingRecord.course_description,
-        valid_through: editingRecord.valid_through,
-        diploma_image_url: editingRecord.diploma_image_url,
-        provider_description: editingRecord.provider_description,
-        organization_id: organization.id
-      })
-      .eq('id', editingRecord.id);
+    try {
+      const { error } = await supabase
+        .from('certificates')
+        .update({
+          recipient_name: editingRecord.recipient_name,
+          certificate_number: editingRecord.certificate_number,
+          course_name: editingRecord.course_name,
+          email: editingRecord.email,
+          status: editingRecord.status,
+          year_of_birth: editingRecord.year_of_birth,
+          course_description: editingRecord.course_description,
+          valid_through: editingRecord.valid_through,
+          diploma_image_url: editingRecord.diploma_image_url,
+          provider_description: editingRecord.provider_description,
+          organization_id: organization.id
+        })
+        .eq('id', editingRecord.id);
 
-    if (error) {
+      if (error) throw error;
+
+      setRecords(records.map(record => 
+        record.id === editingRecord.id ? editingRecord : record
+      ));
+      setEditingRecord(null);
+      toast({
+        title: "Success",
+        description: "Record updated successfully",
+      });
+    } catch (error: any) {
+      console.error("Update error:", error);
       toast({
         title: "Error",
         description: "Failed to update record",
         variant: "destructive",
       });
-      return;
     }
-
-    setRecords(records.map(record => 
-      record.id === editingRecord.id ? editingRecord : record
-    ));
-    setEditingRecord(null);
-    toast({
-      title: "Success",
-      description: "Record updated successfully",
-    });
   };
 
   const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at" | "organization_id">) => {
     if (!organization) return;
 
-    const { data, error } = await supabase
-      .from('certificates')
-      .insert([{
-        recipient_name: newRecord.recipient_name,
-        certificate_number: newRecord.certificate_number,
-        course_name: newRecord.course_name,
-        status: newRecord.status,
-        blockchain_hash: 'pending',
-        blockchain_timestamp: new Date().toISOString(),
-        issue_date: new Date().toISOString(),
-        valid_through: newRecord.valid_through,
-        year_of_birth: newRecord.year_of_birth,
-        email: newRecord.email,
-        course_description: newRecord.course_description,
-        diploma_image_url: newRecord.diploma_image_url,
-        provider_description: newRecord.provider_description,
-        provider: 'Default Provider',
-        organization_id: organization.id
-      }])
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('certificates')
+        .insert([{
+          recipient_name: newRecord.recipient_name,
+          certificate_number: newRecord.certificate_number,
+          course_name: newRecord.course_name,
+          status: newRecord.status || 'pending',
+          blockchain_hash: 'pending',
+          blockchain_timestamp: new Date().toISOString(),
+          issue_date: new Date().toISOString(),
+          valid_through: newRecord.valid_through,
+          year_of_birth: newRecord.year_of_birth,
+          email: newRecord.email,
+          course_description: newRecord.course_description,
+          diploma_image_url: newRecord.diploma_image_url,
+          provider_description: newRecord.provider_description,
+          provider: 'Default Provider',
+          organization_id: organization.id
+        }])
+        .select()
+        .single();
 
-    if (error) {
+      if (error) throw error;
+
+      setRecords((prev) => [data, ...prev]);
+      toast({
+        title: "Success",
+        description: "Record added successfully",
+      });
+    } catch (error: any) {
+      console.error("Add record error:", error);
       toast({
         title: "Error",
         description: "Failed to add record",
         variant: "destructive",
       });
-      return;
     }
-
-    setRecords((prev) => [data, ...prev]);
-    toast({
-      title: "Success",
-      description: "Record added successfully",
-    });
   };
 
   const filteredRecords = records.filter((record) => {
