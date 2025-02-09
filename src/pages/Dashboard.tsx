@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -121,11 +120,16 @@ const Dashboard = () => {
         .from('profiles')
         .select('organization_id')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         console.error("Profile fetch error:", profileError);
-        throw profileError;
+        toast({
+          title: "Error",
+          description: "Failed to fetch user profile. Please try again.",
+          variant: "destructive",
+        });
+        return;
       }
 
       if (!profileData?.organization_id) {
@@ -141,13 +145,22 @@ const Dashboard = () => {
         .from('organizations')
         .select('*')
         .eq('id', profileData.organization_id)
-        .single();
+        .maybeSingle();
 
       if (orgError) {
         console.error("Organization fetch error:", orgError);
         toast({
           title: "Error",
           description: "Failed to load organization data.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!orgData) {
+        toast({
+          title: "Organization not found",
+          description: "The organization associated with your account was not found.",
           variant: "destructive",
         });
         return;
@@ -163,7 +176,12 @@ const Dashboard = () => {
 
       if (recordsError) {
         console.error("Records fetch error:", recordsError);
-        throw recordsError;
+        toast({
+          title: "Error",
+          description: "Failed to fetch certificates. Please try again.",
+          variant: "destructive",
+        });
+        return;
       }
       
       setRecords(recordsData || []);
@@ -214,14 +232,21 @@ const Dashboard = () => {
       console.error("Update error:", error);
       toast({
         title: "Error",
-        description: "Failed to update record",
+        description: error.message || "Failed to update record",
         variant: "destructive",
       });
     }
   };
 
   const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at" | "organization_id">) => {
-    if (!organization) return;
+    if (!organization) {
+      toast({
+        title: "Error",
+        description: "No organization found. Please contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       const { data, error } = await supabase
@@ -257,7 +282,7 @@ const Dashboard = () => {
       console.error("Add record error:", error);
       toast({
         title: "Error",
-        description: "Failed to add record",
+        description: error.message || "Failed to add record",
         variant: "destructive",
       });
     }
