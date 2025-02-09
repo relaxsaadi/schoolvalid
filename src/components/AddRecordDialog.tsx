@@ -37,7 +37,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
       year_of_birth: parseInt(formData.get("year_of_birth") as string),
       course_description: formData.get("course_description") as string,
       diploma_image_url: formData.get("diploma_image_url") as string || null,
-      provider_description: formData.get("provider_description") as string || null,
+      provider_description: formData.get("provider_description") as string || '',
     };
     
     onAddRecord(newRecord);

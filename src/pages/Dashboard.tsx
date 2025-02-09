@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -115,6 +114,7 @@ const Dashboard = () => {
         course_description: editingRecord.course_description,
         valid_through: editingRecord.valid_through,
         diploma_image_url: editingRecord.diploma_image_url,
+        provider_description: editingRecord.provider_description,
       })
       .eq('id', editingRecord.id);
 
@@ -137,20 +137,6 @@ const Dashboard = () => {
     });
   };
 
-  const filteredRecords = records.filter((record) => {
-    const matchesSearch = 
-      record.recipient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      record.certificate_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      record.course_name.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesStatus = !statusFilter || record.status === statusFilter;
-
-    const matchesDate = !dateFilter || 
-      format(new Date(record.created_at), 'yyyy-MM-dd') === format(dateFilter, 'yyyy-MM-dd');
-
-    return matchesSearch && matchesStatus && matchesDate;
-  });
-
   const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
     const { data, error } = await supabase
       .from('certificates')
@@ -167,7 +153,7 @@ const Dashboard = () => {
         email: newRecord.email,
         course_description: newRecord.course_description,
         diploma_image_url: newRecord.diploma_image_url,
-        provider_description: newRecord.provider_description, // Added this line
+        provider_description: newRecord.provider_description,
         provider: 'Default Provider',
       }])
       .select()
@@ -188,6 +174,20 @@ const Dashboard = () => {
       description: "Record added successfully",
     });
   };
+
+  const filteredRecords = records.filter((record) => {
+    const matchesSearch = 
+      record.recipient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      record.certificate_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      record.course_name.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = !statusFilter || record.status === statusFilter;
+
+    const matchesDate = !dateFilter || 
+      format(new Date(record.created_at), 'yyyy-MM-dd') === format(dateFilter, 'yyyy-MM-dd');
+
+    return matchesSearch && matchesStatus && matchesDate;
+  });
 
   return (
     <div className="flex min-h-screen flex-col">
