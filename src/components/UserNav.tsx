@@ -56,7 +56,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -69,66 +69,8 @@ export function UserNav() {
     institutionName: "",
     logoUrl: "",
   });
-  const [session, setSession] = useState(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Check and handle authentication session
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (!session) {
-        navigate('/sign-in');
-      }
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (!session) {
-        navigate('/sign-in');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  // Fetch profile data when the component mounts and we have a session
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        if (!session?.user?.id) return;
-
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .maybeSingle();
-
-        if (error) throw error;
-
-        if (data) {
-          setProfileData({
-            name: data.full_name || "",
-            institutionName: data.institution_name || "",
-            logoUrl: data.logo_url || "",
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching profile:', error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to fetch profile data. Please try again.",
-        });
-      }
-    };
-
-    if (session?.user?.id) {
-      fetchProfile();
-    }
-  }, [session, toast]);
 
   const handleLogout = async () => {
     try {
@@ -152,43 +94,32 @@ export function UserNav() {
 
   const handleProfileUpdate = async () => {
     try {
-      if (!session?.user?.id) {
-        throw new Error("You must be logged in to update your profile");
-      }
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
 
       const { error } = await supabase
         .from('profiles')
         .update({
-          full_name: profileData.name,
           institution_name: profileData.institutionName,
           logo_url: profileData.logoUrl,
         })
-        .eq('id', session.user.id);
+        .eq('id', user.id);
 
-      if (error) {
-        console.error('Update error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully",
       });
       setIsProfileOpen(false);
-    } catch (error: any) {
-      console.error('Profile update error:', error);
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error?.message || "Failed to update profile. Please try again.",
+        description: "Failed to update profile. Please try again.",
       });
     }
   };
-
-  // If no session, don't render the component
-  if (!session) {
-    return null;
-  }
 
   return (
     <>
@@ -208,9 +139,9 @@ export function UserNav() {
         >
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{profileData.name || 'User'}</p>
+              <p className="text-sm font-medium leading-none">User</p>
               <p className="text-xs leading-none text-muted-foreground">
-                {profileData.institutionName || 'Institution'}
+                user@example.com
               </p>
             </div>
           </DropdownMenuLabel>
