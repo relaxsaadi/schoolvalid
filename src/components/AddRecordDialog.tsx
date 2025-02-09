@@ -11,9 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { StudentRecord } from "@/pages/Dashboard";
+import { supabase } from "@/integrations/supabase/client";
+import { Organization } from "@/types/organization";
 
 interface AddRecordDialogProps {
   onAddRecord: (record: Omit<StudentRecord, "id" | "created_at">) => void;
@@ -21,10 +23,45 @@ interface AddRecordDialogProps {
 
 export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
   const [open, setOpen] = useState(false);
+  const [organization, setOrganization] = useState<Organization | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchOrganization = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single();
+
+      if (profileData?.organization_id) {
+        const { data: orgData } = await supabase
+          .from('organizations')
+          .select('*')
+          .eq('id', profileData.organization_id)
+          .single();
+        
+        setOrganization(orgData);
+      }
+    };
+
+    fetchOrganization();
+  }, []);
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!organization) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No organization found. Please try again.",
+      });
+      return;
+    }
+
     const formData = new FormData(e.currentTarget);
     
     const newRecord = {
@@ -38,6 +75,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
       course_description: formData.get("course_description") as string,
       diploma_image_url: formData.get("diploma_image_url") as string || null,
       provider_description: formData.get("provider_description") as string || '',
+      organization_id: organization.id
     };
     
     onAddRecord(newRecord);
