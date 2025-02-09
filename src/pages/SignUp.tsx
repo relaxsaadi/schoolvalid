@@ -7,24 +7,14 @@ import { Label } from "@/components/ui/label";
 import { GraduationCap } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [organizationName, setOrganizationName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const createSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,55 +31,17 @@ const SignUp = () => {
     }
 
     try {
-      // First create user
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (signUpError) throw signUpError;
-
-      if (!data.user) {
-        throw new Error("No user returned from sign up");
-      }
-
-      // Then create organization
-      const { data: orgData, error: orgError } = await supabase
-        .from('organizations')
-        .insert([
-          {
-            name: organizationName,
-            slug: createSlug(organizationName),
-          }
-        ])
-        .select()
-        .single();
-
-      if (orgError) throw orgError;
-
-      // Update the profile with organization and phone number
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          organization_id: orgData.id,
-          role: 'admin',
-          phone_number: phoneNumber
-        })
-        .eq('id', data.user.id);
-
-      if (profileError) throw profileError;
-
+      // Here we'll add Supabase authentication later
       toast({
         title: "Success",
-        description: "Account created successfully. Please check your email to verify your account.",
+        description: "Account created successfully",
       });
       navigate("/sign-in");
-    } catch (error: any) {
-      console.error("Sign up error:", error);
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error?.message || "Failed to create account. Please try again.",
+        description: "Something went wrong. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -110,17 +62,6 @@ const SignUp = () => {
             <form onSubmit={handleSubmit}>
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="organization">Organization Name</Label>
-                  <Input
-                    id="organization"
-                    placeholder="Your School or Institution Name"
-                    value={organizationName}
-                    onChange={(e) => setOrganizationName(e.target.value)}
-                    disabled={isLoading}
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
@@ -131,18 +72,6 @@ const SignUp = () => {
                     autoCapitalize="none"
                     autoComplete="email"
                     autoCorrect="off"
-                    disabled={isLoading}
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    placeholder="+1234567890"
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
                     disabled={isLoading}
                     required
                   />
@@ -169,7 +98,7 @@ const SignUp = () => {
                     required
                   />
                 </div>
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading} className="bg-brand-500 hover:bg-brand-600 text-white">
                   {isLoading ? "Creating account..." : "Sign Up"}
                 </Button>
               </div>
