@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -120,24 +121,15 @@ const Dashboard = () => {
         .from('profiles')
         .select('organization_id')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         console.error("Profile fetch error:", profileError);
-        if (profileError.code === 'PGRST116') {
-          // Policy violation error
-          toast({
-            title: "Access Error",
-            description: "You don't have permission to access this resource.",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Error",
-            description: "Failed to fetch user profile. Please try again.",
-            variant: "destructive",
-          });
-        }
+        toast({
+          title: "Error",
+          description: "Failed to fetch user profile. Please try again.",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -154,7 +146,7 @@ const Dashboard = () => {
         .from('organizations')
         .select('*')
         .eq('id', profileData.organization_id)
-        .single();
+        .maybeSingle();
 
       if (orgError) {
         console.error("Organization fetch error:", orgError);
@@ -395,71 +387,99 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Student Name</TableHead>
-                <TableHead>Student ID</TableHead>
-                <TableHead>Course</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date Added</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredRecords.length === 0 ? (
+        <div className="grid gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex-1">
+              <Select
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All Statuses</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex-1">
+              <Input
+                type="date"
+                onChange={(e) => setDateFilter(e.target.value ? new Date(e.target.value) : undefined)}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">
-                    No records found
-                  </TableCell>
+                  <TableHead>Student Name</TableHead>
+                  <TableHead>Student ID</TableHead>
+                  <TableHead>Course</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date Added</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : (
-                filteredRecords.map((record) => (
-                  <TableRow 
-                    key={record.id}
-                    className="transition-colors hover:bg-muted/50 animate-fade-in"
-                  >
-                    <TableCell>{record.recipient_name}</TableCell>
-                    <TableCell>{record.certificate_number}</TableCell>
-                    <TableCell>{record.course_name}</TableCell>
-                    <TableCell>
-                      <span className={cn(
-                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
-                        record.status === 'active' && "bg-green-100 text-green-800",
-                        record.status === 'pending' && "bg-yellow-100 text-yellow-800",
-                        record.status === 'expired' && "bg-red-100 text-red-800"
-                      )}>
-                        {record.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(record.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              className="hover:text-blue-500 hover:scale-110 transition-all"
-                              onClick={() => setEditingRecord(record)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Edit Record</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+              </TableHeader>
+              <TableBody>
+                {filteredRecords.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center">
+                      No records found
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  filteredRecords.map((record) => (
+                    <TableRow 
+                      key={record.id}
+                      className="transition-colors hover:bg-muted/50 animate-fade-in"
+                    >
+                      <TableCell>{record.recipient_name}</TableCell>
+                      <TableCell>{record.certificate_number}</TableCell>
+                      <TableCell>{record.course_name}</TableCell>
+                      <TableCell>
+                        <span className={cn(
+                          "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
+                          record.status === 'active' && "bg-green-100 text-green-800",
+                          record.status === 'pending' && "bg-yellow-100 text-yellow-800",
+                          record.status === 'expired' && "bg-red-100 text-red-800"
+                        )}>
+                          {record.status}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(record.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className="hover:text-blue-500 hover:scale-110 transition-all"
+                                onClick={() => setEditingRecord(record)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Edit Record</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </main>
 
