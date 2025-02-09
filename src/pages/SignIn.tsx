@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { GraduationCap } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -21,24 +20,17 @@ const SignIn = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
+      // Here we'll add Supabase authentication later
       toast({
         title: "Success",
         description: "Signed in successfully",
       });
-      
       navigate("/dashboard");
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error?.message || "Failed to sign in. Please try again.",
+        description: "Invalid email or password",
       });
     } finally {
       setIsLoading(false);

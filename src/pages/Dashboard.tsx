@@ -114,7 +114,7 @@ const Dashboard = () => {
         course_description: editingRecord.course_description,
         valid_through: editingRecord.valid_through,
         diploma_image_url: editingRecord.diploma_image_url,
-        provider_description: editingRecord.provider_description || '',
+        provider_description: editingRecord.provider_description,
       })
       .eq('id', editingRecord.id);
 
@@ -138,7 +138,6 @@ const Dashboard = () => {
   };
 
   const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
-    console.log("Adding record with provider description:", newRecord.provider_description);
     const { data, error } = await supabase
       .from('certificates')
       .insert([{
@@ -154,7 +153,7 @@ const Dashboard = () => {
         email: newRecord.email,
         course_description: newRecord.course_description,
         diploma_image_url: newRecord.diploma_image_url,
-        provider_description: newRecord.provider_description || '',
+        provider_description: newRecord.provider_description,
         provider: 'Default Provider',
       }])
       .select()
