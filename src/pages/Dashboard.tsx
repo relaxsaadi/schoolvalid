@@ -67,6 +67,7 @@ export interface StudentRecord {
   year_of_birth?: number;
   course_description?: string;
   diploma_image_url?: string | null;
+  provider_description?: string | null;
 }
 
 const Dashboard = () => {
@@ -368,6 +369,17 @@ const Dashboard = () => {
                 onChange={(e) => setEditingRecord(curr => curr ? {
                   ...curr,
                   course_description: e.target.value
+                } : null)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="provider_description">Provider Description</Label>
+              <Textarea
+                id="provider_description"
+                value={editingRecord?.provider_description || ''}
+                onChange={(e) => setEditingRecord(curr => curr ? {
+                  ...curr,
+                  provider_description: e.target.value
                 } : null)}
               />
             </div>

@@ -37,6 +37,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
       year_of_birth: parseInt(formData.get("year_of_birth") as string),
       course_description: formData.get("course_description") as string,
       diploma_image_url: formData.get("diploma_image_url") as string || null,
+      provider_description: formData.get("provider_description") as string || null,
     };
     
     onAddRecord(newRecord);
@@ -134,6 +135,15 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
               id="course_description"
               name="course_description"
               placeholder="Enter course description"
+              className="min-h-[100px]"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="provider_description">Provider Description</Label>
+            <Textarea
+              id="provider_description"
+              name="provider_description"
+              placeholder="Enter provider description"
               className="min-h-[100px]"
             />
           </div>
