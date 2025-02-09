@@ -56,7 +56,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -71,6 +71,36 @@ export function UserNav() {
   });
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Fetch profile data when the component mounts
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("No user found");
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          setProfileData({
+            name: data.full_name || "",
+            institutionName: data.institution_name || "",
+            logoUrl: data.logo_url || "",
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -100,23 +130,28 @@ export function UserNav() {
       const { error } = await supabase
         .from('profiles')
         .update({
+          full_name: profileData.name,
           institution_name: profileData.institutionName,
           logo_url: profileData.logoUrl,
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update error:', error);
+        throw error;
+      }
 
       toast({
         title: "Profile updated",
         description: "Your profile has been updated successfully",
       });
       setIsProfileOpen(false);
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Profile update error:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: error?.message || "Failed to update profile. Please try again.",
       });
     }
   };
@@ -139,9 +174,9 @@ export function UserNav() {
         >
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">User</p>
+              <p className="text-sm font-medium leading-none">{profileData.name || 'User'}</p>
               <p className="text-xs leading-none text-muted-foreground">
-                user@example.com
+                {profileData.institutionName || 'Institution'}
               </p>
             </div>
           </DropdownMenuLabel>
