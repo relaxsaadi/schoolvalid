@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,6 +49,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { TopNav } from "@/components/TopNav";
 import { Organization } from "@/types/organization";
+import { useNavigate } from "react-router-dom";
 
 export interface StudentRecord {
   id: string;
@@ -72,25 +74,58 @@ const Dashboard = () => {
   const [dateFilter, setDateFilter] = useState<Date>();
   const [editingRecord, setEditingRecord] = useState<StudentRecord | null>(null);
   const [organization, setOrganization] = useState<Organization | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchOrganizationAndRecords();
-  }, []);
+    const checkSessionAndFetchData = async () => {
+      try {
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
+        
+        if (!session) {
+          navigate("/sign-in");
+          return;
+        }
+
+        fetchOrganizationAndRecords();
+      } catch (error: any) {
+        console.error("Session check error:", error);
+        navigate("/sign-in");
+      }
+    };
+
+    checkSessionAndFetchData();
+  }, [navigate]);
 
   const fetchOrganizationAndRecords = async () => {
     try {
+      setIsLoading(true);
       // Get current user's organization
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData.user) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate("/sign-in");
+        return;
+      }
 
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('organization_id')
-        .eq('id', userData.user.id)
+        .eq('id', user.id)
         .single();
 
       if (profileError) throw profileError;
+
+      if (!profileData?.organization_id) {
+        toast({
+          title: "No organization found",
+          description: "Please try again or contact support.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       // Get organization details
       const { data: orgData, error: orgError } = await supabase
@@ -99,7 +134,16 @@ const Dashboard = () => {
         .eq('id', profileData.organization_id)
         .single();
 
-      if (orgError) throw orgError;
+      if (orgError) {
+        console.error("Organization fetch error:", orgError);
+        toast({
+          title: "Error",
+          description: "Failed to load organization data. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       setOrganization(orgData);
 
       // Get records for this organization
@@ -112,11 +156,14 @@ const Dashboard = () => {
       if (recordsError) throw recordsError;
       setRecords(recordsData || []);
     } catch (error: any) {
+      console.error("Data fetch error:", error);
       toast({
         title: "Error",
-        description: "Failed to fetch data",
+        description: "Failed to fetch data. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -213,6 +260,17 @@ const Dashboard = () => {
 
     return matchesSearch && matchesStatus && matchesDate;
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-600 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
