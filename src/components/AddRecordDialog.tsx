@@ -14,6 +14,7 @@ import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { StudentRecord } from "@/pages/Dashboard";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AddRecordDialogProps {
   onAddRecord: (record: Omit<StudentRecord, "id" | "created_at">) => void;
@@ -23,10 +24,27 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [generatedId, setGeneratedId] = useState("");
+  const [organizationId, setOrganizationId] = useState<string | null>(null);
   
-  // Generate a new ID whenever the dialog is opened
+  // Fetch the user's organization ID when the dialog opens
   useEffect(() => {
+    async function fetchUserOrganization() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('organization_id')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile?.organization_id) {
+          setOrganizationId(profile.organization_id);
+        }
+      }
+    }
+    
     if (open) {
+      fetchUserOrganization();
       const timestamp = new Date().getTime().toString().slice(-6);
       const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
       setGeneratedId(`STU${timestamp}${random}`);
@@ -38,6 +56,10 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
     const formData = new FormData(e.currentTarget);
     
     try {
+      if (!organizationId) {
+        throw new Error("Organization ID not found");
+      }
+
       const newRecord = {
         recipient_name: formData.get("recipient_name") as string,
         certificate_number: generatedId,
@@ -49,6 +71,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
         course_description: formData.get("course_description") as string || '',
         diploma_image_url: formData.get("diploma_image_url") as string || null,
         provider_description: formData.get("provider_description") as string || '',
+        organization_id: organizationId,
       };
 
       // Validate required fields

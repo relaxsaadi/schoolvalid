@@ -67,6 +67,7 @@ export interface StudentRecord {
   course_description?: string;
   diploma_image_url?: string | null;
   provider_description?: string | null;
+  organization_id: string;
 }
 
 const Dashboard = () => {
@@ -82,6 +83,24 @@ const Dashboard = () => {
   }, []);
 
   const fetchRecords = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile?.organization_id) {
+      toast({
+        title: "Error",
+        description: "Organization not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { data, error } = await supabase
       .from('certificates')
       .select('*')
@@ -155,6 +174,7 @@ const Dashboard = () => {
         diploma_image_url: newRecord.diploma_image_url,
         provider_description: newRecord.provider_description,
         provider: 'Default Provider',
+        organization_id: newRecord.organization_id,
       }])
       .select()
       .single();
