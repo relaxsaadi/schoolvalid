@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { GraduationCap } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -31,17 +32,26 @@ const SignUp = () => {
     }
 
     try {
-      // Here we'll add Supabase authentication later
-      toast({
-        title: "Success",
-        description: "Account created successfully",
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
       });
-      navigate("/sign-in");
-    } catch (error) {
+
+      if (error) throw error;
+
+      if (data.user) {
+        toast({
+          title: "Success",
+          description: "Account created successfully. Please check your email to verify your account.",
+        });
+        navigate("/sign-in");
+      }
+    } catch (error: any) {
+      console.error("Sign up error:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: error?.message || "Failed to create account. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -98,7 +108,7 @@ const SignUp = () => {
                     required
                   />
                 </div>
-                <Button type="submit" disabled={isLoading} className="bg-brand-500 hover:bg-brand-600 text-white">
+                <Button type="submit" disabled={isLoading}>
                   {isLoading ? "Creating account..." : "Sign Up"}
                 </Button>
               </div>
