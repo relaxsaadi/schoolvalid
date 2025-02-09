@@ -231,7 +231,7 @@ const Dashboard = () => {
       record.certificate_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       record.course_name.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus = !statusFilter || record.status === statusFilter;
+    const matchesStatus = !statusFilter || statusFilter === 'all' || record.status === statusFilter;
 
     const matchesDate = !dateFilter || 
       format(new Date(record.created_at), 'yyyy-MM-dd') === format(dateFilter, 'yyyy-MM-dd');
