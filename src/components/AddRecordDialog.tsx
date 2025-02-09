@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,28 +27,91 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
 
   useEffect(() => {
     const fetchOrganization = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError) {
+          console.error('Error fetching user:', userError);
+          toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "Please sign in again.",
+          });
+          return;
+        }
+        
+        if (!user) {
+          console.error('No user found');
+          return;
+        }
 
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('id', user.id)
-        .single();
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('organization_id')
+          .eq('id', user.id)
+          .single();
 
-      if (profileData?.organization_id) {
-        const { data: orgData } = await supabase
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Could not fetch user profile.",
+          });
+          return;
+        }
+
+        if (!profileData?.organization_id) {
+          console.error('No organization_id in profile');
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "No organization assigned to your profile.",
+          });
+          return;
+        }
+
+        const { data: orgData, error: orgError } = await supabase
           .from('organizations')
           .select('*')
           .eq('id', profileData.organization_id)
           .single();
         
+        if (orgError) {
+          console.error('Error fetching organization:', orgError);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Could not fetch organization details.",
+          });
+          return;
+        }
+
+        if (!orgData) {
+          console.error('No organization data found');
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Organization not found.",
+          });
+          return;
+        }
+
+        console.log('Organization fetched successfully:', orgData);
         setOrganization(orgData);
+      } catch (error) {
+        console.error('Unexpected error:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "An unexpected error occurred.",
+        });
       }
     };
 
-    fetchOrganization();
-  }, []);
+    if (open) {
+      fetchOrganization();
+    }
+  }, [open, toast]);
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
