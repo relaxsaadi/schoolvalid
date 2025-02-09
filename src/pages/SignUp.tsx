@@ -20,10 +20,12 @@ const SignUp = () => {
   const { toast } = useToast();
 
   const createSlug = (name: string) => {
-    return name
+    const timestamp = new Date().getTime();
+    const baseSlug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '');
+    return `${baseSlug}-${timestamp}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -53,7 +55,7 @@ const SignUp = () => {
         throw new Error("No user returned from sign up");
       }
 
-      // Then create organization
+      // Then create organization with a unique slug
       const { data: orgData, error: orgError } = await supabase
         .from('organizations')
         .insert([
