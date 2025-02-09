@@ -69,21 +69,42 @@ export function UserNav() {
     institutionName: "",
     logoUrl: "",
   });
+  const [session, setSession] = useState(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Fetch profile data when the component mounts
+  // Check and handle authentication session
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (!session) {
+        navigate('/sign-in');
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (!session) {
+        navigate('/sign-in');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  // Fetch profile data when the component mounts and we have a session
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error("No user found");
+        if (!session?.user?.id) return;
 
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', user.id)
-          .single();
+          .eq('id', session.user.id)
+          .maybeSingle();
 
         if (error) throw error;
 
@@ -96,11 +117,18 @@ export function UserNav() {
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch profile data. Please try again.",
+        });
       }
     };
 
-    fetchProfile();
-  }, []);
+    if (session?.user?.id) {
+      fetchProfile();
+    }
+  }, [session, toast]);
 
   const handleLogout = async () => {
     try {
@@ -124,8 +152,9 @@ export function UserNav() {
 
   const handleProfileUpdate = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
+      if (!session?.user?.id) {
+        throw new Error("You must be logged in to update your profile");
+      }
 
       const { error } = await supabase
         .from('profiles')
@@ -134,7 +163,7 @@ export function UserNav() {
           institution_name: profileData.institutionName,
           logo_url: profileData.logoUrl,
         })
-        .eq('id', user.id);
+        .eq('id', session.user.id);
 
       if (error) {
         console.error('Update error:', error);
@@ -155,6 +184,11 @@ export function UserNav() {
       });
     }
   };
+
+  // If no session, don't render the component
+  if (!session) {
+    return null;
+  }
 
   return (
     <>
