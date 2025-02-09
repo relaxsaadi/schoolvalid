@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
@@ -55,35 +56,23 @@ const Dashboard = () => {
         return;
       }
 
-      await fetchOrganizationAndRecords();
-    } catch (error: any) {
-      console.error("Session check error:", error);
-      toast({
-        title: "Authentication Error",
-        description: "Please sign in again.",
-        variant: "destructive",
-      });
-      navigate("/sign-in");
-    }
-  };
-
-  const fetchOrganizationAndRecords = async () => {
-    try {
-      setIsLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        navigate("/sign-in");
-        return;
-      }
-
+      // First get the user's own profile
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('organization_id')
-        .eq('id', user.id)
-        .maybeSingle();
+        .eq('id', session.user.id)
+        .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("Profile fetch error:", profileError);
+        toast({
+          title: "Error",
+          description: "Could not fetch user profile. Please try signing in again.",
+          variant: "destructive",
+        });
+        navigate("/sign-in");
+        return;
+      }
 
       if (!profileData?.organization_id) {
         toast({
@@ -94,13 +83,22 @@ const Dashboard = () => {
         return;
       }
 
+      // Then fetch the organization details
       const { data: orgData, error: orgError } = await supabase
         .from('organizations')
         .select('*')
         .eq('id', profileData.organization_id)
-        .maybeSingle();
+        .single();
 
-      if (orgError) throw orgError;
+      if (orgError) {
+        console.error("Organization fetch error:", orgError);
+        toast({
+          title: "Error",
+          description: "Could not fetch organization details. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       if (!orgData) {
         toast({
@@ -113,15 +111,24 @@ const Dashboard = () => {
 
       setOrganization(orgData);
 
-      const { data: recordsData, error: recordsError } = await supabase
+      // Finally fetch the certificates
+      const { data: certificatesData, error: certificatesError } = await supabase
         .from('certificates')
         .select('*')
         .eq('organization_id', profileData.organization_id)
         .order('created_at', { ascending: false });
 
-      if (recordsError) throw recordsError;
+      if (certificatesError) {
+        console.error("Certificates fetch error:", certificatesError);
+        toast({
+          title: "Error",
+          description: "Failed to fetch certificates. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
       
-      setRecords(recordsData || []);
+      setRecords(certificatesData || []);
     } catch (error: any) {
       console.error("Data fetch error:", error);
       toast({
