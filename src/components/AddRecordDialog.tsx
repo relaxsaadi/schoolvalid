@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { StudentRecord } from "@/pages/Dashboard";
 
@@ -22,6 +22,16 @@ interface AddRecordDialogProps {
 export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const [generatedId, setGeneratedId] = useState("");
+  
+  // Generate a new ID whenever the dialog is opened
+  useEffect(() => {
+    if (open) {
+      const timestamp = new Date().getTime().toString().slice(-6);
+      const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+      setGeneratedId(`STU${timestamp}${random}`);
+    }
+  }, [open]);
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,7 +40,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
     try {
       const newRecord = {
         recipient_name: formData.get("recipient_name") as string,
-        certificate_number: formData.get("certificate_number") as string,
+        certificate_number: generatedId,
         course_name: formData.get("course_name") as string,
         valid_through: formData.get("valid_through") as string,
         status: formData.get("status") as string || 'active',
@@ -89,8 +99,9 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
               id="certificate_number"
               name="certificate_number"
               type="text"
-              placeholder="Enter student ID"
-              required
+              value={generatedId}
+              readOnly
+              className="bg-gray-100"
             />
           </div>
           <div className="grid gap-2">
