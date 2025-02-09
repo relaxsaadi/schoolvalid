@@ -40,7 +40,19 @@ const SignUp = () => {
     }
 
     try {
-      // Create organization first
+      // First create user
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (signUpError) throw signUpError;
+
+      if (!data.user) {
+        throw new Error("No user returned from sign up");
+      }
+
+      // Then create organization
       const { data: orgData, error: orgError } = await supabase
         .from('organizations')
         .insert([
@@ -54,38 +66,22 @@ const SignUp = () => {
 
       if (orgError) throw orgError;
 
-      // Then create user
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            organization_id: orgData.id,
-            role: 'admin', // First user of organization is admin
-          }
-        }
+      // Update the profile with organization
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          organization_id: orgData.id,
+          role: 'admin'
+        })
+        .eq('id', data.user.id);
+
+      if (profileError) throw profileError;
+
+      toast({
+        title: "Success",
+        description: "Account created successfully. Please check your email to verify your account.",
       });
-
-      if (error) throw error;
-
-      if (data.user) {
-        // Update profile with organization
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({
-            organization_id: orgData.id,
-            role: 'admin'
-          })
-          .eq('id', data.user.id);
-
-        if (profileError) throw profileError;
-
-        toast({
-          title: "Success",
-          description: "Account created successfully. Please check your email to verify your account.",
-        });
-        navigate("/sign-in");
-      }
+      navigate("/sign-in");
     } catch (error: any) {
       console.error("Sign up error:", error);
       toast({
