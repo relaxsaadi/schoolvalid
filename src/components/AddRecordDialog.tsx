@@ -25,6 +25,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
   const { toast } = useToast();
   const [generatedId, setGeneratedId] = useState("");
   const [organizationId, setOrganizationId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   
   const generateNewId = () => {
     const timestamp = new Date().getTime().toString().slice(-6);
@@ -35,17 +36,38 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
   // Fetch the user's organization ID when the dialog opens
   useEffect(() => {
     async function fetchUserOrganization() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
+      setLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error("Not authenticated");
+        }
+
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('organization_id')
           .eq('id', user.id)
           .single();
         
-        if (profile?.organization_id) {
-          setOrganizationId(profile.organization_id);
+        if (profileError) {
+          throw new Error(profileError.message);
         }
+        
+        if (!profile?.organization_id) {
+          throw new Error("Organization not found");
+        }
+        
+        setOrganizationId(profile.organization_id);
+      } catch (error) {
+        console.error('Error fetching organization:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch organization. Please try logging out and back in.",
+          variant: "destructive",
+        });
+        setOpen(false); // Close the dialog if we can't get the organization
+      } finally {
+        setLoading(false);
       }
     }
     
@@ -53,7 +75,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
       fetchUserOrganization();
       generateNewId();
     }
-  }, [open]);
+  }, [open, toast]);
   
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -61,7 +83,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
     
     try {
       if (!organizationId) {
-        throw new Error("Organization ID not found");
+        throw new Error("Organization not found. Please try logging out and back in.");
       }
 
       const newRecord = {
@@ -109,121 +131,131 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
         <DialogHeader>
           <DialogTitle>Add New Record</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="recipient_name">Student Name *</Label>
-            <Input
-              id="recipient_name"
-              name="recipient_name"
-              type="text"
-              placeholder="Enter student name"
-              required
-            />
+        {loading ? (
+          <div className="py-4 text-center text-gray-500">
+            Loading organization details...
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="certificate_number">Student ID *</Label>
-            <div className="flex gap-2">
+        ) : !organizationId ? (
+          <div className="py-4 text-center text-red-500">
+            Organization not found. Please try logging out and back in.
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="recipient_name">Student Name *</Label>
               <Input
-                id="certificate_number"
-                name="certificate_number"
+                id="recipient_name"
+                name="recipient_name"
                 type="text"
-                value={generatedId}
-                readOnly
-                className="bg-gray-100 flex-1"
+                placeholder="Enter student name"
+                required
               />
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={generateNewId}
-                className="flex-shrink-0"
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
             </div>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="course_name">Course *</Label>
-            <Input
-              id="course_name"
-              name="course_name"
-              type="text"
-              placeholder="Enter course name"
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="valid_through">Valid Through *</Label>
-            <Input
-              id="valid_through"
-              name="valid_through"
-              type="date"
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="status">Status *</Label>
-            <Input
-              id="status"
-              name="status"
-              type="text"
-              placeholder="Enter status"
-              defaultValue="active"
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Enter email"
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="year_of_birth">Year of Birth *</Label>
-            <Input
-              id="year_of_birth"
-              name="year_of_birth"
-              type="number"
-              min="1900"
-              max={new Date().getFullYear()}
-              placeholder="Enter year of birth"
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="course_description">Course Description</Label>
-            <Textarea
-              id="course_description"
-              name="course_description"
-              placeholder="Enter course description"
-              className="min-h-[100px]"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="provider_description">Provider Description</Label>
-            <Textarea
-              id="provider_description"
-              name="provider_description"
-              placeholder="Enter provider description"
-              className="min-h-[100px]"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="diploma_image_url">Diploma Image URL</Label>
-            <Input
-              id="diploma_image_url"
-              name="diploma_image_url"
-              type="url"
-              placeholder="Enter diploma image URL"
-            />
-          </div>
-          <Button type="submit" className="w-full">
-            Add Record
-          </Button>
-        </form>
+            <div className="grid gap-2">
+              <Label htmlFor="certificate_number">Student ID *</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="certificate_number"
+                  name="certificate_number"
+                  type="text"
+                  value={generatedId}
+                  readOnly
+                  className="bg-gray-100 flex-1"
+                />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={generateNewId}
+                  className="flex-shrink-0"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="course_name">Course *</Label>
+              <Input
+                id="course_name"
+                name="course_name"
+                type="text"
+                placeholder="Enter course name"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="valid_through">Valid Through *</Label>
+              <Input
+                id="valid_through"
+                name="valid_through"
+                type="date"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="status">Status *</Label>
+              <Input
+                id="status"
+                name="status"
+                type="text"
+                placeholder="Enter status"
+                defaultValue="active"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="Enter email"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="year_of_birth">Year of Birth *</Label>
+              <Input
+                id="year_of_birth"
+                name="year_of_birth"
+                type="number"
+                min="1900"
+                max={new Date().getFullYear()}
+                placeholder="Enter year of birth"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="course_description">Course Description</Label>
+              <Textarea
+                id="course_description"
+                name="course_description"
+                placeholder="Enter course description"
+                className="min-h-[100px]"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="provider_description">Provider Description</Label>
+              <Textarea
+                id="provider_description"
+                name="provider_description"
+                placeholder="Enter provider description"
+                className="min-h-[100px]"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="diploma_image_url">Diploma Image URL</Label>
+              <Input
+                id="diploma_image_url"
+                name="diploma_image_url"
+                type="url"
+                placeholder="Enter diploma image URL"
+              />
+            </div>
+            <Button type="submit" className="w-full">
+              Add Record
+            </Button>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
