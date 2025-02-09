@@ -23,6 +23,7 @@ export type Database = {
           id: string
           issue_date: string
           normalized_recipient_name: string | null
+          organization_id: string | null
           provider: string
           provider_description: string | null
           recipient_name: string
@@ -43,6 +44,7 @@ export type Database = {
           id?: string
           issue_date: string
           normalized_recipient_name?: string | null
+          organization_id?: string | null
           provider: string
           provider_description?: string | null
           recipient_name: string
@@ -63,6 +65,7 @@ export type Database = {
           id?: string
           issue_date?: string
           normalized_recipient_name?: string | null
+          organization_id?: string | null
           provider?: string
           provider_description?: string | null
           recipient_name?: string
@@ -78,6 +81,13 @@ export type Database = {
             referencedRelation: "courses"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "certificates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       courses: {
@@ -86,6 +96,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          organization_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -93,6 +104,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          organization_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -100,9 +112,18 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          organization_id?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "courses_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       orders: {
         Row: {
@@ -154,6 +175,30 @@ export type Database = {
           },
         ]
       }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           created_at: string | null
@@ -200,6 +245,8 @@ export type Database = {
           institution_name: string | null
           last_login: string | null
           logo_url: string | null
+          organization_id: string | null
+          phone_number: string | null
           role: Database["public"]["Enums"]["user_role"] | null
           status: string | null
           theme: string | null
@@ -214,6 +261,8 @@ export type Database = {
           institution_name?: string | null
           last_login?: string | null
           logo_url?: string | null
+          organization_id?: string | null
+          phone_number?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           status?: string | null
           theme?: string | null
@@ -228,12 +277,22 @@ export type Database = {
           institution_name?: string | null
           last_login?: string | null
           logo_url?: string | null
+          organization_id?: string | null
+          phone_number?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           status?: string | null
           theme?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {
