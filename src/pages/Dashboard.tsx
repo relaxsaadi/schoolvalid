@@ -167,6 +167,7 @@ const Dashboard = () => {
         email: newRecord.email,
         course_description: newRecord.course_description,
         diploma_image_url: newRecord.diploma_image_url,
+        provider_description: newRecord.provider_description, // Added this line
         provider: 'Default Provider',
       }])
       .select()
