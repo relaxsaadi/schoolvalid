@@ -33,11 +33,13 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
 
   useEffect(() => {
     async function fetchUserOrganization() {
+      if (!open) return;
+      
       setLoading(true);
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          throw new Error("Not authenticated");
+          throw new Error("Authentication required");
         }
 
         const { data: profile, error: profileError } = await supabase
@@ -48,16 +50,15 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
         
         if (profileError) {
           console.error('Profile error:', profileError);
-          throw new Error(profileError.message);
+          throw new Error("Failed to fetch profile");
         }
         
         if (!profile?.organization_id) {
-          console.error('No organization found for profile:', profile);
-          throw new Error("No organization found for your profile");
+          throw new Error("No organization found for your profile. Please contact support.");
         }
         
-        console.log('Found organization:', profile.organization_id);
         setOrganizationId(profile.organization_id);
+        generateNewId();
       } catch (error) {
         console.error('Error fetching organization:', error);
         toast({
@@ -71,10 +72,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
       }
     }
     
-    if (open) {
-      fetchUserOrganization();
-      generateNewId();
-    }
+    fetchUserOrganization();
   }, [open, toast]);
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -147,4 +145,3 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
     </Dialog>
   );
 }
-

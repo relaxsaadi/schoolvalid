@@ -87,8 +87,8 @@ const Dashboard = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast({
-          title: "Error",
-          description: "You must be logged in to view records",
+          title: "Authentication required",
+          description: "Please sign in to view records",
           variant: "destructive",
         });
         return;
@@ -102,25 +102,13 @@ const Dashboard = () => {
 
       if (profileError) {
         console.error('Profile error:', profileError);
-        toast({
-          title: "Error",
-          description: "Failed to fetch profile",
-          variant: "destructive",
-        });
-        return;
+        throw new Error("Failed to fetch profile");
       }
 
       if (!profile?.organization_id) {
-        console.error('No organization found for profile:', profile);
-        toast({
-          title: "Error",
-          description: "No organization found for your profile",
-          variant: "destructive",
-        });
-        return;
+        throw new Error("No organization found for your profile. Please contact support.");
       }
 
-      console.log('Fetching records for organization:', profile.organization_id);
       const { data, error } = await supabase
         .from('certificates')
         .select('*')
@@ -129,12 +117,7 @@ const Dashboard = () => {
 
       if (error) {
         console.error('Records error:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch records",
-          variant: "destructive",
-        });
-        return;
+        throw new Error("Failed to fetch records");
       }
 
       setRecords(data || []);
@@ -142,7 +125,7 @@ const Dashboard = () => {
       console.error('Fetch records error:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
         variant: "destructive",
       });
     }
