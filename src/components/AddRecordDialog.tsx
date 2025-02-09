@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus } from "lucide-react";
+import { Plus, RefreshCw } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { StudentRecord } from "@/pages/Dashboard";
@@ -26,6 +26,12 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
   const [generatedId, setGeneratedId] = useState("");
   const [organizationId, setOrganizationId] = useState<string | null>(null);
   
+  const generateNewId = () => {
+    const timestamp = new Date().getTime().toString().slice(-6);
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    setGeneratedId(`STU${timestamp}${random}`);
+  };
+
   // Fetch the user's organization ID when the dialog opens
   useEffect(() => {
     async function fetchUserOrganization() {
@@ -45,9 +51,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
     
     if (open) {
       fetchUserOrganization();
-      const timestamp = new Date().getTime().toString().slice(-6);
-      const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-      setGeneratedId(`STU${timestamp}${random}`);
+      generateNewId();
     }
   }, [open]);
   
@@ -118,14 +122,24 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="certificate_number">Student ID *</Label>
-            <Input
-              id="certificate_number"
-              name="certificate_number"
-              type="text"
-              value={generatedId}
-              readOnly
-              className="bg-gray-100"
-            />
+            <div className="flex gap-2">
+              <Input
+                id="certificate_number"
+                name="certificate_number"
+                type="text"
+                value={generatedId}
+                readOnly
+                className="bg-gray-100 flex-1"
+              />
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={generateNewId}
+                className="flex-shrink-0"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
           <div className="grid gap-2">
             <Label htmlFor="course_name">Course *</Label>
