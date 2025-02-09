@@ -120,15 +120,24 @@ const Dashboard = () => {
         .from('profiles')
         .select('organization_id')
         .eq('id', user.id)
-        .maybeSingle();
+        .single();
 
       if (profileError) {
         console.error("Profile fetch error:", profileError);
-        toast({
-          title: "Error",
-          description: "Failed to fetch user profile. Please try again.",
-          variant: "destructive",
-        });
+        if (profileError.code === 'PGRST116') {
+          // Policy violation error
+          toast({
+            title: "Access Error",
+            description: "You don't have permission to access this resource.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to fetch user profile. Please try again.",
+            variant: "destructive",
+          });
+        }
         return;
       }
 
@@ -145,7 +154,7 @@ const Dashboard = () => {
         .from('organizations')
         .select('*')
         .eq('id', profileData.organization_id)
-        .maybeSingle();
+        .single();
 
       if (orgError) {
         console.error("Organization fetch error:", orgError);
