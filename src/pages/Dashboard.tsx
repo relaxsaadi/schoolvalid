@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
@@ -12,6 +11,7 @@ import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { CertificatesTable } from "@/components/dashboard/CertificatesTable";
 import { EditRecordDialog } from "@/components/dashboard/EditRecordDialog";
+import { format } from "date-fns";
 
 export interface StudentRecord {
   id: string;
@@ -188,15 +188,23 @@ const Dashboard = () => {
     try {
       const { data, error } = await supabase
         .from('certificates')
-        .insert([{
-          ...newRecord,
+        .insert({
+          recipient_name: newRecord.recipient_name,
+          certificate_number: newRecord.certificate_number,
+          course_name: newRecord.course_name,
+          email: newRecord.email || '',
           status: newRecord.status || 'pending',
+          year_of_birth: newRecord.year_of_birth || new Date().getFullYear(),
+          course_description: newRecord.course_description,
+          valid_through: newRecord.valid_through || new Date().toISOString(),
+          diploma_image_url: newRecord.diploma_image_url,
+          provider_description: newRecord.provider_description,
+          organization_id: organization.id,
           blockchain_hash: 'pending',
           blockchain_timestamp: new Date().toISOString(),
           issue_date: new Date().toISOString(),
-          provider: 'Default Provider',
-          organization_id: organization.id
-        }])
+          provider: 'Default Provider'
+        })
         .select()
         .single();
 
@@ -291,4 +299,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
