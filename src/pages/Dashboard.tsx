@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -76,6 +77,7 @@ const Dashboard = () => {
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [dateFilter, setDateFilter] = useState<Date>();
   const [editingRecord, setEditingRecord] = useState<StudentRecord | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -84,6 +86,8 @@ const Dashboard = () => {
 
   const fetchRecords = async () => {
     try {
+      setIsLoading(true);
+      
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast({
@@ -145,85 +149,105 @@ const Dashboard = () => {
         description: "An unexpected error occurred",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleEdit = async () => {
     if (!editingRecord) return;
 
-    const { error } = await supabase
-      .from('certificates')
-      .update({
-        recipient_name: editingRecord.recipient_name,
-        certificate_number: editingRecord.certificate_number,
-        course_name: editingRecord.course_name,
-        email: editingRecord.email,
-        status: editingRecord.status,
-        year_of_birth: editingRecord.year_of_birth,
-        course_description: editingRecord.course_description,
-        valid_through: editingRecord.valid_through,
-        diploma_image_url: editingRecord.diploma_image_url,
-        provider_description: editingRecord.provider_description,
-      })
-      .eq('id', editingRecord.id);
+    try {
+      const { error } = await supabase
+        .from('certificates')
+        .update({
+          recipient_name: editingRecord.recipient_name,
+          certificate_number: editingRecord.certificate_number,
+          course_name: editingRecord.course_name,
+          email: editingRecord.email,
+          status: editingRecord.status,
+          year_of_birth: editingRecord.year_of_birth,
+          course_description: editingRecord.course_description,
+          valid_through: editingRecord.valid_through,
+          diploma_image_url: editingRecord.diploma_image_url,
+          provider_description: editingRecord.provider_description,
+        })
+        .eq('id', editingRecord.id);
 
-    if (error) {
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update record: " + error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setRecords(records.map(record => 
+        record.id === editingRecord.id ? editingRecord : record
+      ));
+      setEditingRecord(null);
+      toast({
+        title: "Success",
+        description: "Record updated successfully",
+      });
+    } catch (error) {
+      console.error('Update record error:', error);
       toast({
         title: "Error",
-        description: "Failed to update record",
+        description: "An unexpected error occurred while updating",
         variant: "destructive",
       });
-      return;
     }
-
-    setRecords(records.map(record => 
-      record.id === editingRecord.id ? editingRecord : record
-    ));
-    setEditingRecord(null);
-    toast({
-      title: "Success",
-      description: "Record updated successfully",
-    });
   };
 
   const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
-    const { data, error } = await supabase
-      .from('certificates')
-      .insert([{
-        recipient_name: newRecord.recipient_name,
-        certificate_number: newRecord.certificate_number,
-        course_name: newRecord.course_name,
-        status: newRecord.status,
-        blockchain_hash: 'pending',
-        blockchain_timestamp: new Date().toISOString(),
-        issue_date: new Date().toISOString(),
-        valid_through: newRecord.valid_through,
-        year_of_birth: newRecord.year_of_birth,
-        email: newRecord.email,
-        course_description: newRecord.course_description,
-        diploma_image_url: newRecord.diploma_image_url,
-        provider_description: newRecord.provider_description,
-        provider: 'Default Provider',
-        organization_id: newRecord.organization_id,
-      }])
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('certificates')
+        .insert([{
+          recipient_name: newRecord.recipient_name,
+          certificate_number: newRecord.certificate_number,
+          course_name: newRecord.course_name,
+          status: newRecord.status || 'active',
+          blockchain_hash: 'pending',
+          blockchain_timestamp: new Date().toISOString(),
+          issue_date: new Date().toISOString(),
+          valid_through: newRecord.valid_through,
+          year_of_birth: newRecord.year_of_birth,
+          email: newRecord.email,
+          course_description: newRecord.course_description,
+          diploma_image_url: newRecord.diploma_image_url,
+          provider_description: newRecord.provider_description,
+          provider: 'Default Provider',
+          organization_id: newRecord.organization_id,
+        }])
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error adding record:', error);
+      if (error) {
+        console.error('Error adding record:', error);
+        toast({
+          title: "Error",
+          description: "Failed to add record: " + error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setRecords((prev) => [data, ...prev]);
+      toast({
+        title: "Success",
+        description: "Record added successfully",
+      });
+    } catch (error) {
+      console.error('Add record error:', error);
       toast({
         title: "Error",
-        description: "Failed to add record: " + error.message,
+        description: "An unexpected error occurred while adding the record",
         variant: "destructive",
       });
-      return;
     }
-
-    setRecords((prev) => [data, ...prev]);
-    toast({
-      title: "Success",
-      description: "Record added successfully",
-    });
   };
 
   const filteredRecords = records.filter((record) => {
@@ -307,70 +331,76 @@ const Dashboard = () => {
         </div>
 
         <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Student Name</TableHead>
-                <TableHead>Student ID</TableHead>
-                <TableHead>Course</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Date Added</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredRecords.length === 0 ? (
+          {isLoading ? (
+            <div className="p-8 text-center text-muted-foreground">
+              Loading records...
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">
-                    No records found
-                  </TableCell>
+                  <TableHead>Student Name</TableHead>
+                  <TableHead>Student ID</TableHead>
+                  <TableHead>Course</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date Added</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : (
-                filteredRecords.map((record) => (
-                  <TableRow 
-                    key={record.id}
-                    className="transition-colors hover:bg-muted/50 animate-fade-in"
-                  >
-                    <TableCell>{record.recipient_name}</TableCell>
-                    <TableCell>{record.certificate_number}</TableCell>
-                    <TableCell>{record.course_name}</TableCell>
-                    <TableCell>
-                      <span className={cn(
-                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
-                        record.status === 'active' && "bg-green-100 text-green-800",
-                        record.status === 'pending' && "bg-yellow-100 text-yellow-800",
-                        record.status === 'expired' && "bg-red-100 text-red-800"
-                      )}>
-                        {record.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(record.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              className="hover:text-blue-500 hover:scale-110 transition-all"
-                              onClick={() => setEditingRecord(record)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Edit Record</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+              </TableHeader>
+              <TableBody>
+                {filteredRecords.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center">
+                      No records found
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : (
+                  filteredRecords.map((record) => (
+                    <TableRow 
+                      key={record.id}
+                      className="transition-colors hover:bg-muted/50 animate-fade-in"
+                    >
+                      <TableCell>{record.recipient_name}</TableCell>
+                      <TableCell>{record.certificate_number}</TableCell>
+                      <TableCell>{record.course_name}</TableCell>
+                      <TableCell>
+                        <span className={cn(
+                          "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
+                          record.status === 'active' && "bg-green-100 text-green-800",
+                          record.status === 'pending' && "bg-yellow-100 text-yellow-800",
+                          record.status === 'expired' && "bg-red-100 text-red-800"
+                        )}>
+                          {record.status}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(record.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className="hover:text-blue-500 hover:scale-110 transition-all"
+                                onClick={() => setEditingRecord(record)}
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Edit Record</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
         </div>
       </main>
 
@@ -438,7 +468,7 @@ const Dashboard = () => {
             <div className="grid gap-2">
               <Label htmlFor="status">Status</Label>
               <Select
-                value={editingRecord?.status}
+                value={editingRecord?.status || 'active'}
                 onValueChange={(value) => setEditingRecord(curr => curr ? {
                   ...curr,
                   status: value
