@@ -78,6 +78,7 @@ const Dashboard = () => {
   const [dateFilter, setDateFilter] = useState<Date>();
   const [editingRecord, setEditingRecord] = useState<StudentRecord | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -87,9 +88,11 @@ const Dashboard = () => {
   const fetchRecords = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
+        setError("You must be logged in to view records");
         toast({
           title: "Error",
           description: "You must be logged in to view records",
@@ -98,14 +101,16 @@ const Dashboard = () => {
         return;
       }
 
+      console.log('Fetching user profile...');
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('organization_id')
         .eq('id', user.id)
-        .maybeSingle();
+        .single();
 
       if (profileError) {
         console.error('Profile error:', profileError);
+        setError("Failed to fetch profile. Please try logging out and back in.");
         toast({
           title: "Error",
           description: "Failed to fetch profile",
@@ -116,6 +121,7 @@ const Dashboard = () => {
 
       if (!profile?.organization_id) {
         console.error('No organization found for profile:', profile);
+        setError("No organization found for your profile. Please contact support.");
         toast({
           title: "Error",
           description: "No organization found for your profile",
@@ -133,6 +139,7 @@ const Dashboard = () => {
 
       if (error) {
         console.error('Records error:', error);
+        setError("Failed to fetch records. Please try again.");
         toast({
           title: "Error",
           description: "Failed to fetch records",
@@ -141,9 +148,11 @@ const Dashboard = () => {
         return;
       }
 
+      console.log('Records fetched:', data?.length || 0);
       setRecords(data || []);
     } catch (error) {
       console.error('Fetch records error:', error);
+      setError("An unexpected error occurred. Please try again.");
       toast({
         title: "Error",
         description: "An unexpected error occurred",
@@ -331,7 +340,12 @@ const Dashboard = () => {
         </div>
 
         <div className="rounded-md border">
-          {isLoading ? (
+          {error ? (
+            <div className="p-8 text-center">
+              <p className="text-red-500 mb-4">{error}</p>
+              <Button onClick={fetchRecords}>Try Again</Button>
+            </div>
+          ) : isLoading ? (
             <div className="p-8 text-center text-muted-foreground">
               Loading records...
             </div>
@@ -351,7 +365,7 @@ const Dashboard = () => {
                 {filteredRecords.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center">
-                      No records found
+                      No records found. {records.length === 0 ? "Add your first record using the button above." : "Try adjusting your search filters."}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -550,3 +564,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
