@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -79,25 +78,18 @@ const Dashboard = () => {
   const [editingRecord, setEditingRecord] = useState<StudentRecord | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchRecords();
-  }, []);
-
-  const fetchRecords = async () => {
+  const fetchRecords = async (retry = 0) => {
     try {
       setIsLoading(true);
       setError(null);
       
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        setError("You must be logged in to view records");
-        toast({
-          title: "Error",
-          description: "You must be logged in to view records",
-          variant: "destructive",
-        });
+        console.log('No user found, redirecting to login...');
+        window.location.href = '/sign-in';
         return;
       }
 
@@ -110,10 +102,15 @@ const Dashboard = () => {
 
       if (profileError) {
         console.error('Profile error:', profileError);
+        if (retry < 3) {
+          console.log(`Retrying fetch (attempt ${retry + 1})...`);
+          setTimeout(() => fetchRecords(retry + 1), 1000 * (retry + 1));
+          return;
+        }
         setError("Failed to fetch profile. Please try logging out and back in.");
         toast({
           title: "Error",
-          description: "Failed to fetch profile",
+          description: "Failed to fetch profile. Please try logging out and back in.",
           variant: "destructive",
         });
         return;
@@ -131,14 +128,19 @@ const Dashboard = () => {
       }
 
       console.log('Fetching records for organization:', profile.organization_id);
-      const { data, error } = await supabase
+      const { data, error: recordsError } = await supabase
         .from('certificates')
         .select('*')
         .eq('organization_id', profile.organization_id)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Records error:', error);
+      if (recordsError) {
+        console.error('Records error:', recordsError);
+        if (retry < 3) {
+          console.log(`Retrying fetch (attempt ${retry + 1})...`);
+          setTimeout(() => fetchRecords(retry + 1), 1000 * (retry + 1));
+          return;
+        }
         setError("Failed to fetch records. Please try again.");
         toast({
           title: "Error",
@@ -150,8 +152,14 @@ const Dashboard = () => {
 
       console.log('Records fetched:', data?.length || 0);
       setRecords(data || []);
+      setRetryCount(0); // Reset retry count on successful fetch
     } catch (error) {
       console.error('Fetch records error:', error);
+      if (retry < 3) {
+        console.log(`Retrying fetch (attempt ${retry + 1})...`);
+        setTimeout(() => fetchRecords(retry + 1), 1000 * (retry + 1));
+        return;
+      }
       setError("An unexpected error occurred. Please try again.");
       toast({
         title: "Error",
@@ -162,6 +170,10 @@ const Dashboard = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchRecords();
+  }, []);
 
   const handleEdit = async () => {
     if (!editingRecord) return;
@@ -343,7 +355,7 @@ const Dashboard = () => {
           {error ? (
             <div className="p-8 text-center">
               <p className="text-red-500 mb-4">{error}</p>
-              <Button onClick={fetchRecords}>Try Again</Button>
+              <Button onClick={() => fetchRecords(retryCount)}>Try Again</Button>
             </div>
           ) : isLoading ? (
             <div className="p-8 text-center text-muted-foreground">
@@ -564,4 +576,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
