@@ -7,10 +7,8 @@ import {
   Award,
   Bell,
   Download,
-  Filter,
   Pencil,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
 import { useState, useEffect } from "react";
 import {
@@ -39,18 +37,13 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { TopNav } from "@/components/TopNav";
@@ -84,14 +77,16 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+    const checkSession = async () => {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !session) {
         navigate('/sign-in');
         return;
       }
     };
-    checkUser();
+
+    checkSession();
   }, [navigate]);
 
   const fetchRecords = async () => {
@@ -99,70 +94,45 @@ const Dashboard = () => {
       setIsLoading(true);
       setError(null);
       
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        console.log('No user found, redirecting to login...');
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
         navigate('/sign-in');
         return;
       }
 
-      console.log('Fetching user profile...');
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('organization_id')
-        .eq('id', user.id)
+        .eq('id', session.user.id)
         .maybeSingle();
 
       if (profileError) {
         console.error('Profile error:', profileError);
-        setError("Failed to fetch profile. Please contact support.");
-        toast({
-          title: "Error",
-          description: "Failed to fetch profile. Please contact support.",
-          variant: "destructive",
-        });
+        setError("Unable to fetch your profile. Please try logging out and back in.");
         return;
       }
 
       if (!profile?.organization_id) {
-        console.error('No organization found for profile:', profile);
         setError("No organization found for your profile. Please contact support.");
-        toast({
-          title: "Error",
-          description: "No organization found for your profile",
-          variant: "destructive",
-        });
         return;
       }
 
-      console.log('Fetching records for organization:', profile.organization_id);
-      const { data, error: recordsError } = await supabase
+      const { data: certificatesData, error: certificatesError } = await supabase
         .from('certificates')
         .select('*')
         .eq('organization_id', profile.organization_id)
         .order('created_at', { ascending: false });
 
-      if (recordsError) {
-        console.error('Records error:', recordsError);
-        setError("Failed to fetch records. Please try again.");
-        toast({
-          title: "Error",
-          description: "Failed to fetch records",
-          variant: "destructive",
-        });
+      if (certificatesError) {
+        console.error('Certificates error:', certificatesError);
+        setError("Unable to fetch records. Please try again.");
         return;
       }
 
-      console.log('Records fetched:', data?.length || 0);
-      setRecords(data || []);
+      setRecords(certificatesData || []);
     } catch (error) {
       console.error('Fetch records error:', error);
       setError("An unexpected error occurred. Please try again.");
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
     } finally {
       setIsLoading(false);
     }
