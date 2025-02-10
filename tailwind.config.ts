@@ -59,8 +59,8 @@ export default {
           200: "#bae6fd",
           300: "#7dd3fc",
           400: "#38bdf8",
-          500: "#0ea5e9",
-          600: "#0284c7",
+          500: "#3367D6", // Updated to corporate blue
+          600: "#2D68C4", // Added darker corporate blue
           700: "#0369a1",
           800: "#075985",
           900: "#0c4a6e",

@@ -7,11 +7,13 @@ import { Label } from "@/components/ui/label";
 import { GraduationCap } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [organizationName, setOrganizationName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -30,18 +32,39 @@ const SignUp = () => {
       return;
     }
 
-    try {
-      // Here we'll add Supabase authentication later
-      toast({
-        title: "Success",
-        description: "Account created successfully",
-      });
-      navigate("/sign-in");
-    } catch (error) {
+    if (!organizationName.trim()) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: "Organization name is required",
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            organization_name: organizationName,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Account created successfully. Please check your email for verification.",
+      });
+      navigate("/sign-in");
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message || "Something went wrong. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -61,6 +84,18 @@ const SignUp = () => {
           <Card className="grid gap-6 p-6">
             <form onSubmit={handleSubmit}>
               <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="organization">Organization Name</Label>
+                  <Input
+                    id="organization"
+                    placeholder="Your Organization"
+                    type="text"
+                    value={organizationName}
+                    onChange={(e) => setOrganizationName(e.target.value)}
+                    disabled={isLoading}
+                    required
+                  />
+                </div>
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -98,7 +133,7 @@ const SignUp = () => {
                     required
                   />
                 </div>
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading} className="bg-brand-500 hover:bg-brand-600 text-white">
                   {isLoading ? "Creating account..." : "Sign Up"}
                 </Button>
               </div>
@@ -118,12 +153,12 @@ const SignUp = () => {
         <div className="absolute inset-0 bg-brand-900" />
         <div className="relative z-20 flex items-center text-lg font-medium">
           <GraduationCap className="mr-2 h-6 w-6" />
-          EduArchive
+          APGA
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              "Join thousands of educational institutions who trust EduArchive for secure
+              "Join thousands of educational institutions who trust APGA for secure
               and efficient student record management."
             </p>
             <footer className="text-sm">Prof. Michael Chen - Department Head</footer>
