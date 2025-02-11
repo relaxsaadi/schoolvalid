@@ -1,4 +1,3 @@
-
 import {
   LogOut,
   Settings,
@@ -47,8 +46,7 @@ export function UserNav() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [profileData, setProfileData] = useState({
     name: "",
-    institutionName: "",
-    logoUrl: "",
+    logo_url: "",
     email: "",
   });
   const navigate = useNavigate();
@@ -63,18 +61,19 @@ export function UserNav() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
-      const { data: profile, error } = await supabase
-        .from('profiles')
+      const { data: organization, error: orgError } = await supabase
+        .from('organizations')
         .select('*')
-        .eq('id', user.id)
         .single();
 
-      if (error) throw error;
+      if (orgError) {
+        console.error("Error loading organization:", orgError);
+        return;
+      }
 
       setProfileData({
-        name: profile.full_name || "",
-        institutionName: profile.institution_name || "",
-        logoUrl: profile.logo_url || "",
+        name: organization.name || "",
+        logo_url: organization.logo_url || "",
         email: user.email || "",
       });
     } catch (error) {
@@ -108,11 +107,10 @@ export function UserNav() {
       if (!user) throw new Error("No user found");
 
       const { error } = await supabase
-        .from('profiles')
+        .from('organizations')
         .update({
-          full_name: profileData.name,
-          institution_name: profileData.institutionName,
-          logo_url: profileData.logoUrl,
+          name: profileData.name,
+          logo_url: profileData.logo_url,
         })
         .eq('id', user.id);
 
@@ -123,7 +121,7 @@ export function UserNav() {
         description: "Your profile has been updated successfully",
       });
       setIsProfileOpen(false);
-      loadUserProfile(); // Reload the profile data
+      loadUserProfile();
     } catch (error) {
       toast({
         variant: "destructive",
@@ -143,7 +141,7 @@ export function UserNav() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={profileData.logoUrl || "/placeholder.svg"} alt="@user" />
+              <AvatarImage src={profileData.logo_url || "/placeholder.svg"} alt="@user" />
               <AvatarFallback>{profileData.name?.charAt(0) || "U"}</AvatarFallback>
             </Avatar>
           </Button>
@@ -230,19 +228,8 @@ export function UserNav() {
               </Label>
               <Input
                 id="institution"
-                value={profileData.institutionName}
-                onChange={(e) => setProfileData({ ...profileData, institutionName: e.target.value })}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="logo" className="text-right">
-                Logo URL
-              </Label>
-              <Input
-                id="logo"
-                value={profileData.logoUrl}
-                onChange={(e) => setProfileData({ ...profileData, logoUrl: e.target.value })}
+                value={profileData.logo_url}
+                onChange={(e) => setProfileData({ ...profileData, logo_url: e.target.value })}
                 className="col-span-3"
               />
             </div>

@@ -11,12 +11,11 @@ export interface StudentRecord {
   course_description?: string;
   diploma_image_url?: string | null;
   provider_description?: string | null;
+  provider: string;
   organization_id: string;
-}
-
-export interface NewStudentRecord extends Omit<StudentRecord, 'id' | 'created_at'> {
   blockchain_hash: string;
   blockchain_timestamp: string;
   issue_date: string;
-  provider: string;
 }
+
+export interface NewStudentRecord extends Omit<StudentRecord, 'id' | 'created_at'> {}

@@ -12,16 +12,14 @@ export type Database = {
       certificates: {
         Row: {
           blockchain_hash: string
-          blockchain_timestamp: string
+          blockchain_timestamp: string | null
           certificate_number: string
           course_description: string | null
-          course_id: string | null
           course_name: string
           created_at: string | null
           diploma_image_url: string | null
           id: string
-          issue_date: string
-          normalized_recipient_name: string | null
+          issue_date: string | null
           organization_id: string
           provider: string
           provider_description: string | null
@@ -31,37 +29,33 @@ export type Database = {
           year_of_birth: number
         }
         Insert: {
-          blockchain_hash: string
-          blockchain_timestamp?: string
+          blockchain_hash?: string
+          blockchain_timestamp?: string | null
           certificate_number: string
           course_description?: string | null
-          course_id?: string | null
           course_name: string
           created_at?: string | null
           diploma_image_url?: string | null
           id?: string
-          issue_date: string
-          normalized_recipient_name?: string | null
+          issue_date?: string | null
           organization_id: string
           provider: string
           provider_description?: string | null
           recipient_name: string
-          status: string
+          status?: string
           valid_through: string
           year_of_birth: number
         }
         Update: {
           blockchain_hash?: string
-          blockchain_timestamp?: string
+          blockchain_timestamp?: string | null
           certificate_number?: string
           course_description?: string | null
-          course_id?: string | null
           course_name?: string
           created_at?: string | null
           diploma_image_url?: string | null
           id?: string
-          issue_date?: string
-          normalized_recipient_name?: string | null
+          issue_date?: string | null
           organization_id?: string
           provider?: string
           provider_description?: string | null
@@ -72,10 +66,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "certificates_course_id_fkey"
-            columns: ["course_id"]
+            foreignKeyName: "certificates_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "courses"
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -157,6 +151,36 @@ export type Database = {
           },
         ]
       }
+      organizations: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           created_at: string | null
@@ -192,6 +216,44 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string | null
+          id: string
+          logo_url: string | null
+          organization_id: string | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          logo_url?: string | null
+          organization_id?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          logo_url?: string | null
+          organization_id?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {

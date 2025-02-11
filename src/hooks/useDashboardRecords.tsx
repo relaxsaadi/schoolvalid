@@ -29,25 +29,9 @@ export const useDashboardRecords = () => {
         return;
       }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (!profile?.organization_id) {
-        toast({
-          title: "Error",
-          description: "No organization found for your profile",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const { data: certificatesData, error: certificatesError } = await supabase
+      const { data: certificates, error: certificatesError } = await supabase
         .from('certificates')
         .select('*')
-        .eq('organization_id', profile.organization_id)
         .order('created_at', { ascending: false });
 
       if (certificatesError) {
@@ -56,7 +40,7 @@ export const useDashboardRecords = () => {
         return;
       }
 
-      setRecords(certificatesData || []);
+      setRecords(certificates || []);
     } catch (error) {
       console.error('Fetch records error:', error);
       setError("An unexpected error occurred");
@@ -72,16 +56,6 @@ export const useDashboardRecords = () => {
         throw new Error("Not authenticated");
       }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (!profile?.organization_id) {
-        throw new Error("No organization found");
-      }
-
       const { data, error } = await supabase
         .from('certificates')
         .insert([{
@@ -89,17 +63,16 @@ export const useDashboardRecords = () => {
           certificate_number: newRecord.certificate_number,
           course_name: newRecord.course_name,
           status: newRecord.status || 'active',
-          blockchain_hash: 'pending',
-          blockchain_timestamp: new Date().toISOString(),
-          issue_date: new Date().toISOString(),
+          blockchain_hash: newRecord.blockchain_hash || 'pending',
+          blockchain_timestamp: newRecord.blockchain_timestamp || new Date().toISOString(),
+          issue_date: newRecord.issue_date || new Date().toISOString(),
           valid_through: newRecord.valid_through,
           year_of_birth: newRecord.year_of_birth,
-          email: newRecord.email,
           course_description: newRecord.course_description,
           diploma_image_url: newRecord.diploma_image_url,
           provider_description: newRecord.provider_description,
-          provider: 'Default Provider',
-          organization_id: profile.organization_id,
+          provider: newRecord.provider,
+          organization_id: newRecord.organization_id,
         }])
         .select()
         .single();

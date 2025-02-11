@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { UserNav } from "@/components/UserNav";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
@@ -27,23 +26,9 @@ const Settings = () => {
 
   const loadOrganizationData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('id', user.id)
-        .single();
-
-      if (!profile?.organization_id) {
-        throw new Error("No organization found");
-      }
-
       const { data: organization, error } = await supabase
         .from('organizations')
         .select('*')
-        .eq('id', profile.organization_id)
         .single();
 
       if (error) throw error;
@@ -71,24 +56,13 @@ const Settings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('id', user.id)
-        .single();
-
-      if (!profile?.organization_id) {
-        throw new Error("No organization found");
-      }
-
       const { error } = await supabase
         .from('organizations')
         .update({
           name: organizationData.name,
           description: organizationData.description,
           logo_url: organizationData.logo_url,
-        })
-        .eq('id', profile.organization_id);
+        });
 
       if (error) throw error;
 
