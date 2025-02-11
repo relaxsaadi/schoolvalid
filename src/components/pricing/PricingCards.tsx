@@ -24,6 +24,19 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
 
+  const getStripeLink = (planName: string) => {
+    switch (planName.toLowerCase()) {
+      case "pay as you go":
+        return "https://buy.stripe.com/8wM8AD0pu3apgFieUU";
+      case "professional":
+        return "https://buy.stripe.com/dR68AD2xC8uJdt6001";
+      case "enterprise":
+        return "https://buy.stripe.com/28o2cfa04eT7gFi7su";
+      default:
+        return "#";
+    }
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -145,7 +158,6 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
                 <span className="text-3xl font-bold">
                   ${plan.price_monthly}
                 </span>
-                <span className="text-muted-foreground">/month</span>
               </motion.div>
               <motion.ul 
                 className="space-y-3 mb-6"
@@ -187,7 +199,7 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
               <MotionButton
                 className={`w-full transition-all duration-300 ${plan.is_popular ? 'bg-brand-500 hover:bg-brand-600' : 'border-brand-500 text-brand-500 hover:bg-brand-500 hover:text-white'}`}
                 variant={plan.is_popular ? "default" : "outline"}
-                onClick={() => onSelectPlan(plan.id)}
+                onClick={() => window.location.href = getStripeLink(plan.name)}
                 whileHover={{ 
                   scale: 1.05,
                   transition: { 
