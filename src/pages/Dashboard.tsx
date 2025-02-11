@@ -10,11 +10,9 @@ import { StatsCards } from "@/components/dashboard/StatsCards";
 import { RecordsTable } from "@/components/dashboard/RecordsTable";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { SearchBar } from "@/components/dashboard/SearchBar";
-import { ActionButtons } from "@/components/dashboard/ActionButtons";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
-import { CreateOrganizationDialog } from "@/components/organizations/CreateOrganizationDialog";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -74,11 +72,6 @@ const Dashboard = () => {
             className="md:hidden mb-6"
           />
 
-          <div className="mb-6">
-            <CreateOrganizationDialog />
-          </div>
-
-          <ActionButtons onAddRecord={handleAddRecord} />
           <StatsCards records={records} />
           <RecordsTable
             records={records}
