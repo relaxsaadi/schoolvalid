@@ -10,7 +10,7 @@ import {
 import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { StudentRecord } from "@/pages/Dashboard";
+import { StudentRecord } from "@/types/records";
 import { supabase } from "@/integrations/supabase/client";
 import { AddRecordForm } from "./student-records/AddRecordForm";
 

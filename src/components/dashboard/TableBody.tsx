@@ -2,7 +2,7 @@
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { TableBody as ShadcnTableBody, TableCell, TableRow } from "@/components/ui/table";
-import { StudentRecord } from "@/pages/Dashboard";
+import { StudentRecord } from "@/types/records";
 import { EmptyState } from "./EmptyState";
 
 interface TableBodyProps {

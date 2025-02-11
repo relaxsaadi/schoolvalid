@@ -1,8 +1,7 @@
-
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
-import { StudentRecord } from "@/pages/Dashboard";
+import { StudentRecord } from "@/types/records";
 
 interface ActionButtonsProps {
   onAddRecord: (record: Omit<StudentRecord, "id" | "created_at">) => Promise<void>;

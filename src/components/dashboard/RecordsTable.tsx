@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { StudentRecord } from "@/pages/Dashboard";
+import { StudentRecord } from "@/types/records";
 import { TableHeader } from "./TableHeader";
 import { TableBody } from "./TableBody";
 

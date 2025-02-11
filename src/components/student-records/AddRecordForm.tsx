@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { StudentRecord } from "@/pages/Dashboard";
+import { StudentRecord } from "@/types/records";
 import { StudentIdGenerator } from "./StudentIdGenerator";
 
 interface AddRecordFormProps {

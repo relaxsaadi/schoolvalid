@@ -1,6 +1,6 @@
 
 import { Users, Award, Bell, GraduationCap } from "lucide-react";
-import { StudentRecord } from "@/pages/Dashboard";
+import { StudentRecord } from "@/types/records";
 import { StatCard } from "./StatCard";
 
 interface StatsCardsProps {
