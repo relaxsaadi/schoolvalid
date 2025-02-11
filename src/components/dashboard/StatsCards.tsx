@@ -1,8 +1,8 @@
-
 import { Users, Award, Bell, GraduationCap, Clock, TrendingUp, CheckCircle, ShieldCheck } from "lucide-react";
 import { StudentRecord } from "@/types/records";
 import { StatCard } from "./StatCard";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
 
 interface StatsCardsProps {
   records: StudentRecord[];
@@ -104,9 +104,24 @@ export const StatsCards = ({ records }: StatsCardsProps) => {
     },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   return (
-    <div className="grid gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat) => (
+    <motion.div 
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="grid gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4"
+    >
+      {stats.map((stat, index) => (
         <StatCard
           key={stat.title}
           title={stat.title}
@@ -117,6 +132,6 @@ export const StatsCards = ({ records }: StatsCardsProps) => {
           trendUp={stat.trendUp}
         />
       ))}
-    </div>
+    </motion.div>
   );
 };
