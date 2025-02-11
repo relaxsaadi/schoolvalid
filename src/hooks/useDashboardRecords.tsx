@@ -43,12 +43,14 @@ export const useDashboardRecords = () => {
       }
 
       if (!profile?.organization_id) {
-        console.log('No organization found, trying to create default organization');
-        // Trigger the organization creation function
+        console.log('No organization found, triggering organization creation');
+        // Update profile to trigger organization creation
         const { error: updateError } = await supabase
           .from('profiles')
-          .update({ organization_id: null })
-          .eq('id', user.id);
+          .upsert({ 
+            id: user.id,
+            organization_id: null 
+          });
 
         if (updateError) {
           console.error('Error triggering organization creation:', updateError);
@@ -69,7 +71,21 @@ export const useDashboardRecords = () => {
           return;
         }
 
-        profile.organization_id = updatedProfile.organization_id;
+        // Use the newly created organization
+        const { data: certificates, error: certificatesError } = await supabase
+          .from('certificates')
+          .select('*')
+          .eq('organization_id', updatedProfile.organization_id)
+          .order('created_at', { ascending: false });
+
+        if (certificatesError) {
+          console.error('Certificates error:', certificatesError);
+          setError("Unable to fetch records");
+          return;
+        }
+
+        setRecords(certificates || []);
+        return;
       }
 
       // Then fetch certificates for this organization
