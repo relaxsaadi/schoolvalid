@@ -31,10 +31,15 @@ export interface StudentRecord {
   created_at: string;
   valid_through?: string;
   status?: string;
-  email?: string;
   year_of_birth?: number;
   course_description?: string;
   diploma_image_url?: string | null;
+  provider?: string;
+  organization_id: string;
+  blockchain_hash?: string;
+  blockchain_timestamp?: string;
+  issue_date?: string;
+  provider_description?: string | null;
 }
 
 const Dashboard = () => {
@@ -71,40 +76,63 @@ const Dashboard = () => {
   );
 
   const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
-    const { data, error } = await supabase
-      .from('certificates')
-      .insert([{
-        recipient_name: newRecord.recipient_name,
-        certificate_number: newRecord.certificate_number,
-        course_name: newRecord.course_name,
-        status: newRecord.status,
-        blockchain_hash: 'pending',
-        blockchain_timestamp: new Date().toISOString(),
-        issue_date: new Date().toISOString(),
-        valid_through: newRecord.valid_through,
-        year_of_birth: newRecord.year_of_birth,
-        email: newRecord.email,
-        course_description: newRecord.course_description,
-        diploma_image_url: newRecord.diploma_image_url,
-        provider: 'Default Provider',
-      }])
-      .select()
-      .single();
+    try {
+      // Get the user's organization_id
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
 
-    if (error) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile?.organization_id) {
+        throw new Error("No organization found");
+      }
+
+      const { data, error } = await supabase
+        .from('certificates')
+        .insert({
+          recipient_name: newRecord.recipient_name,
+          certificate_number: newRecord.certificate_number,
+          course_name: newRecord.course_name,
+          status: newRecord.status || 'active',
+          blockchain_hash: 'pending',
+          blockchain_timestamp: new Date().toISOString(),
+          issue_date: new Date().toISOString(),
+          valid_through: newRecord.valid_through,
+          year_of_birth: newRecord.year_of_birth,
+          course_description: newRecord.course_description,
+          diploma_image_url: newRecord.diploma_image_url,
+          provider: 'Default Provider',
+          organization_id: profile.organization_id
+        })
+        .select()
+        .single();
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to add record",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setRecords((prev) => [data, ...prev]);
+      toast({
+        title: "Success",
+        description: "Record added successfully",
+      });
+    } catch (error) {
+      console.error('Error adding record:', error);
       toast({
         title: "Error",
         description: "Failed to add record",
         variant: "destructive",
       });
-      return;
     }
-
-    setRecords((prev) => [data, ...prev]);
-    toast({
-      title: "Success",
-      description: "Record added successfully",
-    });
   };
 
   return (
