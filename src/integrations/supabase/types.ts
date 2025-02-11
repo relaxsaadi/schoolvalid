@@ -78,20 +78,6 @@ export type Database = {
             referencedRelation: "courses"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "certificates_organization_id_fk"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "certificates_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
         ]
       }
       courses: {
@@ -119,15 +105,7 @@ export type Database = {
           organization_id?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "courses_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       orders: {
         Row: {
@@ -179,36 +157,6 @@ export type Database = {
           },
         ]
       }
-      organizations: {
-        Row: {
-          created_at: string
-          description: string | null
-          id: string
-          logo_url: string | null
-          name: string
-          slug: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          logo_url?: string | null
-          name: string
-          slug: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          id?: string
-          logo_url?: string | null
-          name?: string
-          slug?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       plans: {
         Row: {
           created_at: string | null
@@ -244,65 +192,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
-      }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          department: string | null
-          full_name: string | null
-          id: string
-          institution_name: string | null
-          last_login: string | null
-          logo_url: string | null
-          organization_id: string | null
-          phone_number: string | null
-          role: Database["public"]["Enums"]["user_role"] | null
-          status: string | null
-          theme: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string | null
-          department?: string | null
-          full_name?: string | null
-          id: string
-          institution_name?: string | null
-          last_login?: string | null
-          logo_url?: string | null
-          organization_id?: string | null
-          phone_number?: string | null
-          role?: Database["public"]["Enums"]["user_role"] | null
-          status?: string | null
-          theme?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string | null
-          department?: string | null
-          full_name?: string | null
-          id?: string
-          institution_name?: string | null
-          last_login?: string | null
-          logo_url?: string | null
-          organization_id?: string | null
-          phone_number?: string | null
-          role?: Database["public"]["Enums"]["user_role"] | null
-          status?: string | null
-          theme?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       subscriptions: {
         Row: {
