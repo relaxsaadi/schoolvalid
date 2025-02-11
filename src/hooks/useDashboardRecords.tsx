@@ -29,9 +29,24 @@ export const useDashboardRecords = () => {
         return;
       }
 
+      // First get the user's organization_id
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Profile error:', profileError);
+        setError("Unable to fetch organization data");
+        return;
+      }
+
+      // Then fetch certificates for this organization
       const { data: certificates, error: certificatesError } = await supabase
         .from('certificates')
         .select('*')
+        .eq('organization_id', profile.organization_id)
         .order('created_at', { ascending: false });
 
       if (certificatesError) {
@@ -56,23 +71,26 @@ export const useDashboardRecords = () => {
         throw new Error("Not authenticated");
       }
 
+      // Get user's organization_id
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single();
+
+      if (!profile?.organization_id) {
+        throw new Error("No organization found");
+      }
+
       const { data, error } = await supabase
         .from('certificates')
         .insert([{
-          recipient_name: newRecord.recipient_name,
-          certificate_number: newRecord.certificate_number,
-          course_name: newRecord.course_name,
+          ...newRecord,
+          organization_id: profile.organization_id,
           status: newRecord.status || 'active',
           blockchain_hash: newRecord.blockchain_hash || 'pending',
           blockchain_timestamp: newRecord.blockchain_timestamp || new Date().toISOString(),
           issue_date: newRecord.issue_date || new Date().toISOString(),
-          valid_through: newRecord.valid_through,
-          year_of_birth: newRecord.year_of_birth,
-          course_description: newRecord.course_description,
-          diploma_image_url: newRecord.diploma_image_url,
-          provider_description: newRecord.provider_description,
-          provider: newRecord.provider,
-          organization_id: newRecord.organization_id,
         }])
         .select()
         .single();
