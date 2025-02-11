@@ -9,314 +9,117 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      certificates: {
+      certificate_validations: {
         Row: {
-          blockchain_hash: string
-          blockchain_timestamp: string | null
-          certificate_number: string
           course_description: string | null
-          course_name: string
-          created_at: string | null
-          diploma_image_url: string | null
+          course_name: string | null
+          created_at: string
+          expiry_date: string | null
           id: string
           issue_date: string | null
-          organization_id: string
-          provider: string
-          provider_description: string | null
-          recipient_name: string
+          issuer_name: string | null
+          qr_code_url: string | null
           status: string
-          valid_through: string
-          year_of_birth: number
+          student_id: string | null
+          updated_at: string
+          validated_at: string | null
+          validation_code: string
+          validation_url: string | null
         }
         Insert: {
-          blockchain_hash?: string
-          blockchain_timestamp?: string | null
-          certificate_number: string
           course_description?: string | null
-          course_name: string
-          created_at?: string | null
-          diploma_image_url?: string | null
+          course_name?: string | null
+          created_at?: string
+          expiry_date?: string | null
           id?: string
           issue_date?: string | null
-          organization_id: string
-          provider: string
-          provider_description?: string | null
-          recipient_name: string
+          issuer_name?: string | null
+          qr_code_url?: string | null
           status?: string
-          valid_through: string
-          year_of_birth: number
+          student_id?: string | null
+          updated_at?: string
+          validated_at?: string | null
+          validation_code?: string
+          validation_url?: string | null
         }
         Update: {
-          blockchain_hash?: string
-          blockchain_timestamp?: string | null
-          certificate_number?: string
           course_description?: string | null
-          course_name?: string
-          created_at?: string | null
-          diploma_image_url?: string | null
+          course_name?: string | null
+          created_at?: string
+          expiry_date?: string | null
           id?: string
           issue_date?: string | null
-          organization_id?: string
-          provider?: string
-          provider_description?: string | null
-          recipient_name?: string
+          issuer_name?: string | null
+          qr_code_url?: string | null
           status?: string
-          valid_through?: string
-          year_of_birth?: number
+          student_id?: string | null
+          updated_at?: string
+          validated_at?: string | null
+          validation_code?: string
+          validation_url?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "certificates_organization_id_fkey"
-            columns: ["organization_id"]
+            foreignKeyName: "certificate_validations_student_id_fkey"
+            columns: ["student_id"]
             isOneToOne: false
-            referencedRelation: "organizations"
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_certificate_validations_student"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
             referencedColumns: ["id"]
           },
         ]
       }
-      courses: {
+      students: {
         Row: {
-          created_at: string | null
-          description: string | null
+          certificate_image_url: string | null
+          certificate_url: string | null
+          created_at: string
+          email: string | null
+          first_name: string
           id: string
-          name: string
-          organization_id: string | null
-          updated_at: string | null
+          last_name: string
+          student_id: string
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
-          description?: string | null
+          certificate_image_url?: string | null
+          certificate_url?: string | null
+          created_at?: string
+          email?: string | null
+          first_name: string
           id?: string
-          name: string
-          organization_id?: string | null
-          updated_at?: string | null
+          last_name: string
+          student_id: string
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
-          description?: string | null
+          certificate_image_url?: string | null
+          certificate_url?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string
           id?: string
-          name?: string
-          organization_id?: string | null
-          updated_at?: string | null
+          last_name?: string
+          student_id?: string
+          updated_at?: string
         }
         Relationships: []
-      }
-      orders: {
-        Row: {
-          amount: number
-          billing_address: Json
-          billing_email: string
-          billing_name: string
-          created_at: string | null
-          id: string
-          payment_method: string | null
-          status: string
-          subscription_id: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          amount: number
-          billing_address: Json
-          billing_email: string
-          billing_name: string
-          created_at?: string | null
-          id?: string
-          payment_method?: string | null
-          status: string
-          subscription_id?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          amount?: number
-          billing_address?: Json
-          billing_email?: string
-          billing_name?: string
-          created_at?: string | null
-          id?: string
-          payment_method?: string | null
-          status?: string
-          subscription_id?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "orders_subscription_id_fkey"
-            columns: ["subscription_id"]
-            isOneToOne: false
-            referencedRelation: "subscriptions"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      organizations: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          id: string
-          logo_url: string | null
-          name: string
-          slug: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          logo_url?: string | null
-          name: string
-          slug: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          logo_url?: string | null
-          name?: string
-          slug?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      plans: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          features: Json
-          id: string
-          is_popular: boolean | null
-          name: string
-          price_monthly: number
-          price_yearly: number
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          features: Json
-          id?: string
-          is_popular?: boolean | null
-          name: string
-          price_monthly: number
-          price_yearly: number
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          features?: Json
-          id?: string
-          is_popular?: boolean | null
-          name?: string
-          price_monthly?: number
-          price_yearly?: number
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          created_at: string | null
-          full_name: string | null
-          id: string
-          logo_url: string | null
-          organization_id: string | null
-          role: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          full_name?: string | null
-          id: string
-          logo_url?: string | null
-          organization_id?: string | null
-          role?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          full_name?: string | null
-          id?: string
-          logo_url?: string | null
-          organization_id?: string | null
-          role?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      subscriptions: {
-        Row: {
-          cancel_at_period_end: boolean | null
-          created_at: string | null
-          current_period_end: string
-          current_period_start: string
-          id: string
-          plan_id: string
-          status: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          cancel_at_period_end?: boolean | null
-          created_at?: string | null
-          current_period_end: string
-          current_period_start: string
-          id?: string
-          plan_id: string
-          status: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          cancel_at_period_end?: boolean | null
-          created_at?: string | null
-          current_period_end?: string
-          current_period_start?: string
-          id?: string
-          plan_id?: string
-          status?: string
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "subscriptions_plan_id_fkey"
-            columns: ["plan_id"]
-            isOneToOne: false
-            referencedRelation: "plans"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_user_organization_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      normalize_name: {
-        Args: {
-          input_name: string
-        }
-        Returns: string
-      }
+      [_ in never]: never
     }
     Enums: {
-      user_role: "admin" | "instructor" | "student" | "standard"
+      certificate_status: "pending" | "valid" | "invalid"
     }
     CompositeTypes: {
       [_ in never]: never
