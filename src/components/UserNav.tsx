@@ -33,7 +33,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,6 +53,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -62,7 +62,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 export function UserNav() {
-  const [open, setOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [profileData, setProfileData] = useState({
     name: "",
@@ -100,6 +99,7 @@ export function UserNav() {
       const { error } = await supabase
         .from('profiles')
         .update({
+          full_name: profileData.name,
           institution_name: profileData.institutionName,
           logo_url: profileData.logoUrl,
         })
@@ -121,22 +121,22 @@ export function UserNav() {
     }
   };
 
+  const handleSettingsClick = () => {
+    navigate("/settings");
+  };
+
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="relative h-8 w-8 rounded-full transition-transform hover:scale-105">
+          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
               <AvatarImage src="/placeholder.svg" alt="@user" />
               <AvatarFallback>U</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent 
-          className="w-56" 
-          align="end" 
-          forceMount
-        >
+        <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">User</p>
@@ -148,30 +148,28 @@ export function UserNav() {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem 
-              className="cursor-pointer transition-colors hover:bg-accent"
+              className="cursor-pointer"
               onClick={() => setIsProfileOpen(true)}
             >
-              <User className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+              <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
               <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer transition-colors hover:bg-accent">
-              <Settings className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:rotate-45" />
+            <DropdownMenuItem 
+              className="cursor-pointer"
+              onClick={handleSettingsClick}
+            >
+              <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
               <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="cursor-pointer transition-colors hover:bg-accent">
-            <HelpCircle className="mr-2 h-4 w-4" />
-            <span>Help & Support</span>
-          </DropdownMenuItem>
-          <DropdownMenuSeparator className="my-1 bg-muted/60" />
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <DropdownMenuItem 
+              <DropdownMenuItem
+                className="cursor-pointer text-red-600 focus:text-red-600"
                 onSelect={(e) => e.preventDefault()}
-                className="cursor-pointer text-red-600 transition-colors hover:bg-red-100 dark:hover:bg-red-900/50"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
