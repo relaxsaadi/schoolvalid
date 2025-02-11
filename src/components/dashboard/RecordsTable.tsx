@@ -17,6 +17,7 @@ interface RecordsTableProps {
   isLoading: boolean;
   error: string | null;
   getStatusColor: (status?: string) => string;
+  onUpdateRecord: (recordId: string, formData: FormData) => Promise<void>;
 }
 
 export const RecordsTable = ({
@@ -25,6 +26,7 @@ export const RecordsTable = ({
   isLoading,
   error,
   getStatusColor,
+  onUpdateRecord,
 }: RecordsTableProps) => {
   return (
     <Card>
@@ -51,6 +53,7 @@ export const RecordsTable = ({
                 records={records}
                 filteredRecords={filteredRecords}
                 getStatusColor={getStatusColor}
+                onUpdateRecord={onUpdateRecord}
               />
             </Table>
           </div>
@@ -58,4 +61,4 @@ export const RecordsTable = ({
       </CardContent>
     </Card>
   );
-};
+}

@@ -170,6 +170,54 @@ export const useDashboardRecords = () => {
     }
   };
 
+  const handleUpdateRecord = async (recordId: string, formData: FormData) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("Not authenticated");
+      }
+
+      const updateData = {
+        recipient_name: formData.get('recipient_name') as string,
+        provider: formData.get('provider') as string,
+        course_name: formData.get('course_name') as string,
+        valid_through: new Date(formData.get('valid_through') as string).toISOString(),
+        year_of_birth: parseInt(formData.get('year_of_birth') as string),
+        course_description: formData.get('course_description') as string || null,
+        provider_description: formData.get('provider_description') as string || null,
+      };
+
+      const { data, error } = await supabase
+        .from('certificates')
+        .update(updateData)
+        .eq('id', recordId)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating record:', error);
+        throw new Error(error.message);
+      }
+
+      setRecords((prev) => prev.map((record) => 
+        record.id === recordId ? { ...record, ...data } : record
+      ));
+
+      toast({
+        title: "Success",
+        description: "Record updated successfully",
+      });
+    } catch (error) {
+      console.error('Update record error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to update record",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   useEffect(() => {
     fetchRecords();
   }, [navigate]);
@@ -180,5 +228,6 @@ export const useDashboardRecords = () => {
     error,
     fetchRecords,
     handleAddRecord,
+    handleUpdateRecord,
   };
 };
