@@ -33,31 +33,33 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
 
   useEffect(() => {
     async function fetchUserOrganization() {
+      if (!open) return;
+      
       setLoading(true);
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          throw new Error("Not authenticated");
-        }
+        const { data: { session }, error: sessionError } = await supabase.auth.getUser();
+        if (sessionError) throw new Error("Authentication error");
+        if (!session?.user) throw new Error("Not authenticated");
 
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('organization_id')
-          .eq('id', user.id)
+          .eq('id', session.user.id)
+          .limit(1)
           .maybeSingle();
         
         if (profileError) {
           console.error('Profile error:', profileError);
-          throw new Error(profileError.message);
+          throw new Error("Unable to fetch your profile");
         }
         
         if (!profile?.organization_id) {
-          console.error('No organization found for profile:', profile);
           throw new Error("No organization found for your profile");
         }
         
         console.log('Found organization:', profile.organization_id);
         setOrganizationId(profile.organization_id);
+        generateNewId();
       } catch (error) {
         console.error('Error fetching organization:', error);
         toast({
@@ -71,10 +73,7 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
       }
     }
     
-    if (open) {
-      fetchUserOrganization();
-      generateNewId();
-    }
+    fetchUserOrganization();
   }, [open, toast]);
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -109,7 +108,10 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
       onAddRecord(newRecord);
       setOpen(false);
       (e.target as HTMLFormElement).reset();
-      
+      toast({
+        title: "Success",
+        description: "Record added successfully",
+      });
     } catch (error) {
       console.error('Submit error:', error);
       toast({
@@ -147,4 +149,3 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
     </Dialog>
   );
 }
-
