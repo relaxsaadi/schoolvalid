@@ -18,4 +18,4 @@ export interface StudentRecord {
   issue_date: string;
 }
 
-export interface NewStudentRecord extends Omit<StudentRecord, 'id' | 'created_at'> {}
+export type NewStudentRecord = Omit<StudentRecord, 'id' | 'created_at'>;

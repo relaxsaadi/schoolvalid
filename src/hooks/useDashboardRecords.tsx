@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { StudentRecord } from "@/types/records";
+import { StudentRecord, NewStudentRecord } from "@/types/records";
 
 export const useDashboardRecords = () => {
   const [records, setRecords] = useState<StudentRecord[]>([]);
@@ -34,12 +34,42 @@ export const useDashboardRecords = () => {
         .from('profiles')
         .select('organization_id')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         console.error('Profile error:', profileError);
         setError("Unable to fetch organization data");
         return;
+      }
+
+      if (!profile?.organization_id) {
+        console.log('No organization found, trying to create default organization');
+        // Trigger the organization creation function
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ organization_id: null })
+          .eq('id', user.id);
+
+        if (updateError) {
+          console.error('Error triggering organization creation:', updateError);
+          setError("Unable to create organization");
+          return;
+        }
+
+        // Fetch the profile again after organization creation
+        const { data: updatedProfile, error: updatedProfileError } = await supabase
+          .from('profiles')
+          .select('organization_id')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (updatedProfileError || !updatedProfile?.organization_id) {
+          console.error('Error fetching updated profile:', updatedProfileError);
+          setError("Unable to fetch organization data");
+          return;
+        }
+
+        profile.organization_id = updatedProfile.organization_id;
       }
 
       // Then fetch certificates for this organization
@@ -64,7 +94,7 @@ export const useDashboardRecords = () => {
     }
   };
 
-  const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
+  const handleAddRecord = async (newRecord: NewStudentRecord) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
@@ -72,11 +102,15 @@ export const useDashboardRecords = () => {
       }
 
       // Get user's organization_id
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('organization_id')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
+
+      if (profileError) {
+        throw new Error("Error fetching organization");
+      }
 
       if (!profile?.organization_id) {
         throw new Error("No organization found");
