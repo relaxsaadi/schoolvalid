@@ -1,21 +1,8 @@
 
 import {
-  Cloud,
-  CreditCard,
-  Github,
-  Keyboard,
-  LifeBuoy,
   LogOut,
-  Mail,
-  MessageSquare,
-  Plus,
-  PlusCircle,
   Settings,
   User,
-  UserPlus,
-  Users,
-  HelpCircle,
-  Edit,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -25,12 +12,8 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -51,12 +34,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -67,9 +49,38 @@ export function UserNav() {
     name: "",
     institutionName: "",
     logoUrl: "",
+    email: "",
   });
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
+
+  const loadUserProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+
+      setProfileData({
+        name: profile.full_name || "",
+        institutionName: profile.institution_name || "",
+        logoUrl: profile.logo_url || "",
+        email: user.email || "",
+      });
+    } catch (error) {
+      console.error("Error loading profile:", error);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -112,6 +123,7 @@ export function UserNav() {
         description: "Your profile has been updated successfully",
       });
       setIsProfileOpen(false);
+      loadUserProfile(); // Reload the profile data
     } catch (error) {
       toast({
         variant: "destructive",
@@ -131,17 +143,17 @@ export function UserNav() {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-8 w-8">
-              <AvatarImage src="/placeholder.svg" alt="@user" />
-              <AvatarFallback>U</AvatarFallback>
+              <AvatarImage src={profileData.logoUrl || "/placeholder.svg"} alt="@user" />
+              <AvatarFallback>{profileData.name?.charAt(0) || "U"}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">User</p>
+              <p className="text-sm font-medium leading-none">{profileData.name || "User"}</p>
               <p className="text-xs leading-none text-muted-foreground">
-                user@example.com
+                {profileData.email}
               </p>
             </div>
           </DropdownMenuLabel>
