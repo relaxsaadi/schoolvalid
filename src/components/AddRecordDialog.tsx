@@ -37,14 +37,14 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
       
       setLoading(true);
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getUser();
-        if (sessionError) throw new Error("Authentication error");
-        if (!session?.user) throw new Error("Not authenticated");
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (authError) throw new Error("Authentication error");
+        if (!user) throw new Error("Not authenticated");
 
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('organization_id')
-          .eq('id', session.user.id)
+          .eq('id', user.id)
           .limit(1)
           .maybeSingle();
         
