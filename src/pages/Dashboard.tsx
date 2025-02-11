@@ -18,7 +18,7 @@ import { CreateOrganizationDialog } from "@/components/organizations/CreateOrgan
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { records, isLoading, error, handleAddRecord } = useDashboardRecords();
+  const { records, isLoading, error, handleAddRecord, handleUpdateRecord } = useDashboardRecords();
   const { searchQuery, setSearchQuery, filteredRecords } = useSearchFilter(records);
   const { toast } = useToast();
   
@@ -86,6 +86,7 @@ const Dashboard = () => {
             isLoading={isLoading}
             error={error}
             getStatusColor={getStatusColor}
+            onUpdateRecord={handleUpdateRecord}
           />
         </main>
       </div>
