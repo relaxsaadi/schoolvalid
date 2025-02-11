@@ -8,7 +8,7 @@ interface ActionButtonsProps {
   onAddRecord: (record: Omit<StudentRecord, "id" | "created_at">) => Promise<void>;
 }
 
-export const ActionButtons = ({ onAddRecord }: ActionButtonsProps) => {
+export const ActionButtons: React.FC<ActionButtonsProps> = ({ onAddRecord }) => {
   return (
     <div className="mb-6 flex flex-wrap gap-4">
       <AddRecordDialog onAddRecord={onAddRecord} />
