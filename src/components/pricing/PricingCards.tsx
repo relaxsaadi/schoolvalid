@@ -3,8 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
-import { Switch } from "@/components/ui/switch";
 
 interface Plan {
   id: string;
@@ -22,7 +20,6 @@ interface PricingCardsProps {
 }
 
 export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
-  const [isYearly, setIsYearly] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
 
@@ -89,31 +86,6 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
   return (
     <div className="mt-12">
       <motion.div 
-        className="flex items-center justify-center gap-4 mb-8"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <span className={`text-sm ${!isYearly ? 'font-bold' : ''}`}>Monthly</span>
-        <Switch
-          checked={isYearly}
-          onCheckedChange={setIsYearly}
-          className="data-[state=checked]:animate-pulse"
-        />
-        <span className={`text-sm ${isYearly ? 'font-bold' : ''}`}>
-          Yearly{' '}
-          <motion.span 
-            className="text-green-600"
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            (Save 20%)
-          </motion.span>
-        </span>
-      </motion.div>
-
-      <motion.div 
         className="grid gap-8 md:grid-cols-3"
         variants={containerVariants}
         initial="hidden"
@@ -163,29 +135,17 @@ export const PricingCards = ({ plans, onSelectPlan }: PricingCardsProps) => {
                 </motion.h3>
                 <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
               </div>
-              <AnimatePresence mode="wait">
-                <motion.div 
-                  key={isYearly ? 'yearly' : 'monthly'}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{
-                    duration: 0.3,
-                    ease: "easeInOut"
-                  }}
-                  className="mb-4"
-                >
-                  <span className="text-3xl font-bold">
-                    ${isYearly ? (plan.price_yearly / 12).toFixed(2) : plan.price_monthly}
-                  </span>
-                  <span className="text-muted-foreground">/month</span>
-                  {isYearly && (
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Billed annually (${plan.price_yearly}/year)
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="mb-4"
+              >
+                <span className="text-3xl font-bold">
+                  ${plan.price_monthly}
+                </span>
+                <span className="text-muted-foreground">/month</span>
+              </motion.div>
               <motion.ul 
                 className="space-y-3 mb-6"
                 initial="hidden"
