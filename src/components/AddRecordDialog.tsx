@@ -41,7 +41,6 @@ export function AddRecordDialog() {
         course_name: formData.get('course_name') as string,
         valid_through: new Date(formData.get('valid_through') as string).toISOString(),
         status: 'active',
-        email: formData.get('email') as string,
         year_of_birth: parseInt(formData.get('year_of_birth') as string),
         course_description: formData.get('course_description') as string || null,
         provider_description: formData.get('provider_description') as string || null,

@@ -91,17 +91,6 @@ export function AddRecordForm({ onSubmit, onClose }: AddRecordFormProps) {
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="email">Email *</Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="Enter email"
-          required
-        />
-      </div>
-
-      <div className="grid gap-2">
         <Label htmlFor="year_of_birth">Year of Birth *</Label>
         <Input
           id="year_of_birth"
