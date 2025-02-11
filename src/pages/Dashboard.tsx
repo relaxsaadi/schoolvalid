@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDashboardRecords } from "@/hooks/useDashboardRecords";
 import { useSearchFilter } from "@/hooks/useSearchFilter";
 import { getStatusColor } from "@/utils/statusColors";
-import { UserNav } from "@/components/UserNav";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { RecordsTable } from "@/components/dashboard/RecordsTable";
@@ -26,7 +25,6 @@ const Dashboard = () => {
       <div className="flex-1 lg:pl-64">
         <DashboardHeader>
           <SearchBar value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-          <UserNav />
         </DashboardHeader>
 
         <main className="p-4 sm:p-6 lg:p-8">
