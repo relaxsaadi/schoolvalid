@@ -7,72 +7,30 @@ import { Label } from "@/components/ui/label";
 import { GraduationCap } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const handlePasswordReset = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please enter your email address",
-      });
-      return;
-    }
-
-    setIsResettingPassword(true);
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Password reset instructions have been sent to your email",
-      });
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message || "Failed to send reset instructions",
-      });
-    } finally {
-      setIsResettingPassword(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
+      // Here we'll add Supabase authentication later
       toast({
         title: "Success",
         description: "Signed in successfully",
       });
       navigate("/dashboard");
-    } catch (error: any) {
+    } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Invalid email or password",
+        description: "Invalid email or password",
       });
     } finally {
       setIsLoading(false);
@@ -85,12 +43,12 @@ const SignIn = () => {
         <div className="absolute inset-0 bg-brand-900" />
         <div className="relative z-20 flex items-center text-lg font-medium">
           <GraduationCap className="mr-2 h-6 w-6" />
-          APGA
+          EduArchive
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
             <p className="text-lg">
-              "APGA has revolutionized how we manage student records. The platform's security
+              "EduArchive has revolutionized how we manage student records. The platform's security
               and ease of use have made our administrative tasks significantly more efficient."
             </p>
             <footer className="text-sm">Dr. Sarah Johnson - University Dean</footer>
@@ -136,15 +94,6 @@ const SignIn = () => {
                 </div>
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Sign In"}
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="link" 
-                  className="px-0 font-normal"
-                  onClick={handlePasswordReset}
-                  disabled={isResettingPassword}
-                >
-                  {isResettingPassword ? "Sending reset instructions..." : "Forgot your password?"}
                 </Button>
               </div>
             </form>
