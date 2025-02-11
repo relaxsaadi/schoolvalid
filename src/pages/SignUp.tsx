@@ -14,6 +14,7 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [organizationName, setOrganizationName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -49,6 +50,7 @@ const SignUp = () => {
         options: {
           data: {
             organization_name: organizationName,
+            full_name: fullName,
           },
         },
       });
@@ -85,7 +87,7 @@ const SignUp = () => {
             <form onSubmit={handleSubmit}>
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="organization">Organization Name</Label>
+                  <Label htmlFor="organization">Organization Name *</Label>
                   <Input
                     id="organization"
                     placeholder="Your Organization"
@@ -97,7 +99,19 @@ const SignUp = () => {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="fullName">Full Name *</Label>
+                  <Input
+                    id="fullName"
+                    placeholder="John Doe"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    disabled={isLoading}
+                    required
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="email">Email *</Label>
                   <Input
                     id="email"
                     placeholder="name@example.com"
@@ -112,7 +126,7 @@ const SignUp = () => {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">Password *</Label>
                   <Input
                     id="password"
                     type="password"
@@ -123,7 +137,7 @@ const SignUp = () => {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="confirm-password">Confirm Password</Label>
+                  <Label htmlFor="confirm-password">Confirm Password *</Label>
                   <Input
                     id="confirm-password"
                     type="password"
