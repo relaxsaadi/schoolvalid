@@ -11,13 +11,54 @@ import { RecordsTable } from "@/components/dashboard/RecordsTable";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { SearchBar } from "@/components/dashboard/SearchBar";
 import { ActionButtons } from "@/components/dashboard/ActionButtons";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { records, isLoading, error, handleAddRecord } = useDashboardRecords();
   const { searchQuery, setSearchQuery, filteredRecords } = useSearchFilter(records);
+  const { toast } = useToast();
   
   useAuth();
+
+  useEffect(() => {
+    const checkOrganization = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('organization_id')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (!profile?.organization_id) {
+          // Trigger the organization creation
+          await supabase
+            .from('profiles')
+            .update({ organization_id: null }) // This will trigger our new function
+            .eq('id', user.id);
+
+          toast({
+            title: "Organization Created",
+            description: "A default organization has been created for your account.",
+          });
+        }
+      } catch (error) {
+        console.error('Error checking organization:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to verify organization status",
+        });
+      }
+    };
+
+    checkOrganization();
+  }, [toast]);
 
   return (
     <div className="flex h-screen bg-gray-50">
