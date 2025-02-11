@@ -3,32 +3,56 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { StudentRecord } from "@/types/records";
 import { StudentIdGenerator } from "./StudentIdGenerator";
+import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 interface AddRecordFormProps {
-  generatedId: string;
-  onGenerateNewId: () => void;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  organizationId: string | null;
+  onSubmit: (formData: FormData) => Promise<void>;
+  onClose: () => void;
 }
 
-export function AddRecordForm({ 
-  generatedId, 
-  onGenerateNewId, 
-  onSubmit,
-  organizationId 
-}: AddRecordFormProps) {
-  if (!organizationId) {
-    return (
-      <div className="py-4 text-center text-red-500">
-        Organization not found. Please try logging out and back in.
-      </div>
-    );
-  }
+export function AddRecordForm({ onSubmit, onClose }: AddRecordFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const [generatedId, setGeneratedId] = useState(() => {
+    const timestamp = new Date().getTime().toString().slice(-6);
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `STU${timestamp}${random}`;
+  });
+
+  const generateNewId = () => {
+    const timestamp = new Date().getTime().toString().slice(-6);
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    setGeneratedId(`STU${timestamp}${random}`);
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      const formData = new FormData(e.currentTarget);
+      await onSubmit(formData);
+      onClose();
+      toast({
+        title: "Success",
+        description: "Record added successfully",
+      });
+    } catch (error) {
+      console.error('Submit error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to add record",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-4 py-4">
+    <form onSubmit={handleSubmit} className="grid gap-4 py-4">
       <div className="grid gap-2">
         <Label htmlFor="recipient_name">Student Name *</Label>
         <Input
@@ -42,7 +66,7 @@ export function AddRecordForm({
       
       <StudentIdGenerator 
         generatedId={generatedId} 
-        onRegenerate={onGenerateNewId}
+        onRegenerate={generateNewId}
       />
 
       <div className="grid gap-2">
@@ -62,18 +86,6 @@ export function AddRecordForm({
           id="valid_through"
           name="valid_through"
           type="date"
-          required
-        />
-      </div>
-
-      <div className="grid gap-2">
-        <Label htmlFor="status">Status *</Label>
-        <Input
-          id="status"
-          name="status"
-          type="text"
-          placeholder="Enter status"
-          defaultValue="active"
           required
         />
       </div>
@@ -122,19 +134,14 @@ export function AddRecordForm({
         />
       </div>
 
-      <div className="grid gap-2">
-        <Label htmlFor="diploma_image_url">Diploma Image URL</Label>
-        <Input
-          id="diploma_image_url"
-          name="diploma_image_url"
-          type="url"
-          placeholder="Enter diploma image URL"
-        />
+      <div className="flex gap-2 justify-end">
+        <Button type="button" variant="outline" onClick={onClose}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Adding..." : "Add Record"}
+        </Button>
       </div>
-
-      <Button type="submit" className="w-full">
-        Add Record
-      </Button>
     </form>
   );
 }
