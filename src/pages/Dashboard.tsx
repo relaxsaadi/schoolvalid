@@ -1,50 +1,16 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
-import {
-  BarChart3,
-  Users,
-  Award,
-  Bell,
-  Download,
-  Search,
-  Plus,
-  FileText,
-  Settings,
-  Menu,
-  UserCircle,
-  LayoutDashboard,
-  GraduationCap,
-  ScrollText,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { AddRecordDialog } from "@/components/AddRecordDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { UserNav } from "@/components/UserNav";
+import { DashboardNav } from "@/components/dashboard/DashboardNav";
+import { StatsCards } from "@/components/dashboard/StatsCards";
+import { RecordsTable } from "@/components/dashboard/RecordsTable";
 
 export interface StudentRecord {
   id: string;
@@ -235,103 +201,9 @@ const Dashboard = () => {
     }
   };
 
-  const stats = [
-    {
-      title: "Total Students",
-      value: records.length,
-      description: "Active enrollments",
-      icon: Users,
-      trend: "+12%",
-      trendUp: true,
-    },
-    {
-      title: "Active Certificates",
-      value: records.filter(r => r.status === 'active').length,
-      description: "Valid certificates",
-      icon: Award,
-      trend: "+8%",
-      trendUp: true,
-    },
-    {
-      title: "Pending Verifications",
-      value: records.filter(r => r.status === 'pending').length,
-      description: "Awaiting verification",
-      icon: Bell,
-      trend: "-2%",
-      trendUp: false,
-    },
-    {
-      title: "Total Courses",
-      value: new Set(records.map(r => r.course_name)).size,
-      description: "Unique courses",
-      icon: GraduationCap,
-      trend: "+15%",
-      trendUp: true,
-    },
-  ];
-
-  const navigationItems = [
-    { icon: LayoutDashboard, label: "Dashboard", active: true },
-    { icon: ScrollText, label: "Certificates" },
-    { icon: GraduationCap, label: "Courses" },
-    { icon: Users, label: "Students" },
-    { icon: Settings, label: "Settings" },
-  ];
-
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Mobile Navigation */}
-      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="lg:hidden fixed top-4 left-4 z-50">
-            <Menu className="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0">
-          <div className="flex h-16 items-center border-b px-6">
-            <img
-              className="h-8 w-auto"
-              src="/placeholder.svg"
-              alt="Company Logo"
-            />
-          </div>
-          <nav className="flex flex-col gap-1 p-4">
-            {navigationItems.map((item) => (
-              <Button
-                key={item.label}
-                variant={item.active ? "secondary" : "ghost"}
-                className="justify-start w-full"
-              >
-                <item.icon className="mr-2 h-4 w-4" />
-                {item.label}
-              </Button>
-            ))}
-          </nav>
-        </SheetContent>
-      </Sheet>
-
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-white border-r">
-        <div className="flex h-16 items-center border-b px-6">
-          <img
-            className="h-8 w-auto"
-            src="/placeholder.svg"
-            alt="Company Logo"
-          />
-        </div>
-        <nav className="flex flex-col gap-1 p-4 flex-1">
-          {navigationItems.map((item) => (
-            <Button
-              key={item.label}
-              variant={item.active ? "secondary" : "ghost"}
-              className="justify-start w-full"
-            >
-              <item.icon className="mr-2 h-4 w-4" />
-              {item.label}
-            </Button>
-          ))}
-        </nav>
-      </div>
+      <DashboardNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       {/* Main Content */}
       <div className="flex-1 lg:pl-64">
@@ -377,111 +249,14 @@ const Dashboard = () => {
             </Button>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4">
-            {stats.map((stat) => (
-              <Card key={stat.title} className="relative overflow-hidden">
-                <CardHeader className="pb-2">
-                  <div className="absolute right-4 top-4 p-2 bg-primary/10 rounded-full">
-                    <stat.icon className="h-4 w-4 text-primary" />
-                  </div>
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    {stat.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {stat.description}
-                  </p>
-                  <div className={cn(
-                    "text-xs mt-2",
-                    stat.trendUp ? "text-emerald-600" : "text-red-600"
-                  )}>
-                    {stat.trend} from last month
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Records Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Records</CardTitle>
-              <CardDescription>
-                View and manage student certificates
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {error ? (
-                <div className="p-8 text-center">
-                  <p className="text-red-500 mb-4">{error}</p>
-                  <Button onClick={() => fetchRecords()}>Try Again</Button>
-                </div>
-              ) : isLoading ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  Loading records...
-                </div>
-              ) : (
-                <div className="relative overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Student Name</TableHead>
-                        <TableHead>Certificate ID</TableHead>
-                        <TableHead className="hidden md:table-cell">Course</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="hidden lg:table-cell">Date</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredRecords.length === 0 ? (
-                        <TableRow>
-                          <TableCell colSpan={5} className="text-center h-32">
-                            <div className="flex flex-col items-center justify-center text-muted-foreground">
-                              <FileText className="h-8 w-8 mb-2" />
-                              <p>No records found</p>
-                              <p className="text-sm">
-                                {records.length === 0 
-                                  ? "Add your first record using the button above." 
-                                  : "Try adjusting your search filters."}
-                              </p>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ) : (
-                        filteredRecords.map((record) => (
-                          <TableRow key={record.id} className="group">
-                            <TableCell className="font-medium">
-                              {record.recipient_name}
-                            </TableCell>
-                            <TableCell className="font-mono text-sm">
-                              {record.certificate_number}
-                            </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                              {record.course_name}
-                            </TableCell>
-                            <TableCell>
-                              <span className={cn(
-                                "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
-                                getStatusColor(record.status)
-                              )}>
-                                {record.status}
-                              </span>
-                            </TableCell>
-                            <TableCell className="hidden lg:table-cell text-muted-foreground">
-                              {format(new Date(record.created_at), 'MMM d, yyyy')}
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <StatsCards records={records} />
+          <RecordsTable
+            records={records}
+            filteredRecords={filteredRecords}
+            isLoading={isLoading}
+            error={error}
+            getStatusColor={getStatusColor}
+          />
         </main>
       </div>
     </div>
