@@ -33,10 +33,15 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
       course_name: formData.get("course_name") as string,
       valid_through: formData.get("valid_through") as string,
       status: formData.get("status") as string,
-      email: formData.get("email") as string,
       year_of_birth: parseInt(formData.get("year_of_birth") as string),
       course_description: formData.get("course_description") as string,
       diploma_image_url: formData.get("diploma_image_url") as string || null,
+      organization_id: "", // This will be set by the Dashboard component
+      provider: "Default Provider",
+      blockchain_hash: "pending",
+      blockchain_timestamp: new Date().toISOString(),
+      issue_date: new Date().toISOString(),
+      provider_description: null
     };
     
     onAddRecord(newRecord);
@@ -103,16 +108,6 @@ export function AddRecordDialog({ onAddRecord }: AddRecordDialogProps) {
               type="text"
               placeholder="Enter status"
               defaultValue="active"
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Enter email"
               required
             />
           </div>
