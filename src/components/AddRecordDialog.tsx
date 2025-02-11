@@ -10,32 +10,19 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { AddRecordForm } from "./student-records/AddRecordForm";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { NewStudentRecord } from "@/types/records";
+import { FC } from "react";
 
-export function AddRecordDialog() {
+interface AddRecordDialogProps {
+  onAddRecord: (record: NewStudentRecord) => Promise<void>;
+}
+
+export const AddRecordDialog: FC<AddRecordDialogProps> = ({ onAddRecord }) => {
   const [open, setOpen] = useState(false);
-  const { toast } = useToast();
 
   const handleSubmit = async (formData: FormData) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error("You must be logged in to add records");
-      }
-
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('id', user.id)
-        .single();
-
-      if (!profile?.organization_id) {
-        throw new Error("No organization found for your profile");
-      }
-
-      const now = new Date().toISOString();
-      const record = {
+      const record: NewStudentRecord = {
         recipient_name: formData.get('recipient_name') as string,
         certificate_number: formData.get('certificate_number') as string,
         course_name: formData.get('course_name') as string,
@@ -45,18 +32,14 @@ export function AddRecordDialog() {
         course_description: formData.get('course_description') as string || null,
         provider_description: formData.get('provider_description') as string || null,
         diploma_image_url: null,
-        organization_id: profile.organization_id,
+        organization_id: '', // This will be set by the handler
         blockchain_hash: 'pending',
-        blockchain_timestamp: now,
-        issue_date: now,
+        blockchain_timestamp: new Date().toISOString(),
+        issue_date: new Date().toISOString(),
         provider: 'Default Provider'
       };
 
-      const { error } = await supabase
-        .from('certificates')
-        .insert([record]);
-
-      if (error) throw error;
+      await onAddRecord(record);
       setOpen(false);
     } catch (error) {
       console.error('Error adding record:', error);
@@ -82,4 +65,4 @@ export function AddRecordDialog() {
       </DialogContent>
     </Dialog>
   );
-}
+};
