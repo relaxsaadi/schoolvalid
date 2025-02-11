@@ -14,6 +14,7 @@ import { ActionButtons } from "@/components/dashboard/ActionButtons";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
+import { CreateOrganizationDialog } from "@/components/organizations/CreateOrganizationDialog";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,33 +39,9 @@ const Dashboard = () => {
         if (profileError) throw profileError;
 
         if (!profile?.organization_id) {
-          // Create a new organization
-          const { data: organization, error: orgError } = await supabase
-            .from('organizations')
-            .insert({
-              name: `${user.email}'s Organization`,
-              slug: user.email?.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-') || 'default-org',
-              description: 'Default organization'
-            })
-            .select()
-            .single();
-
-          if (orgError) throw orgError;
-
-          // Update profile with new organization
-          const { error: updateError } = await supabase
-            .from('profiles')
-            .upsert({
-              id: user.id,
-              organization_id: organization.id,
-              full_name: user.email?.split('@')[0] || 'User'
-            });
-
-          if (updateError) throw updateError;
-
           toast({
-            title: "Organization Created",
-            description: "A default organization has been created for your account.",
+            title: "Welcome!",
+            description: "Please create an organization to get started.",
           });
         }
       } catch (error) {
@@ -96,6 +73,10 @@ const Dashboard = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="md:hidden mb-6"
           />
+
+          <div className="mb-6">
+            <CreateOrganizationDialog />
+          </div>
 
           <ActionButtons onAddRecord={handleAddRecord} />
           <StatsCards records={records} />
