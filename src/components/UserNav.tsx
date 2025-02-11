@@ -52,34 +52,84 @@ export function UserNav() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadUserProfile();
-  }, []);
-
   const loadUserProfile = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Error loading profile:", profileError);
+        return;
+      }
+
+      if (!profile?.organization_id) {
+        const { data: newOrg, error: createOrgError } = await supabase
+          .from('organizations')
+          .insert({
+            name: `${user.email}'s Organization`,
+            slug: user.email.split('@')[0].toLowerCase(),
+            description: 'Default organization'
+          })
+          .select()
+          .single();
+
+        if (createOrgError) {
+          console.error("Error creating organization:", createOrgError);
+          return;
+        }
+
+        const { error: updateProfileError } = await supabase
+          .from('profiles')
+          .upsert({
+            id: user.id,
+            organization_id: newOrg.id
+          });
+
+        if (updateProfileError) {
+          console.error("Error updating profile:", updateProfileError);
+          return;
+        }
+
+        setProfileData({
+          name: newOrg.name,
+          logo_url: newOrg.logo_url || "",
+          email: user.email || "",
+        });
+        return;
+      }
+
       const { data: organization, error: orgError } = await supabase
         .from('organizations')
         .select('*')
-        .single();
+        .eq('id', profile.organization_id)
+        .maybeSingle();
 
       if (orgError) {
         console.error("Error loading organization:", orgError);
         return;
       }
 
-      setProfileData({
-        name: organization.name || "",
-        logo_url: organization.logo_url || "",
-        email: user.email || "",
-      });
+      if (organization) {
+        setProfileData({
+          name: organization.name,
+          logo_url: organization.logo_url || "",
+          email: user.email || "",
+        });
+      }
     } catch (error) {
       console.error("Error loading profile:", error);
     }
   };
+
+  useEffect(() => {
+    loadUserProfile();
+  }, []);
 
   const handleLogout = async () => {
     try {
