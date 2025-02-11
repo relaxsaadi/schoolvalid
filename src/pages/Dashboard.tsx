@@ -9,10 +9,14 @@ import {
   Bell,
   Download,
   Search,
+  Plus,
   FileText,
-  BookOpen,
   Settings,
   Menu,
+  UserCircle,
+  LayoutDashboard,
+  GraduationCap,
+  ScrollText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -40,6 +44,7 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { UserNav } from "@/components/UserNav";
 
 export interface StudentRecord {
   id: string;
@@ -68,9 +73,9 @@ const Dashboard = () => {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const { data: { user }, error: sessionError } = await supabase.auth.getUser();
       
-      if (sessionError || !session) {
+      if (sessionError || !user) {
         navigate('/sign-in');
         return;
       }
@@ -84,7 +89,7 @@ const Dashboard = () => {
       setIsLoading(true);
       setError(null);
       
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const { data: { user }, error: sessionError } = await supabase.auth.getUser();
       if (sessionError) {
         console.error('Session error:', sessionError);
         toast({
@@ -96,7 +101,7 @@ const Dashboard = () => {
         return;
       }
 
-      if (!session) {
+      if (!user) {
         navigate('/sign-in');
         return;
       }
@@ -104,7 +109,7 @@ const Dashboard = () => {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('organization_id')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .single();
 
       if (profileError) {
@@ -209,24 +214,24 @@ const Dashboard = () => {
   };
 
   const filteredRecords = records.filter((record) => {
-    const matchesSearch = 
-      record.recipient_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      record.certificate_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      record.course_name.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return matchesSearch;
+    const searchTerm = searchQuery.toLowerCase();
+    return (
+      record.recipient_name.toLowerCase().includes(searchTerm) ||
+      record.certificate_number.toLowerCase().includes(searchTerm) ||
+      record.course_name.toLowerCase().includes(searchTerm)
+    );
   });
 
   const getStatusColor = (status: string = 'active') => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return 'bg-emerald-50 text-emerald-700 ring-emerald-600/20';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-50 text-yellow-800 ring-yellow-600/20';
       case 'expired':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-50 text-red-700 ring-red-600/20';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-50 text-gray-700 ring-gray-600/20';
     }
   };
 
@@ -234,223 +239,249 @@ const Dashboard = () => {
     {
       title: "Total Students",
       value: records.length,
+      description: "Active enrollments",
       icon: Users,
       trend: "+12%",
       trendUp: true,
     },
     {
-      title: "Active Records",
+      title: "Active Certificates",
       value: records.filter(r => r.status === 'active').length,
-      icon: FileText,
+      description: "Valid certificates",
+      icon: Award,
       trend: "+8%",
       trendUp: true,
     },
     {
-      title: "Certificates",
-      value: records.length,
-      icon: Award,
-      trend: "+15%",
-      trendUp: true,
-    },
-    {
-      title: "Pending",
+      title: "Pending Verifications",
       value: records.filter(r => r.status === 'pending').length,
+      description: "Awaiting verification",
       icon: Bell,
       trend: "-2%",
       trendUp: false,
     },
+    {
+      title: "Total Courses",
+      value: new Set(records.map(r => r.course_name)).size,
+      description: "Unique courses",
+      icon: GraduationCap,
+      trend: "+15%",
+      trendUp: true,
+    },
   ];
 
   const navigationItems = [
-    { icon: BarChart3, label: "Dashboard", active: true },
+    { icon: LayoutDashboard, label: "Dashboard", active: true },
+    { icon: ScrollText, label: "Certificates" },
+    { icon: GraduationCap, label: "Courses" },
     { icon: Users, label: "Students" },
-    { icon: BookOpen, label: "Courses" },
     { icon: Settings, label: "Settings" },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50">
       {/* Mobile Navigation */}
       <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" className="lg:hidden fixed top-4 left-4">
-            <Menu className="h-6 w-6" />
+          <Button variant="ghost" size="icon" className="lg:hidden fixed top-4 left-4 z-50">
+            <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-64">
-          <div className="space-y-4 py-4">
-            <div className="px-3 py-2">
-              <h2 className="mb-2 px-4 text-lg font-semibold">Navigation</h2>
-              <div className="space-y-1">
-                {navigationItems.map((item) => (
-                  <Button
-                    key={item.label}
-                    variant={item.active ? "secondary" : "ghost"}
-                    className="w-full justify-start"
-                  >
-                    <item.icon className="mr-2 h-4 w-4" />
-                    {item.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      {/* Desktop Navigation */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col">
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 bg-white px-6 pb-4">
-          <div className="flex h-16 shrink-0 items-center">
+        <SheetContent side="left" className="w-64 p-0">
+          <div className="flex h-16 items-center border-b px-6">
             <img
               className="h-8 w-auto"
               src="/placeholder.svg"
-              alt="Your Company"
+              alt="Company Logo"
             />
           </div>
-          <nav className="flex flex-1 flex-col">
-            <ul role="list" className="flex flex-1 flex-col gap-y-7">
-              <li>
-                <ul role="list" className="-mx-2 space-y-1">
-                  {navigationItems.map((item) => (
-                    <li key={item.label}>
-                      <Button
-                        variant={item.active ? "secondary" : "ghost"}
-                        className="w-full justify-start"
-                      >
-                        <item.icon className="mr-2 h-4 w-4" />
-                        {item.label}
-                      </Button>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            </ul>
+          <nav className="flex flex-col gap-1 p-4">
+            {navigationItems.map((item) => (
+              <Button
+                key={item.label}
+                variant={item.active ? "secondary" : "ghost"}
+                className="justify-start w-full"
+              >
+                <item.icon className="mr-2 h-4 w-4" />
+                {item.label}
+              </Button>
+            ))}
           </nav>
+        </SheetContent>
+      </Sheet>
+
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-white border-r">
+        <div className="flex h-16 items-center border-b px-6">
+          <img
+            className="h-8 w-auto"
+            src="/placeholder.svg"
+            alt="Company Logo"
+          />
         </div>
+        <nav className="flex flex-col gap-1 p-4 flex-1">
+          {navigationItems.map((item) => (
+            <Button
+              key={item.label}
+              variant={item.active ? "secondary" : "ghost"}
+              className="justify-start w-full"
+            >
+              <item.icon className="mr-2 h-4 w-4" />
+              {item.label}
+            </Button>
+          ))}
+        </nav>
       </div>
 
       {/* Main Content */}
-      <div className="lg:pl-72">
-        <main className="py-10">
-          <div className="px-4 sm:px-6 lg:px-8">
-            {/* Header */}
-            <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-                <p className="mt-1 text-sm text-gray-500">
-                  Manage your certificates and student records
-                </p>
+      <div className="flex-1 lg:pl-64">
+        <header className="sticky top-0 z-40 bg-white border-b">
+          <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+            <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+            <div className="flex items-center gap-4">
+              <div className="relative w-64 max-w-sm hidden md:block">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                <Input
+                  type="search"
+                  placeholder="Search records..."
+                  className="pl-9"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                  <Input
-                    type="search"
-                    placeholder="Search records..."
-                    className="pl-9"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-                <AddRecordDialog onAddRecord={handleAddRecord} />
-                <Button variant="outline">
-                  <Download className="mr-2 h-4 w-4" /> Export
-                </Button>
-              </div>
-            </div>
-
-            {/* Stats */}
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {stats.map((stat) => (
-                <Card key={stat.title}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      {stat.title}
-                    </CardTitle>
-                    <stat.icon className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                    <p className={cn(
-                      "text-xs",
-                      stat.trendUp ? "text-green-600" : "text-red-600"
-                    )}>
-                      {stat.trend} from last month
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Records Table */}
-            <div className="mt-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Records</CardTitle>
-                  <CardDescription>
-                    Manage and view all your student records
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {error ? (
-                    <div className="p-8 text-center">
-                      <p className="text-red-500 mb-4">{error}</p>
-                      <Button onClick={() => fetchRecords()}>Try Again</Button>
-                    </div>
-                  ) : isLoading ? (
-                    <div className="p-8 text-center text-muted-foreground">
-                      Loading records...
-                    </div>
-                  ) : (
-                    <div className="relative overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Student Name</TableHead>
-                            <TableHead>Student ID</TableHead>
-                            <TableHead>Course</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Date Added</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {filteredRecords.length === 0 ? (
-                            <TableRow>
-                              <TableCell colSpan={5} className="text-center">
-                                No records found. {records.length === 0 ? "Add your first record using the button above." : "Try adjusting your search filters."}
-                              </TableCell>
-                            </TableRow>
-                          ) : (
-                            filteredRecords.map((record) => (
-                              <TableRow key={record.id}>
-                                <TableCell className="font-medium">
-                                  {record.recipient_name}
-                                </TableCell>
-                                <TableCell>{record.certificate_number}</TableCell>
-                                <TableCell>{record.course_name}</TableCell>
-                                <TableCell>
-                                  <span className={cn(
-                                    "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
-                                    getStatusColor(record.status)
-                                  )}>
-                                    {record.status}
-                                  </span>
-                                </TableCell>
-                                <TableCell>
-                                  {format(new Date(record.created_at), 'MMM d, yyyy')}
-                                </TableCell>
-                              </TableRow>
-                            ))
-                          )}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              <UserNav />
             </div>
           </div>
+        </header>
+
+        <main className="p-4 sm:p-6 lg:p-8">
+          {/* Mobile Search */}
+          <div className="mb-6 md:hidden">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+              <Input
+                type="search"
+                placeholder="Search records..."
+                className="pl-9 w-full"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="mb-6 flex flex-wrap gap-4">
+            <AddRecordDialog onAddRecord={handleAddRecord} />
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" /> Export Records
+            </Button>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="grid gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4">
+            {stats.map((stat) => (
+              <Card key={stat.title} className="relative overflow-hidden">
+                <CardHeader className="pb-2">
+                  <div className="absolute right-4 top-4 p-2 bg-primary/10 rounded-full">
+                    <stat.icon className="h-4 w-4 text-primary" />
+                  </div>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {stat.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {stat.description}
+                  </p>
+                  <div className={cn(
+                    "text-xs mt-2",
+                    stat.trendUp ? "text-emerald-600" : "text-red-600"
+                  )}>
+                    {stat.trend} from last month
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Records Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Records</CardTitle>
+              <CardDescription>
+                View and manage student certificates
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {error ? (
+                <div className="p-8 text-center">
+                  <p className="text-red-500 mb-4">{error}</p>
+                  <Button onClick={() => fetchRecords()}>Try Again</Button>
+                </div>
+              ) : isLoading ? (
+                <div className="p-8 text-center text-muted-foreground">
+                  Loading records...
+                </div>
+              ) : (
+                <div className="relative overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Student Name</TableHead>
+                        <TableHead>Certificate ID</TableHead>
+                        <TableHead className="hidden md:table-cell">Course</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="hidden lg:table-cell">Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredRecords.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center h-32">
+                            <div className="flex flex-col items-center justify-center text-muted-foreground">
+                              <FileText className="h-8 w-8 mb-2" />
+                              <p>No records found</p>
+                              <p className="text-sm">
+                                {records.length === 0 
+                                  ? "Add your first record using the button above." 
+                                  : "Try adjusting your search filters."}
+                              </p>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        filteredRecords.map((record) => (
+                          <TableRow key={record.id} className="group">
+                            <TableCell className="font-medium">
+                              {record.recipient_name}
+                            </TableCell>
+                            <TableCell className="font-mono text-sm">
+                              {record.certificate_number}
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {record.course_name}
+                            </TableCell>
+                            <TableCell>
+                              <span className={cn(
+                                "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
+                                getStatusColor(record.status)
+                              )}>
+                                {record.status}
+                              </span>
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell text-muted-foreground">
+                              {format(new Date(record.created_at), 'MMM d, yyyy')}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </main>
       </div>
     </div>
