@@ -95,7 +95,18 @@ const Dashboard = () => {
       setError(null);
       
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError || !session) {
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        toast({
+          title: "Authentication Error",
+          description: "Please sign in again",
+          variant: "destructive",
+        });
+        navigate('/sign-in');
+        return;
+      }
+
+      if (!session) {
         navigate('/sign-in');
         return;
       }
@@ -104,16 +115,24 @@ const Dashboard = () => {
         .from('profiles')
         .select('organization_id')
         .eq('id', session.user.id)
-        .maybeSingle();
+        .single();
 
       if (profileError) {
         console.error('Profile error:', profileError);
-        setError("Unable to fetch your profile. Please try logging out and back in.");
+        toast({
+          title: "Error",
+          description: "Unable to fetch your profile. Please try signing out and back in.",
+          variant: "destructive",
+        });
         return;
       }
 
       if (!profile?.organization_id) {
-        setError("No organization found for your profile. Please contact support.");
+        toast({
+          title: "Error",
+          description: "No organization found for your profile. Please contact support.",
+          variant: "destructive",
+        });
         return;
       }
 
@@ -125,14 +144,22 @@ const Dashboard = () => {
 
       if (certificatesError) {
         console.error('Certificates error:', certificatesError);
-        setError("Unable to fetch records. Please try again.");
+        toast({
+          title: "Error",
+          description: "Unable to fetch records. Please try again.",
+          variant: "destructive",
+        });
         return;
       }
 
       setRecords(certificatesData || []);
     } catch (error) {
       console.error('Fetch records error:', error);
-      setError("An unexpected error occurred. Please try again.");
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
