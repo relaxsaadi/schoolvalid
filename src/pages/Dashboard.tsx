@@ -11,6 +11,9 @@ import { UserNav } from "@/components/UserNav";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { RecordsTable } from "@/components/dashboard/RecordsTable";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { SearchBar } from "@/components/dashboard/SearchBar";
+import { ActionButtons } from "@/components/dashboard/ActionButtons";
 
 export interface StudentRecord {
   id: string;
@@ -205,50 +208,20 @@ const Dashboard = () => {
     <div className="flex h-screen bg-gray-50">
       <DashboardNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      {/* Main Content */}
       <div className="flex-1 lg:pl-64">
-        <header className="sticky top-0 z-40 bg-white border-b">
-          <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-            <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-            <div className="flex items-center gap-4">
-              <div className="relative w-64 max-w-sm hidden md:block">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                <Input
-                  type="search"
-                  placeholder="Search records..."
-                  className="pl-9"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <UserNav />
-            </div>
-          </div>
-        </header>
+        <DashboardHeader>
+          <SearchBar value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+          <UserNav />
+        </DashboardHeader>
 
         <main className="p-4 sm:p-6 lg:p-8">
-          {/* Mobile Search */}
-          <div className="mb-6 md:hidden">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-              <Input
-                type="search"
-                placeholder="Search records..."
-                className="pl-9 w-full"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </div>
+          <SearchBar
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="md:hidden mb-6"
+          />
 
-          {/* Action Buttons */}
-          <div className="mb-6 flex flex-wrap gap-4">
-            <AddRecordDialog onAddRecord={handleAddRecord} />
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" /> Export Records
-            </Button>
-          </div>
-
+          <ActionButtons onAddRecord={handleAddRecord} />
           <StatsCards records={records} />
           <RecordsTable
             records={records}
