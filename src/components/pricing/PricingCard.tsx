@@ -31,7 +31,7 @@ const getStripeLink = (planName: string) => {
     case "enterprise":
       return "https://buy.stripe.com/28o2cfa04eT7gFi7su";
     default:
-      return "#";
+      return "https://buy.stripe.com/8wM8AD0pu3apgFieUU"; // Default to "Pay as you go" link
   }
 };
 
@@ -47,7 +47,7 @@ export const PricingCard = ({
 
   const handleGetStarted = () => {
     const stripeUrl = getStripeLink(plan.name);
-    window.open(stripeUrl, '_blank');
+    window.open(stripeUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
