@@ -29,18 +29,38 @@ const Dashboard = () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const { data: profile } = await supabase
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('organization_id')
           .eq('id', user.id)
           .maybeSingle();
 
+        if (profileError) throw profileError;
+
         if (!profile?.organization_id) {
-          // Trigger the organization creation
-          await supabase
+          // Create a new organization
+          const { data: organization, error: orgError } = await supabase
+            .from('organizations')
+            .insert({
+              name: `${user.email}'s Organization`,
+              slug: user.email?.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-') || 'default-org',
+              description: 'Default organization'
+            })
+            .select()
+            .single();
+
+          if (orgError) throw orgError;
+
+          // Update profile with new organization
+          const { error: updateError } = await supabase
             .from('profiles')
-            .update({ organization_id: null }) // This will trigger our new function
-            .eq('id', user.id);
+            .upsert({
+              id: user.id,
+              organization_id: organization.id,
+              full_name: user.email?.split('@')[0] || 'User'
+            });
+
+          if (updateError) throw updateError;
 
           toast({
             title: "Organization Created",

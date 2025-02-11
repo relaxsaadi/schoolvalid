@@ -43,39 +43,43 @@ export const useDashboardRecords = () => {
       }
 
       if (!profile?.organization_id) {
-        console.log('No organization found, triggering organization creation');
-        // Update profile to trigger organization creation
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .upsert({ 
-            id: user.id,
-            organization_id: null 
-          });
+        // Create a new organization
+        const { data: organization, error: orgError } = await supabase
+          .from('organizations')
+          .insert({
+            name: `${user.email}'s Organization`,
+            slug: user.email?.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '-') || 'default-org',
+            description: 'Default organization'
+          })
+          .select()
+          .single();
 
-        if (updateError) {
-          console.error('Error triggering organization creation:', updateError);
+        if (orgError) {
+          console.error('Error creating organization:', orgError);
           setError("Unable to create organization");
           return;
         }
 
-        // Fetch the profile again after organization creation
-        const { data: updatedProfile, error: updatedProfileError } = await supabase
+        // Update profile with new organization
+        const { error: updateError } = await supabase
           .from('profiles')
-          .select('organization_id')
-          .eq('id', user.id)
-          .maybeSingle();
+          .upsert({
+            id: user.id,
+            organization_id: organization.id,
+            full_name: user.email?.split('@')[0] || 'User'
+          });
 
-        if (updatedProfileError || !updatedProfile?.organization_id) {
-          console.error('Error fetching updated profile:', updatedProfileError);
-          setError("Unable to fetch organization data");
+        if (updateError) {
+          console.error('Error updating profile:', updateError);
+          setError("Unable to update profile");
           return;
         }
 
-        // Use the newly created organization
+        // Now fetch certificates for the new organization
         const { data: certificates, error: certificatesError } = await supabase
           .from('certificates')
           .select('*')
-          .eq('organization_id', updatedProfile.organization_id)
+          .eq('organization_id', organization.id)
           .order('created_at', { ascending: false });
 
         if (certificatesError) {
