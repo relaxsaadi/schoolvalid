@@ -45,6 +45,11 @@ export const PricingCard = ({
 }: PricingCardProps) => {
   const [hoveredFeature, setHoveredFeature] = useState<string | null>(null);
 
+  const handleGetStarted = () => {
+    const stripeUrl = getStripeLink(plan.name);
+    window.open(stripeUrl, '_blank');
+  };
+
   return (
     <motion.div
       variants={cardVariants}
@@ -123,7 +128,7 @@ export const PricingCard = ({
         <MotionButton
           className={`w-full transition-all duration-300 ${plan.is_popular ? 'bg-brand-500 hover:bg-brand-600' : 'border-brand-500 text-brand-500 hover:bg-brand-500 hover:text-white'}`}
           variant={plan.is_popular ? "default" : "outline"}
-          onClick={() => window.location.href = getStripeLink(plan.name)}
+          onClick={handleGetStarted}
           whileHover={{ 
             scale: 1.05,
             transition: { 
