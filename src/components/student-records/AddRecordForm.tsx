@@ -70,6 +70,17 @@ export function AddRecordForm({ onSubmit, onClose }: AddRecordFormProps) {
       />
 
       <div className="grid gap-2">
+        <Label htmlFor="provider">Provider Name *</Label>
+        <Input
+          id="provider"
+          name="provider"
+          type="text"
+          placeholder="Enter provider name"
+          required
+        />
+      </div>
+
+      <div className="grid gap-2">
         <Label htmlFor="course_name">Course *</Label>
         <Input
           id="course_name"
