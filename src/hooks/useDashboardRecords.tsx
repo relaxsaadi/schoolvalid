@@ -18,7 +18,7 @@ export const useDashboardRecords = () => {
       setError(null);
       
       const { data: { user }, error: sessionError } = await supabase.auth.getUser();
-      if (sessionError) {
+      if (sessionError || !user) {
         console.error('Session error:', sessionError);
         toast({
           title: "Authentication Error",
@@ -29,31 +29,16 @@ export const useDashboardRecords = () => {
         return;
       }
 
-      if (!user) {
-        navigate('/sign-in');
-        return;
-      }
-
-      const { data: profile, error: profileError } = await supabase
+      const { data: profile } = await supabase
         .from('profiles')
         .select('organization_id')
         .eq('id', user.id)
-        .single();
-
-      if (profileError) {
-        console.error('Profile error:', profileError);
-        toast({
-          title: "Error",
-          description: "Unable to fetch your profile. Please try signing out and back in.",
-          variant: "destructive",
-        });
-        return;
-      }
+        .maybeSingle();
 
       if (!profile?.organization_id) {
         toast({
           title: "Error",
-          description: "No organization found for your profile. Please contact support.",
+          description: "No organization found for your profile",
           variant: "destructive",
         });
         return;
@@ -67,22 +52,14 @@ export const useDashboardRecords = () => {
 
       if (certificatesError) {
         console.error('Certificates error:', certificatesError);
-        toast({
-          title: "Error",
-          description: "Unable to fetch records. Please try again.",
-          variant: "destructive",
-        });
+        setError("Unable to fetch records");
         return;
       }
 
       setRecords(certificatesData || []);
     } catch (error) {
       console.error('Fetch records error:', error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
+      setError("An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -90,6 +67,21 @@ export const useDashboardRecords = () => {
 
   const handleAddRecord = async (newRecord: Omit<StudentRecord, "id" | "created_at">) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("Not authenticated");
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!profile?.organization_id) {
+        throw new Error("No organization found");
+      }
+
       const { data, error } = await supabase
         .from('certificates')
         .insert([{
@@ -107,19 +99,14 @@ export const useDashboardRecords = () => {
           diploma_image_url: newRecord.diploma_image_url,
           provider_description: newRecord.provider_description,
           provider: 'Default Provider',
-          organization_id: newRecord.organization_id,
+          organization_id: profile.organization_id,
         }])
         .select()
         .single();
 
       if (error) {
         console.error('Error adding record:', error);
-        toast({
-          title: "Error",
-          description: "Failed to add record: " + error.message,
-          variant: "destructive",
-        });
-        return;
+        throw new Error(error.message);
       }
 
       setRecords((prev) => [data, ...prev]);
@@ -131,11 +118,16 @@ export const useDashboardRecords = () => {
       console.error('Add record error:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred while adding the record",
+        description: error instanceof Error ? error.message : "Failed to add record",
         variant: "destructive",
       });
+      throw error;
     }
   };
+
+  useEffect(() => {
+    fetchRecords();
+  }, [navigate]);
 
   return {
     records,

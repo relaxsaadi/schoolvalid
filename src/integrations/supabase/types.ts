@@ -350,6 +350,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_organization_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       normalize_name: {
         Args: {
           input_name: string
