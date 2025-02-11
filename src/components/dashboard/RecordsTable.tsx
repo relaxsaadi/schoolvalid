@@ -61,4 +61,4 @@ export const RecordsTable = ({
       </CardContent>
     </Card>
   );
-}
+};
