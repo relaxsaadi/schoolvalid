@@ -22,11 +22,6 @@ export const AddRecordDialog: FC<AddRecordDialogProps> = ({ onAddRecord }) => {
 
   const handleSubmit = async (formData: FormData) => {
     try {
-      const email = formData.get('email') as string;
-      if (!email || !email.includes('@')) {
-        throw new Error('Please enter a valid email address');
-      }
-
       const record: NewStudentRecord = {
         recipient_name: formData.get('recipient_name') as string,
         certificate_number: formData.get('certificate_number') as string,
@@ -41,7 +36,7 @@ export const AddRecordDialog: FC<AddRecordDialogProps> = ({ onAddRecord }) => {
         blockchain_timestamp: new Date().toISOString(),
         issue_date: new Date().toISOString(),
         provider: formData.get('provider') as string,
-        email: email
+        email: `${formData.get('recipient_name')}@studentmail.com` // Generate a default email
       };
 
       await onAddRecord(record);
