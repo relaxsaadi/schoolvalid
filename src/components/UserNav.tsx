@@ -1,3 +1,4 @@
+
 import {
   LogOut,
   Settings,
@@ -61,10 +62,29 @@ export function UserNav() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      // First get the user's profile with organization_id
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("Error loading profile:", profileError);
+        return;
+      }
+
+      if (!profile?.organization_id) {
+        console.error("No organization found for user");
+        return;
+      }
+
+      // Then get the organization details using the organization_id
       const { data: organization, error: orgError } = await supabase
         .from('organizations')
         .select('*')
-        .single();
+        .eq('id', profile.organization_id)
+        .maybeSingle();
 
       if (orgError) {
         console.error("Error loading organization:", orgError);
@@ -72,8 +92,8 @@ export function UserNav() {
       }
 
       setProfileData({
-        name: organization.name || "",
-        logo_url: organization.logo_url || "",
+        name: organization?.name || "",
+        logo_url: organization?.logo_url || "",
         email: user.email || "",
       });
     } catch (error) {
@@ -106,13 +126,24 @@ export function UserNav() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("No user found");
 
+      // Get the user's profile first
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (profileError || !profile?.organization_id) {
+        throw new Error("Could not find organization");
+      }
+
       const { error } = await supabase
         .from('organizations')
         .update({
           name: profileData.name,
           logo_url: profileData.logo_url,
         })
-        .eq('id', user.id);
+        .eq('id', profile.organization_id);
 
       if (error) throw error;
 
