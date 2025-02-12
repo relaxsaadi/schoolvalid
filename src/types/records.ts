@@ -9,7 +9,6 @@ export interface StudentRecord {
   status: string;
   year_of_birth: number;
   course_description?: string;
-  diploma_image_url?: string | null;
   provider_description?: string | null;
   provider: string;
   organization_id: string;
