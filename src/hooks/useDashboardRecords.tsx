@@ -138,14 +138,14 @@ export const useDashboardRecords = () => {
 
       const { data, error } = await supabase
         .from('certificates')
-        .insert([{
+        .insert({
           ...newRecord,
           organization_id: profile.organization_id,
-          status: newRecord.status || 'active',
+          status: 'active',
           blockchain_hash: newRecord.blockchain_hash || 'pending',
           blockchain_timestamp: newRecord.blockchain_timestamp || new Date().toISOString(),
           issue_date: newRecord.issue_date || new Date().toISOString(),
-        }])
+        })
         .select()
         .single();
 

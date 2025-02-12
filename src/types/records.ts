@@ -6,7 +6,7 @@ export interface StudentRecord {
   course_name: string;
   created_at: string;
   valid_through: string;
-  status: string;
+  status: 'active' | 'expired' | 'revoked';
   year_of_birth: number;
   course_description?: string;
   provider_description?: string | null;
@@ -15,6 +15,7 @@ export interface StudentRecord {
   blockchain_hash: string;
   blockchain_timestamp: string;
   issue_date: string;
+  email: string;
 }
 
 export type NewStudentRecord = Omit<StudentRecord, 'id' | 'created_at'>;
