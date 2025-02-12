@@ -12,67 +12,62 @@ export type Database = {
       certificates: {
         Row: {
           blockchain_hash: string
-          blockchain_timestamp: string | null
+          blockchain_timestamp: string
           certificate_number: string
           course_description: string | null
           course_name: string
-          created_at: string | null
-          diploma_image_url: string | null
+          created_at: string
+          email: string
           id: string
-          issue_date: string | null
-          organization_id: string
+          issue_date: string
+          normalized_recipient_name: string | null
           provider: string
           provider_description: string | null
           recipient_name: string
-          status: string
+          status: Database["public"]["Enums"]["certificate_status"]
+          updated_at: string
           valid_through: string
           year_of_birth: number
         }
         Insert: {
-          blockchain_hash?: string
-          blockchain_timestamp?: string | null
+          blockchain_hash: string
+          blockchain_timestamp?: string
           certificate_number: string
           course_description?: string | null
           course_name: string
-          created_at?: string | null
-          diploma_image_url?: string | null
+          created_at?: string
+          email: string
           id?: string
-          issue_date?: string | null
-          organization_id: string
-          provider: string
+          issue_date?: string
+          normalized_recipient_name?: string | null
+          provider?: string
           provider_description?: string | null
           recipient_name: string
-          status?: string
+          status?: Database["public"]["Enums"]["certificate_status"]
+          updated_at?: string
           valid_through: string
           year_of_birth: number
         }
         Update: {
           blockchain_hash?: string
-          blockchain_timestamp?: string | null
+          blockchain_timestamp?: string
           certificate_number?: string
           course_description?: string | null
           course_name?: string
-          created_at?: string | null
-          diploma_image_url?: string | null
+          created_at?: string
+          email?: string
           id?: string
-          issue_date?: string | null
-          organization_id?: string
+          issue_date?: string
+          normalized_recipient_name?: string | null
           provider?: string
           provider_description?: string | null
           recipient_name?: string
-          status?: string
+          status?: Database["public"]["Enums"]["certificate_status"]
+          updated_at?: string
           valid_through?: string
           year_of_birth?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "certificates_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       courses: {
         Row: {
@@ -346,11 +341,47 @@ export type Database = {
           },
         ]
       }
+      verification_log: {
+        Row: {
+          certificate_number: string | null
+          created_at: string
+          id: string
+          ip_address: string
+          recipient_name: string | null
+          successful: boolean
+          year_of_birth: number | null
+        }
+        Insert: {
+          certificate_number?: string | null
+          created_at?: string
+          id?: string
+          ip_address: string
+          recipient_name?: string | null
+          successful?: boolean
+          year_of_birth?: number | null
+        }
+        Update: {
+          certificate_number?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string
+          recipient_name?: string | null
+          successful?: boolean
+          year_of_birth?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      check_rate_limit: {
+        Args: {
+          check_ip: string
+        }
+        Returns: boolean
+      }
       get_user_organization_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -361,8 +392,32 @@ export type Database = {
         }
         Returns: string
       }
+      verify_certificate: {
+        Args: {
+          client_ip: string
+          search_certificate_number?: string
+          search_recipient_name?: string
+          search_year_of_birth?: number
+        }
+        Returns: {
+          certificate_id: string
+          certificate_number: string
+          recipient_name: string
+          course_name: string
+          course_description: string
+          issue_date: string
+          valid_through: string
+          status: Database["public"]["Enums"]["certificate_status"]
+          provider: string
+          provider_description: string
+          blockchain_hash: string
+          blockchain_timestamp: string
+          is_valid: boolean
+        }[]
+      }
     }
     Enums: {
+      certificate_status: "active" | "expired" | "revoked"
       user_role: "admin" | "instructor" | "student" | "standard"
     }
     CompositeTypes: {
