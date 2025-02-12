@@ -33,6 +33,13 @@ export function AddRecordForm({ onSubmit, onClose }: AddRecordFormProps) {
     
     try {
       const formData = new FormData(e.currentTarget);
+      
+      // Validate email format
+      const email = formData.get('email') as string;
+      if (!email || !email.includes('@')) {
+        throw new Error('Please enter a valid email address');
+      }
+
       await onSubmit(formData);
       onClose();
       toast({
@@ -60,6 +67,17 @@ export function AddRecordForm({ onSubmit, onClose }: AddRecordFormProps) {
           name="recipient_name"
           type="text"
           placeholder="Enter student name"
+          required
+        />
+      </div>
+
+      <div className="grid gap-2">
+        <Label htmlFor="email">Student Email *</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="Enter student email"
           required
         />
       </div>
