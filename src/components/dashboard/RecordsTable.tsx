@@ -31,26 +31,32 @@ export const RecordsTable = ({
 }: RecordsTableProps) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
+      exit={{ opacity: 0, y: -50 }}
+      transition={{ duration: 0.5 }}
     >
       <Card>
         <CardHeader>
-          <CardTitle>Recent Records</CardTitle>
-          <CardDescription>
-            View and manage student certificates
-            {filteredRecords.length !== records.length && (
-              ` (${filteredRecords.length} results)`
-            )}
-          </CardDescription>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <CardTitle>Recent Records</CardTitle>
+            <CardDescription>
+              View and manage student certificates
+              {filteredRecords.length !== records.length && (
+                ` (${filteredRecords.length} results)`
+              )}
+            </CardDescription>
+          </motion.div>
         </CardHeader>
         <CardContent>
           {error ? (
             <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
               className="p-8 text-center"
             >
               <p className="text-red-500 mb-4">{error}</p>
@@ -62,7 +68,11 @@ export const RecordsTable = ({
               className="p-8 text-center text-muted-foreground"
             >
               <div className="flex items-center justify-center space-x-2">
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent"
+                />
                 <span>Loading records...</span>
               </div>
             </motion.div>

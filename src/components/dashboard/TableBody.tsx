@@ -26,25 +26,18 @@ export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRe
     setUpdateDialogOpen(true);
   };
 
-  const tableRowVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      x: 0,
-      transition: {
-        delay: i * 0.05,
-        duration: 0.3
-      }
-    }),
-    exit: { opacity: 0, x: 20 }
-  };
-
   if (filteredRecords.length === 0) {
     return (
       <ShadcnTableBody>
         <TableRow>
           <TableCell colSpan={6}>
-            <EmptyState hasRecords={records.length > 0} />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <EmptyState hasRecords={records.length > 0} />
+            </motion.div>
           </TableCell>
         </TableRow>
       </ShadcnTableBody>
@@ -54,19 +47,27 @@ export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRe
   return (
     <>
       <ShadcnTableBody>
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {filteredRecords.map((record, index) => (
             <motion.tr
               key={record.id}
-              custom={index}
-              variants={tableRowVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="group"
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ 
+                opacity: 1, 
+                x: 0,
+                transition: {
+                  delay: index * 0.1,
+                  duration: 0.5,
+                  ease: "easeOut"
+                }
+              }}
+              exit={{ opacity: 0, x: 50 }}
+              className="group hover:bg-gray-50 transition-colors duration-200"
             >
               <TableCell className="font-medium">
-                {record.recipient_name}
+                <motion.div whileHover={{ scale: 1.01 }}>
+                  {record.recipient_name}
+                </motion.div>
               </TableCell>
               <TableCell className="font-mono text-sm">
                 {record.certificate_number}
@@ -75,25 +76,34 @@ export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRe
                 {record.course_name}
               </TableCell>
               <TableCell>
-                <span className={cn(
-                  "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
-                  getStatusColor(record.status)
-                )}>
+                <motion.span 
+                  whileHover={{ scale: 1.05 }}
+                  className={cn(
+                    "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
+                    getStatusColor(record.status)
+                  )}
+                >
                   {record.status}
-                </span>
+                </motion.span>
               </TableCell>
               <TableCell className="hidden lg:table-cell text-muted-foreground">
                 {format(new Date(record.created_at), 'MMM d, yyyy')}
               </TableCell>
               <TableCell>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleUpdateClick(record)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  whileHover={{ scale: 1.1 }}
+                  animate={{ opacity: 1 }}
                 >
-                  <Pencil className="h-4 w-4" />
-                </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleUpdateClick(record)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                </motion.div>
               </TableCell>
             </motion.tr>
           ))}
