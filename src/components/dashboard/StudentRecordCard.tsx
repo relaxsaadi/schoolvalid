@@ -64,38 +64,66 @@ export const StudentRecordCard = ({
         }
       }}
       exit={{ opacity: 0, scale: 0.95 }}
+      whileHover={{ y: -4 }}
       className="relative group"
     >
       <Card 
-        className="overflow-hidden hover:shadow-lg transition-shadow duration-200"
+        className="overflow-hidden hover:shadow-lg transition-all duration-300"
         onClick={onClick}
       >
-        <CardContent className="p-4">
+        <CardContent className="p-6">
           <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="font-semibold text-lg">{record.recipient_name}</h3>
-              <p className="text-sm text-muted-foreground">
-                Certificate: {record.certificate_number}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Course: {record.course_name}
-              </p>
-            </div>
-            <div className="flex flex-col items-end gap-2">
-              <ExpirationIcon className={cn("h-5 w-5", expirationInfo.color)} />
-              <span className={cn(
-                "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
-                getStatusColor(record.status)
-              )}>
-                {record.status}
-              </span>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <CalendarClock className="h-3 w-3" />
-                <span>Expires: {format(new Date(record.valid_through), 'MMM d, yyyy')}</span>
+            <div className="space-y-3">
+              <h3 className="font-semibold text-lg text-primary">
+                {record.recipient_name}
+              </h3>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  <span className="font-medium text-foreground">Certificate:</span>
+                  <span className="font-mono">{record.certificate_number}</span>
+                </p>
+                <p className="text-sm text-muted-foreground flex items-center gap-2">
+                  <span className="font-medium text-foreground">Course:</span>
+                  <span>{record.course_name}</span>
+                </p>
               </div>
             </div>
+            <div className="flex flex-col items-end gap-3">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <ExpirationIcon className={cn("h-5 w-5", expirationInfo.color)} />
+              </motion.div>
+              <motion.span 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className={cn(
+                  "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset",
+                  getStatusColor(record.status)
+                )}
+              >
+                {record.status}
+              </motion.span>
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="flex items-center gap-1 text-xs text-muted-foreground"
+              >
+                <CalendarClock className="h-3 w-3" />
+                <span>Expires: {format(new Date(record.valid_through), 'MMM d, yyyy')}</span>
+              </motion.div>
+            </div>
           </div>
-          <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0 }}
+            whileHover={{ opacity: 1 }}
+            className="absolute top-2 right-2 flex gap-2"
+          >
             <Button
               variant="secondary"
               size="icon"
@@ -123,7 +151,7 @@ export const StudentRecordCard = ({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
+          </motion.div>
         </CardContent>
       </Card>
     </motion.div>

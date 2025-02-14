@@ -123,7 +123,8 @@ export const StatsCards = ({ records }: StatsCardsProps) => {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1
+        staggerChildren: 0.1,
+        delayChildren: 0.3
       }
     }
   };
@@ -133,18 +134,24 @@ export const StatsCards = ({ records }: StatsCardsProps) => {
       variants={container}
       initial="hidden"
       animate="show"
-      className="grid gap-8 mb-8 sm:grid-cols-2 lg:grid-cols-4"
+      className="grid gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-4"
     >
       {stats.map((stat, index) => (
-        <StatCard
+        <motion.div
           key={stat.title}
-          title={stat.title}
-          value={stat.value}
-          description={stat.description}
-          icon={stat.icon}
-          trend={stat.trend}
-          trendUp={stat.trendUp}
-        />
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}
+        >
+          <StatCard
+            title={stat.title}
+            value={stat.value}
+            description={stat.description}
+            icon={stat.icon}
+            trend={stat.trend}
+            trendUp={stat.trendUp}
+          />
+        </motion.div>
       ))}
     </motion.div>
   );
