@@ -11,7 +11,6 @@ export interface StudentRecord {
   course_description?: string;
   provider_description?: string | null;
   provider: string;
-  organization_id: string;
   blockchain_hash: string;
   blockchain_timestamp: string;
   issue_date: string;

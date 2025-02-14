@@ -19,7 +19,7 @@ export const useCertificates = () => {
       throw new Error("Unable to fetch records");
     }
 
-    return certificates || [];
+    return certificates as StudentRecord[] || [];
   };
 
   const addCertificate = async (newRecord: NewStudentRecord, organizationId: string) => {
@@ -41,7 +41,7 @@ export const useCertificates = () => {
       throw new Error(error.message);
     }
 
-    return data;
+    return data as StudentRecord;
   };
 
   const updateCertificate = async (recordId: string, formData: FormData) => {
@@ -67,7 +67,7 @@ export const useCertificates = () => {
       throw new Error(error.message);
     }
 
-    return data;
+    return data as StudentRecord;
   };
 
   return {

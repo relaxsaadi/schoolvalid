@@ -65,7 +65,7 @@ export const useDashboardRecords = () => {
       }
 
       const data = await addCertificate(newRecord, profile.organization_id);
-      setRecords((prev) => [data, ...prev]);
+      setRecords(prev => [data, ...prev]);
       
       toast({
         title: "Success",
@@ -90,7 +90,7 @@ export const useDashboardRecords = () => {
       }
 
       const data = await updateCertificate(recordId, formData);
-      setRecords((prev) => prev.map((record) => 
+      setRecords(prev => prev.map(record => 
         record.id === recordId ? { ...record, ...data } : record
       ));
 
