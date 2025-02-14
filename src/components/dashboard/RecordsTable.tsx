@@ -41,7 +41,7 @@ export const RecordsTable = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <CardTitle>Student Records</CardTitle>
+            <CardTitle>Students</CardTitle>
             <CardDescription>
               View and manage student records
               {filteredRecords.length !== records.length && (

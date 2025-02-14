@@ -25,7 +25,12 @@ export const DashboardHeader = ({ children, setSidebarOpen, showTitle = true }: 
               <span className="sr-only">Open sidebar</span>
             </Button>
           )}
-          {showTitle && <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>}
+          {showTitle && (
+            <div className="flex items-center gap-2">
+              <Menu className="h-5 w-5" />
+              <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-4">
           {children}
