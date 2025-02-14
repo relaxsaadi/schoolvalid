@@ -1,20 +1,8 @@
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Menu, LayoutDashboard, ScrollText, GraduationCap, Users, Settings } from "lucide-react";
+import { FileText, Users, GraduationCap, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-
-const navigationItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/dashboard" },
-  { icon: ScrollText, label: "Certificates", path: "/certificates" },
-  { icon: GraduationCap, label: "Courses", path: "/courses" },
-  { icon: Users, label: "Students", path: "/students" },
-  { icon: Settings, label: "Settings", path: "/settings" },
-];
 
 interface DashboardNavProps {
   sidebarOpen: boolean;
@@ -24,66 +12,82 @@ interface DashboardNavProps {
 export const DashboardNav = ({ sidebarOpen, setSidebarOpen }: DashboardNavProps) => {
   const location = useLocation();
 
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-
-  const NavButton = ({ item }: { item: typeof navigationItems[0] }) => (
-    <Button
-      variant={isActive(item.path) ? "secondary" : "ghost"}
-      className="justify-start w-full"
-      asChild
-    >
-      <Link to={item.path}>
-        <item.icon className="mr-2 h-4 w-4" />
-        {item.label}
-      </Link>
-    </Button>
-  );
+  const navigation = [
+    { name: "Dashboard", href: "/dashboard", icon: FileText },
+    { name: "Certificates", href: "/certificates", icon: GraduationCap },
+    { name: "Students", href: "/students", icon: Users },
+    { name: "Settings", href: "/settings", icon: Settings },
+  ];
 
   return (
     <>
-      {/* Mobile Navigation */}
-      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="lg:hidden fixed top-4 left-4 z-50">
-            <Menu className="h-5 w-5" />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-64 p-0">
-          <div className="flex h-16 items-center border-b px-6">
-            <Link to="/dashboard">
-              <img
-                className="h-8 w-auto"
-                src="/placeholder.svg"
-                alt="Company Logo"
-              />
-            </Link>
-          </div>
-          <nav className="flex flex-col gap-1 p-4">
-            {navigationItems.map((item) => (
-              <NavButton key={item.label} item={item} />
-            ))}
-          </nav>
-        </SheetContent>
-      </Sheet>
+      <div
+        className={cn(
+          "fixed inset-0 z-50 bg-gray-900/80 lg:hidden",
+          sidebarOpen ? "block" : "hidden"
+        )}
+        onClick={() => setSidebarOpen(false)}
+      />
 
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 bg-white border-r">
-        <div className="flex h-16 items-center border-b px-6">
-          <Link to="/dashboard">
-            <img
-              className="h-8 w-auto"
-              src="/placeholder.svg"
-              alt="Company Logo"
-            />
-          </Link>
+      <div
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out lg:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="flex flex-col h-full">
+          <div className="flex h-16 items-center justify-between px-4 border-b">
+            <Link to="/" className="text-xl font-semibold">
+              Your App
+            </Link>
+            <Button
+              variant="ghost"
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <span className="sr-only">Close sidebar</span>
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="1.5"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </Button>
+          </div>
+
+          <nav className="flex-1 px-2 py-4 space-y-1">
+            {navigation.map((item) => {
+              const isActive = location.pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={cn(
+                    "flex items-center px-4 py-2 text-sm font-medium rounded-md",
+                    isActive
+                      ? "bg-gray-100 text-gray-900"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      "mr-3 h-5 w-5",
+                      isActive ? "text-gray-900" : "text-gray-400"
+                    )}
+                  />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
-        <nav className="flex flex-col gap-1 p-4 flex-1">
-          {navigationItems.map((item) => (
-            <NavButton key={item.label} item={item} />
-          ))}
-        </nav>
       </div>
     </>
   );
