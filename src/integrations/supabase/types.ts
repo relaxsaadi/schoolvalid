@@ -21,10 +21,12 @@ export type Database = {
           id: string
           issue_date: string
           normalized_recipient_name: string | null
+          organization_id: string | null
           provider: string
           provider_description: string | null
           recipient_name: string
           status: Database["public"]["Enums"]["certificate_status"]
+          updated_at: string
           valid_through: string
           year_of_birth: number
         }
@@ -39,10 +41,12 @@ export type Database = {
           id?: string
           issue_date?: string
           normalized_recipient_name?: string | null
+          organization_id?: string | null
           provider?: string
           provider_description?: string | null
           recipient_name: string
           status?: Database["public"]["Enums"]["certificate_status"]
+          updated_at?: string
           valid_through: string
           year_of_birth: number
         }
@@ -57,14 +61,24 @@ export type Database = {
           id?: string
           issue_date?: string
           normalized_recipient_name?: string | null
+          organization_id?: string | null
           provider?: string
           provider_description?: string | null
           recipient_name?: string
           status?: Database["public"]["Enums"]["certificate_status"]
+          updated_at?: string
           valid_through?: string
           year_of_birth?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "certificates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       courses: {
         Row: {
@@ -337,36 +351,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      verification_attempts: {
-        Row: {
-          certificate_number: string | null
-          created_at: string
-          id: string
-          ip_address: string
-          recipient_name: string | null
-          successful: boolean
-          year_of_birth: number | null
-        }
-        Insert: {
-          certificate_number?: string | null
-          created_at?: string
-          id?: string
-          ip_address: string
-          recipient_name?: string | null
-          successful?: boolean
-          year_of_birth?: number | null
-        }
-        Update: {
-          certificate_number?: string | null
-          created_at?: string
-          id?: string
-          ip_address?: string
-          recipient_name?: string | null
-          successful?: boolean
-          year_of_birth?: number | null
-        }
-        Relationships: []
       }
       verification_log: {
         Row: {

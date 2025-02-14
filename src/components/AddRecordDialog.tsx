@@ -31,12 +31,12 @@ export const AddRecordDialog: FC<AddRecordDialogProps> = ({ onAddRecord }) => {
         year_of_birth: parseInt(formData.get('year_of_birth') as string),
         course_description: formData.get('course_description') as string || null,
         provider_description: formData.get('provider_description') as string || null,
+        diploma_image_url: null,
         organization_id: '', // This will be set by the handler
         blockchain_hash: 'pending',
         blockchain_timestamp: new Date().toISOString(),
         issue_date: new Date().toISOString(),
-        provider: formData.get('provider') as string,
-        email: `${formData.get('recipient_name')}@studentmail.com` // Generate a default email
+        provider: 'Default Provider'
       };
 
       await onAddRecord(record);

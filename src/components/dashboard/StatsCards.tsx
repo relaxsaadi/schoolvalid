@@ -1,4 +1,3 @@
-
 import { Users, Award, Bell, GraduationCap, Clock, TrendingUp, CheckCircle, ShieldCheck } from "lucide-react";
 import { StudentRecord } from "@/types/records";
 import { StatCard } from "./StatCard";
@@ -89,7 +88,7 @@ export const StatsCards = ({ records }: StatsCardsProps) => {
     },
     {
       title: "Pending Verifications",
-      value: records.filter(r => r.blockchain_hash === 'pending').length,
+      value: records.filter(r => r.status === 'pending').length,
       description: "Awaiting verification",
       icon: Bell,
       trend: "In progress",
