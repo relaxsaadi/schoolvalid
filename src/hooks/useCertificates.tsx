@@ -11,6 +11,7 @@ export const useCertificates = () => {
     const { data: certificates, error: certificatesError } = await supabase
       .from('certificates')
       .select('*')
+      .eq('organization_id', organizationId)
       .order('created_at', { ascending: false });
 
     if (certificatesError) {
@@ -26,6 +27,7 @@ export const useCertificates = () => {
       .from('certificates')
       .insert({
         ...newRecord,
+        organization_id: organizationId,
         status: 'active',
         blockchain_hash: newRecord.blockchain_hash || 'pending',
         blockchain_timestamp: newRecord.blockchain_timestamp || new Date().toISOString(),
@@ -51,6 +53,7 @@ export const useCertificates = () => {
       year_of_birth: parseInt(formData.get('year_of_birth') as string),
       course_description: formData.get('course_description') as string || null,
       provider_description: formData.get('provider_description') as string || null,
+      diploma_image_url: formData.get('diploma_image_url') as string || null,
     };
 
     const { data, error } = await supabase
@@ -74,3 +77,4 @@ export const useCertificates = () => {
     updateCertificate,
   };
 };
+

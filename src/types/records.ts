@@ -16,6 +16,7 @@ export interface StudentRecord {
   issue_date: string;
   email: string;
   diploma_image_url?: string | null;
+  organization_id?: string;
 }
 
 export type NewStudentRecord = Omit<StudentRecord, 'id' | 'created_at'>;
