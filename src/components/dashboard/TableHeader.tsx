@@ -14,6 +14,7 @@ export const TableHeader = () => {
         <TableHead className="hidden md:table-cell">Course</TableHead>
         <TableHead>Status</TableHead>
         <TableHead className="hidden lg:table-cell">Date</TableHead>
+        <TableHead></TableHead>
       </TableRow>
     </ShadcnTableHeader>
   );
