@@ -36,7 +36,7 @@ export const RecordsTable = ({
       exit={{ opacity: 0, y: -50 }}
       transition={{ duration: 0.5 }}
     >
-      <Card>
+      <Card className="overflow-hidden">
         <CardHeader>
           <motion.div
             initial={{ opacity: 0, y: -20 }}

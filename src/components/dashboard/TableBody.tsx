@@ -62,7 +62,7 @@ export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRe
                 }
               }}
               exit={{ opacity: 0, x: 50 }}
-              className="group hover:bg-gray-50 transition-colors duration-200"
+              className="group hover:bg-gray-50/80 backdrop-blur-sm transition-all duration-200"
             >
               <TableCell className="font-medium">
                 <motion.div whileHover={{ scale: 1.01 }}>

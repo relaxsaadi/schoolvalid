@@ -45,39 +45,46 @@ const Certificates = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-gray-50">
       <DashboardNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      <div className="flex-1 lg:pl-64">
+      <div className="flex-1 flex flex-col lg:pl-64">
         <DashboardHeader>
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3 }}
+            className="w-full max-w-md"
           >
             <SearchBar 
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              className="w-full md:w-[300px] lg:w-[400px]"
+              className="w-full transition-all duration-300 focus-within:shadow-lg"
             />
           </motion.div>
           <UserNav />
         </DashboardHeader>
 
         <motion.main
-          className="p-4 sm:p-6 lg:p-8"
+          className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <motion.div className="mb-6" variants={itemVariants}>
-            <h1 className="text-2xl font-semibold text-gray-900">Certificates</h1>
-            <p className="mt-1 text-sm text-gray-500">
+          <motion.div 
+            className="mb-8"
+            variants={itemVariants}
+          >
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Certificates</h1>
+            <p className="text-base text-gray-500">
               Manage and view all certificates in your organization
             </p>
           </motion.div>
 
-          <motion.div variants={itemVariants}>
+          <motion.div 
+            variants={itemVariants}
+            className="mb-6"
+          >
             <ActionButtons 
               onAddRecord={handleAddRecord} 
               records={records}
@@ -85,11 +92,12 @@ const Certificates = () => {
           </motion.div>
 
           <motion.div 
-            className="mt-6"
             variants={itemVariants}
+            className="mt-6"
           >
             <AnimatePresence mode="wait">
               <RecordsTable
+                key={searchQuery}
                 records={records}
                 filteredRecords={filteredRecords}
                 isLoading={isLoading}
