@@ -1,4 +1,5 @@
 
+import { motion } from "framer-motion";
 import { Table } from "@/components/ui/table";
 import {
   Card,
@@ -29,39 +30,57 @@ export const RecordsTable = ({
   onUpdateRecord,
 }: RecordsTableProps) => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Recent Records</CardTitle>
-        <CardDescription>
-          View and manage student certificates
-          {filteredRecords.length !== records.length && (
-            ` (${filteredRecords.length} results)`
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Records</CardTitle>
+          <CardDescription>
+            View and manage student certificates
+            {filteredRecords.length !== records.length && (
+              ` (${filteredRecords.length} results)`
+            )}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {error ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="p-8 text-center"
+            >
+              <p className="text-red-500 mb-4">{error}</p>
+            </motion.div>
+          ) : isLoading ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="p-8 text-center text-muted-foreground"
+            >
+              <div className="flex items-center justify-center space-x-2">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                <span>Loading records...</span>
+              </div>
+            </motion.div>
+          ) : (
+            <div className="relative overflow-x-auto">
+              <Table>
+                <TableHeader />
+                <TableBody 
+                  records={records}
+                  filteredRecords={filteredRecords}
+                  getStatusColor={getStatusColor}
+                  onUpdateRecord={onUpdateRecord}
+                />
+              </Table>
+            </div>
           )}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {error ? (
-          <div className="p-8 text-center">
-            <p className="text-red-500 mb-4">{error}</p>
-          </div>
-        ) : isLoading ? (
-          <div className="p-8 text-center text-muted-foreground">
-            Loading records...
-          </div>
-        ) : (
-          <div className="relative overflow-x-auto">
-            <Table>
-              <TableHeader />
-              <TableBody 
-                records={records}
-                filteredRecords={filteredRecords}
-                getStatusColor={getStatusColor}
-                onUpdateRecord={onUpdateRecord}
-              />
-            </Table>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
