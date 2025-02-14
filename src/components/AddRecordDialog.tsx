@@ -36,7 +36,8 @@ export const AddRecordDialog: FC<AddRecordDialogProps> = ({ onAddRecord }) => {
         blockchain_timestamp: new Date().toISOString(),
         issue_date: new Date().toISOString(),
         provider: formData.get('provider') as string,
-        email: `${formData.get('recipient_name')}@studentmail.com` // Generate a default email
+        email: formData.get('email') as string,
+        diploma_image_url: formData.get('diploma_image_url') as string || null
       };
 
       await onAddRecord(record);
@@ -66,3 +67,4 @@ export const AddRecordDialog: FC<AddRecordDialogProps> = ({ onAddRecord }) => {
     </Dialog>
   );
 };
+

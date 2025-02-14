@@ -64,6 +64,17 @@ export function AddRecordForm({ onSubmit, onClose }: AddRecordFormProps) {
         />
       </div>
       
+      <div className="grid gap-2">
+        <Label htmlFor="email">Student Email *</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="Enter student email"
+          required
+        />
+      </div>
+
       <StudentIdGenerator 
         generatedId={generatedId} 
         onRegenerate={generateNewId}
