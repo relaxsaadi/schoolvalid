@@ -7,17 +7,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { useState } from "react";
 import { AddRecordForm } from "./student-records/AddRecordForm";
 import { NewStudentRecord } from "@/types/records";
-import { FC } from "react";
+import { FC, ReactNode } from "react";
 
 interface AddRecordDialogProps {
   onAddRecord: (record: NewStudentRecord) => Promise<void>;
+  children: ReactNode;
 }
 
-export const AddRecordDialog: FC<AddRecordDialogProps> = ({ onAddRecord }) => {
+export const AddRecordDialog: FC<AddRecordDialogProps> = ({ onAddRecord, children }) => {
   const [open, setOpen] = useState(false);
 
   const handleSubmit = async (formData: FormData) => {
@@ -36,7 +36,8 @@ export const AddRecordDialog: FC<AddRecordDialogProps> = ({ onAddRecord }) => {
         blockchain_timestamp: new Date().toISOString(),
         issue_date: new Date().toISOString(),
         provider: formData.get('provider') as string,
-        email: `${formData.get('recipient_name')}@studentmail.com` // Generate a default email
+        email: formData.get('recipient_name') as string + '@example.com',
+        diploma_image_url: formData.get('diploma_image_url') as string || null,
       };
 
       await onAddRecord(record);
@@ -50,13 +51,11 @@ export const AddRecordDialog: FC<AddRecordDialogProps> = ({ onAddRecord }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Add Record
-        </Button>
+        {children}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Record</DialogTitle>
+          <DialogTitle>Add New Certificate</DialogTitle>
         </DialogHeader>
         <AddRecordForm
           onSubmit={handleSubmit}

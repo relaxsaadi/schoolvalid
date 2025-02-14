@@ -20,7 +20,7 @@ export function UpdateRecordDialog({ record, open, onOpenChange, onUpdateRecord 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Update Record</DialogTitle>
+          <DialogTitle>Update Certificate</DialogTitle>
         </DialogHeader>
         <UpdateRecordForm
           record={record}
@@ -30,4 +30,4 @@ export function UpdateRecordDialog({ record, open, onOpenChange, onUpdateRecord 
       </DialogContent>
     </Dialog>
   );
-}
+};
