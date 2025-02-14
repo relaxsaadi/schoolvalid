@@ -1,9 +1,11 @@
 
-import { Users, Award, Bell, GraduationCap, Clock, TrendingUp, CheckCircle, ShieldCheck } from "lucide-react";
+import { Users, Award, Bell, GraduationCap, Clock, TrendingUp, CheckCircle, ShieldCheck, BadgeCheck, ChartBar } from "lucide-react";
 import { StudentRecord } from "@/types/records";
 import { StatCard } from "./StatCard";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface StatsCardsProps {
   records: StudentRecord[];
@@ -17,14 +19,21 @@ export const StatsCards = ({ records }: StatsCardsProps) => {
     ? Math.round((expiredCertificates.length / records.length) * 100) 
     : 0;
 
-  // Calculate most popular course
+  // Calculate most popular courses with count
   const courseCounts = records.reduce((acc, record) => {
     acc[record.course_name] = (acc[record.course_name] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
-  const mostPopularCourse = Object.entries(courseCounts)
-    .sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A";
+  const courseData = Object.entries(courseCounts)
+    .map(([name, count]) => ({
+      name: name.length > 20 ? name.substring(0, 20) + '...' : name,
+      count
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8); // Top 8 courses
+
+  const mostPopularCourse = courseData[0]?.name || "N/A";
 
   // Calculate recent activity
   const thirtyDaysAgo = new Date();
@@ -38,53 +47,59 @@ export const StatsCards = ({ records }: StatsCardsProps) => {
     ? Math.round((recentCertificates.length / records.length) * 100)
     : 0;
 
+  // Calculate verified certificates
+  const verifiedCertificates = records.filter(r => r.blockchain_hash !== 'pending');
+  const verificationRate = records.length > 0
+    ? Math.round((verifiedCertificates.length / records.length) * 100)
+    : 0;
+
   const stats = [
     {
-      title: "Active Certificates",
-      value: records.filter(r => r.status === 'active').length,
-      description: "Valid and active certificates",
+      title: "Total Certificates",
+      value: records.length,
+      description: "All issued certificates",
       icon: Award,
-      trend: `${records.length - expiredCertificates.length} valid`,
+      trend: `${records.length - expiredCertificates.length} active`,
       trendUp: true,
     },
     {
-      title: "Expiring Soon",
+      title: "Active vs Expired",
       value: expiredPercentage,
-      description: "Percentage of expired certificates",
+      description: `${expiredCertificates.length} expired certificates`,
       icon: Clock,
-      trend: `${expiredCertificates.length} expired`,
-      trendUp: false,
+      trend: `${100 - expiredPercentage}% active`,
+      trendUp: expiredPercentage < 50,
     },
     {
       title: "Recent Activity",
       value: recentCertificates.length,
-      description: "Certificates issued in last 30 days",
+      description: "Last 30 days",
       icon: TrendingUp,
       trend: `${growthRate}% growth`,
       trendUp: growthRate > 0,
     },
     {
-      title: "Most Popular Course",
-      value: courseCounts[mostPopularCourse] || 0,
-      description: mostPopularCourse,
-      icon: GraduationCap,
-      trend: "Most awarded",
-      trendUp: true,
-    },
-    {
-      title: "Total Students",
-      value: new Set(records.map(r => r.recipient_name)).size,
-      description: "Unique certificate recipients",
-      icon: Users,
-      trend: "Distinct learners",
-      trendUp: true,
-    },
-    {
-      title: "Validation Rate",
-      value: records.filter(r => r.blockchain_hash !== 'pending').length,
-      description: "Blockchain validated certificates",
+      title: "Verification Rate",
+      value: verificationRate,
+      description: `${verifiedCertificates.length} verified`,
       icon: ShieldCheck,
-      trend: "Verified on chain",
+      trend: "On blockchain",
+      trendUp: true,
+    },
+    {
+      title: "Unique Students",
+      value: new Set(records.map(r => r.recipient_name)).size,
+      description: "Individual learners",
+      icon: Users,
+      trend: "Distinct recipients",
+      trendUp: true,
+    },
+    {
+      title: "Course Coverage",
+      value: Object.keys(courseCounts).length,
+      description: "Different courses",
+      icon: GraduationCap,
+      trend: "Unique courses",
       trendUp: true,
     },
     {
@@ -92,14 +107,14 @@ export const StatsCards = ({ records }: StatsCardsProps) => {
       value: records.filter(r => r.blockchain_hash === 'pending').length,
       description: "Awaiting verification",
       icon: Bell,
-      trend: "In progress",
+      trend: "To be verified",
       trendUp: false,
     },
     {
-      title: "Completion Rate",
+      title: "Success Rate",
       value: Math.round((records.filter(r => r.status === 'active').length / records.length) * 100) || 0,
-      description: "Successfully completed certificates",
-      icon: CheckCircle,
+      description: "Completion rate",
+      icon: BadgeCheck,
       trend: "Success rate",
       trendUp: true,
     },
@@ -115,24 +130,74 @@ export const StatsCards = ({ records }: StatsCardsProps) => {
     }
   };
 
+  const getBarColor = (index: number) => {
+    const colors = ['#22c55e', '#3b82f6', '#6366f1', '#8b5cf6', '#ec4899'];
+    return colors[index % colors.length];
+  };
+
   return (
-    <motion.div 
-      variants={container}
-      initial="hidden"
-      animate="show"
-      className="grid gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4"
-    >
-      {stats.map((stat, index) => (
-        <StatCard
-          key={stat.title}
-          title={stat.title}
-          value={stat.value}
-          description={stat.description}
-          icon={stat.icon}
-          trend={stat.trend}
-          trendUp={stat.trendUp}
-        />
-      ))}
-    </motion.div>
+    <>
+      <motion.div 
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="grid gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        {stats.map((stat, index) => (
+          <StatCard
+            key={stat.title}
+            title={stat.title}
+            value={stat.value}
+            description={stat.description}
+            icon={stat.icon}
+            trend={stat.trend}
+            trendUp={stat.trendUp}
+          />
+        ))}
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ChartBar className="h-5 w-5 text-muted-foreground" />
+              Certificate Distribution by Course
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px] mt-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={courseData} layout="vertical">
+                  <XAxis type="number" />
+                  <YAxis 
+                    type="category" 
+                    dataKey="name" 
+                    width={150}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <Tooltip 
+                    formatter={(value) => [`${value} certificates`, "Count"]}
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--background))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '6px'
+                    }}
+                  />
+                  <Bar dataKey="count" radius={[0, 4, 4, 0]}>
+                    {courseData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={getBarColor(index)} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </>
   );
 };
