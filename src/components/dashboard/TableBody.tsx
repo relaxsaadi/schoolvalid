@@ -28,7 +28,11 @@ export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRe
   if (filteredRecords.length === 0) {
     return (
       <ShadcnTableBody>
-        <EmptyState hasRecords={records.length > 0} />
+        <TableRow>
+          <TableCell colSpan={6}>
+            <EmptyState hasRecords={records.length > 0} />
+          </TableCell>
+        </TableRow>
       </ShadcnTableBody>
     );
   }

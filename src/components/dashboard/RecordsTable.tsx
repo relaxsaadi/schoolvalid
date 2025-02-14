@@ -34,6 +34,9 @@ export const RecordsTable = ({
         <CardTitle>Recent Records</CardTitle>
         <CardDescription>
           View and manage student certificates
+          {filteredRecords.length !== records.length && (
+            ` (${filteredRecords.length} results)`
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>

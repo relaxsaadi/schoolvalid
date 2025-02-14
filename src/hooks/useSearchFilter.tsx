@@ -1,25 +1,23 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { StudentRecord } from "@/types/records";
 
 export const useSearchFilter = (records: StudentRecord[]) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredRecords = records.filter((record) => {
-    if (!searchQuery.trim()) return true; // Show all records when search is empty
+    if (!searchQuery.trim()) return true;
     
     const searchTerm = searchQuery.toLowerCase().trim();
     const searchFields = [
-      record.recipient_name,
-      record.certificate_number,
-      record.course_name,
-      record.email,
-      record.provider
-    ];
+      record.recipient_name?.toLowerCase(),
+      record.certificate_number?.toLowerCase(),
+      record.course_name?.toLowerCase(),
+      record.email?.toLowerCase(),
+      record.provider?.toLowerCase()
+    ].filter(Boolean);
 
-    return searchFields.some(field => 
-      field?.toLowerCase().includes(searchTerm)
-    );
+    return searchFields.some(field => field?.includes(searchTerm));
   });
 
   return {
@@ -28,4 +26,3 @@ export const useSearchFilter = (records: StudentRecord[]) => {
     filteredRecords,
   };
 };
-
