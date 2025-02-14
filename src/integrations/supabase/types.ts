@@ -21,17 +21,17 @@ export type Database = {
           email: string | null
           id: string
           issue_date: string
-          normalized_recipient_name: string
+          normalized_recipient_name: string | null
           organization_id: string | null
           provider: string
           provider_description: string | null
           recipient_name: string
-          status: string
+          status: Database["public"]["Enums"]["certificate_status"]
           valid_through: string
           year_of_birth: number
         }
         Insert: {
-          blockchain_hash?: string
+          blockchain_hash: string
           blockchain_timestamp?: string
           certificate_number: string
           course_description?: string | null
@@ -41,12 +41,12 @@ export type Database = {
           email?: string | null
           id?: string
           issue_date?: string
-          normalized_recipient_name: string
+          normalized_recipient_name?: string | null
           organization_id?: string | null
           provider?: string
           provider_description?: string | null
           recipient_name: string
-          status?: string
+          status?: Database["public"]["Enums"]["certificate_status"]
           valid_through: string
           year_of_birth: number
         }
@@ -61,37 +61,101 @@ export type Database = {
           email?: string | null
           id?: string
           issue_date?: string
-          normalized_recipient_name?: string
+          normalized_recipient_name?: string | null
           organization_id?: string | null
           provider?: string
           provider_description?: string | null
           recipient_name?: string
-          status?: string
+          status?: Database["public"]["Enums"]["certificate_status"]
           valid_through?: string
           year_of_birth?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "certificates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      course_descriptions: {
+      courses: {
         Row: {
-          course_name: string
           created_at: string | null
-          description: string
+          description: string | null
           id: string
+          name: string
+          organization_id: string | null
+          updated_at: string | null
         }
         Insert: {
-          course_name: string
           created_at?: string | null
-          description: string
+          description?: string | null
           id?: string
+          name: string
+          organization_id?: string | null
+          updated_at?: string | null
         }
         Update: {
-          course_name?: string
           created_at?: string | null
-          description?: string
+          description?: string | null
           id?: string
+          name?: string
+          organization_id?: string | null
+          updated_at?: string | null
         }
         Relationships: []
+      }
+      orders: {
+        Row: {
+          amount: number
+          billing_address: Json
+          billing_email: string
+          billing_name: string
+          created_at: string | null
+          id: string
+          payment_method: string | null
+          status: string
+          subscription_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          billing_address: Json
+          billing_email: string
+          billing_name: string
+          created_at?: string | null
+          id?: string
+          payment_method?: string | null
+          status: string
+          subscription_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          billing_address?: Json
+          billing_email?: string
+          billing_name?: string
+          created_at?: string | null
+          id?: string
+          payment_method?: string | null
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       organizations: {
         Row: {
@@ -126,26 +190,112 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string | null
+          id: string
+          plan_id: string | null
+          status: string
+          stripe_payment_id: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          plan_id?: string | null
+          status: string
+          stripe_payment_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          plan_id?: string | null
+          status?: string
+          stripe_payment_id?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          features: Json
+          id: string
+          is_popular: boolean | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          features: Json
+          id?: string
+          is_popular?: boolean | null
+          name: string
+          price_monthly: number
+          price_yearly: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          features?: Json
+          id?: string
+          is_popular?: boolean | null
+          name?: string
+          price_monthly?: number
+          price_yearly?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
           full_name: string | null
           id: string
+          logo_url: string | null
           organization_id: string | null
+          role: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           full_name?: string | null
           id: string
+          logo_url?: string | null
           organization_id?: string | null
+          role?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           full_name?: string | null
           id?: string
+          logo_url?: string | null
           organization_id?: string | null
+          role?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -158,15 +308,158 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean | null
+          created_at: string | null
+          current_period_end: string
+          current_period_start: string
+          id: string
+          plan_id: string
+          status: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string | null
+          current_period_end: string
+          current_period_start: string
+          id?: string
+          plan_id: string
+          status: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean | null
+          created_at?: string | null
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          plan_id?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verification_attempts: {
+        Row: {
+          certificate_number: string | null
+          created_at: string
+          id: string
+          ip_address: string
+          recipient_name: string | null
+          successful: boolean
+          year_of_birth: number | null
+        }
+        Insert: {
+          certificate_number?: string | null
+          created_at?: string
+          id?: string
+          ip_address: string
+          recipient_name?: string | null
+          successful?: boolean
+          year_of_birth?: number | null
+        }
+        Update: {
+          certificate_number?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string
+          recipient_name?: string | null
+          successful?: boolean
+          year_of_birth?: number | null
+        }
+        Relationships: []
+      }
+      verification_log: {
+        Row: {
+          certificate_number: string | null
+          created_at: string
+          id: string
+          ip_address: string
+          recipient_name: string | null
+          successful: boolean
+          year_of_birth: number | null
+        }
+        Insert: {
+          certificate_number?: string | null
+          created_at?: string
+          id?: string
+          ip_address: string
+          recipient_name?: string | null
+          successful?: boolean
+          year_of_birth?: number | null
+        }
+        Update: {
+          certificate_number?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string
+          recipient_name?: string | null
+          successful?: boolean
+          year_of_birth?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_rate_limit: {
+        Args: {
+          check_ip: string
+        }
+        Returns: boolean
+      }
+      get_user_organization_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      normalize_name: {
+        Args: {
+          input_name: string
+        }
+        Returns: string
+      }
+      verify_certificate: {
+        Args: {
+          client_ip: string
+          search_certificate_number?: string
+          search_recipient_name?: string
+          search_year_of_birth?: number
+        }
+        Returns: {
+          certificate_id: string
+          certificate_number: string
+          recipient_name: string
+          course_name: string
+          course_description: string
+          issue_date: string
+          valid_through: string
+          status: Database["public"]["Enums"]["certificate_status"]
+          provider: string
+          provider_description: string
+          blockchain_hash: string
+          blockchain_timestamp: string
+          is_valid: boolean
+        }[]
+      }
     }
     Enums: {
       certificate_status: "active" | "expired" | "revoked"
+      user_role: "admin" | "instructor" | "student" | "standard"
     }
     CompositeTypes: {
       [_ in never]: never
