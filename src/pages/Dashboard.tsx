@@ -57,7 +57,9 @@ const Dashboard = () => {
   }, [toast]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+    const value = e.target.value;
+    console.log('Search value:', value); // Debug log
+    setSearchQuery(value);
   };
 
   return (
@@ -67,7 +69,7 @@ const Dashboard = () => {
       <div className="flex-1 lg:pl-64">
         <DashboardHeader>
           <SearchBar 
-            value={searchQuery} 
+            value={searchQuery}
             onChange={handleSearch}
           />
           <UserNav />

@@ -5,11 +5,20 @@ import { cn } from "@/lib/utils";
 
 interface SearchBarProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export const SearchBar = ({ className, ...props }: SearchBarProps) => {
+export const SearchBar = ({ className, value, onChange, ...props }: SearchBarProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      (e.target as HTMLInputElement).value = '';
+      onChange({ target: { value: '' } } as React.ChangeEvent<HTMLInputElement>);
+    }
   };
 
   return (
@@ -19,6 +28,9 @@ export const SearchBar = ({ className, ...props }: SearchBarProps) => {
         type="search"
         placeholder="Search records..."
         className="pl-9"
+        value={value}
+        onChange={onChange}
+        onKeyDown={handleKeyDown}
         {...props}
       />
     </form>
