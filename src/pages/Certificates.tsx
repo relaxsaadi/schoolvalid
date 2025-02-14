@@ -10,14 +10,13 @@ import { RecordsTable } from "@/components/dashboard/RecordsTable";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { SearchBar } from "@/components/dashboard/SearchBar";
 import { ActionButtons } from "@/components/dashboard/ActionButtons";
-import { useToast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { CertificateDistributionChart } from "@/components/certificates/CertificateDistributionChart";
 
 const Certificates = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { records, isLoading, error, handleAddRecord, handleUpdateRecord } = useDashboardRecords();
   const { searchQuery, handleSearch, filteredRecords } = useSearchFilter(records);
-  const { toast } = useToast();
   
   useAuth();
 
@@ -93,19 +92,24 @@ const Certificates = () => {
 
           <motion.div 
             variants={itemVariants}
+            className="mb-6"
+          >
+            <CertificateDistributionChart records={records} />
+          </motion.div>
+
+          <motion.div 
+            variants={itemVariants}
             className="mt-6"
           >
-            <AnimatePresence mode="wait">
-              <RecordsTable
-                key={searchQuery}
-                records={records}
-                filteredRecords={filteredRecords}
-                isLoading={isLoading}
-                error={error}
-                getStatusColor={getStatusColor}
-                onUpdateRecord={handleUpdateRecord}
-              />
-            </AnimatePresence>
+            <RecordsTable
+              key={searchQuery}
+              records={records}
+              filteredRecords={filteredRecords}
+              isLoading={isLoading}
+              error={error}
+              getStatusColor={getStatusColor}
+              onUpdateRecord={handleUpdateRecord}
+            />
           </motion.div>
         </motion.main>
       </div>
