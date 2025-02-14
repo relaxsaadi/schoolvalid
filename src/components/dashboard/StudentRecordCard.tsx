@@ -5,7 +5,6 @@ import { StudentRecord } from "@/types/records";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Pencil, 
   QrCode,
@@ -24,9 +23,7 @@ import {
 interface StudentRecordCardProps {
   record: StudentRecord;
   index: number;
-  isSelected: boolean;
   getStatusColor: (status?: string) => string;
-  onSelect: (e: React.MouseEvent) => void;
   onClick: () => void;
   onUpdate: (e: React.MouseEvent) => void;
 }
@@ -48,9 +45,7 @@ export const getExpirationStatus = (validThrough: string) => {
 export const StudentRecordCard = ({
   record,
   index,
-  isSelected,
   getStatusColor,
-  onSelect,
   onClick,
   onUpdate
 }: StudentRecordCardProps) => {
@@ -71,21 +66,8 @@ export const StudentRecordCard = ({
       exit={{ opacity: 0, scale: 0.95 }}
       className="relative group"
     >
-      <div
-        className="absolute top-2 left-2 z-10"
-        onClick={onSelect}
-      >
-        <Checkbox
-          checked={isSelected}
-          className="bg-white/80 backdrop-blur-sm"
-        />
-      </div>
-
       <Card 
-        className={cn(
-          "overflow-hidden hover:shadow-lg transition-shadow duration-200",
-          isSelected && "ring-2 ring-primary"
-        )}
+        className="overflow-hidden hover:shadow-lg transition-shadow duration-200"
         onClick={onClick}
       >
         <CardContent className="p-4">

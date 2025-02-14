@@ -5,8 +5,6 @@ import { useState } from "react";
 import { UpdateRecordDialog } from "../student-records/UpdateRecordDialog";
 import { CertificateDetailsDialog } from "../student-records/CertificateDetailsDialog";
 import { AnimatePresence } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
-import { BulkActionsBar } from "./BulkActionsBar";
 import { StudentRecordCard } from "./StudentRecordCard";
 
 interface TableBodyProps {
@@ -25,8 +23,6 @@ export const TableBody = ({
   const [selectedRecord, setSelectedRecord] = useState<StudentRecord | null>(null);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [selectedRecords, setSelectedRecords] = useState<Set<string>>(new Set());
-  const { toast } = useToast();
 
   const handleUpdateClick = (e: React.MouseEvent, record: StudentRecord) => {
     e.stopPropagation();
@@ -39,49 +35,6 @@ export const TableBody = ({
     setDetailsDialogOpen(true);
   };
 
-  const toggleRecordSelection = (e: React.MouseEvent, recordId: string) => {
-    e.stopPropagation();
-    const newSelected = new Set(selectedRecords);
-    if (newSelected.has(recordId)) {
-      newSelected.delete(recordId);
-    } else {
-      newSelected.add(recordId);
-    }
-    setSelectedRecords(newSelected);
-  };
-
-  const handleBulkAction = (action: 'download' | 'email' | 'verify') => {
-    if (selectedRecords.size === 0) {
-      toast({
-        title: "No certificates selected",
-        description: "Please select at least one certificate to perform this action.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    switch (action) {
-      case 'download':
-        toast({
-          title: "Downloading certificates",
-          description: `Preparing ${selectedRecords.size} certificates for download...`,
-        });
-        break;
-      case 'email':
-        toast({
-          title: "Sending certificates",
-          description: `Preparing to email ${selectedRecords.size} certificates...`,
-        });
-        break;
-      case 'verify':
-        toast({
-          title: "Verifying certificates",
-          description: `Verifying ${selectedRecords.size} certificates...`,
-        });
-        break;
-    }
-  };
-
   if (filteredRecords.length === 0) {
     return (
       <div className="p-8">
@@ -92,13 +45,6 @@ export const TableBody = ({
 
   return (
     <>
-      {selectedRecords.size > 0 && (
-        <BulkActionsBar
-          selectedCount={selectedRecords.size}
-          onAction={handleBulkAction}
-        />
-      )}
-
       <div className="grid grid-cols-1 gap-4 p-4">
         <AnimatePresence>
           {filteredRecords.map((record, index) => (
@@ -106,9 +52,7 @@ export const TableBody = ({
               key={record.id}
               record={record}
               index={index}
-              isSelected={selectedRecords.has(record.id)}
               getStatusColor={getStatusColor}
-              onSelect={(e) => toggleRecordSelection(e, record.id)}
               onClick={() => handleCardClick(record)}
               onUpdate={(e) => handleUpdateClick(e, record)}
             />
