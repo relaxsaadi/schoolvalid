@@ -1,6 +1,5 @@
 
 import { motion } from "framer-motion";
-import { Table } from "@/components/ui/table";
 import {
   Card,
   CardContent,
@@ -9,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { StudentRecord } from "@/types/records";
-import { TableHeader } from "./TableHeader";
 import { TableBody } from "./TableBody";
 
 interface RecordsTableProps {
@@ -43,7 +41,7 @@ export const RecordsTable = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <CardTitle>Recent Records</CardTitle>
+            <CardTitle>Certificates Gallery</CardTitle>
             <CardDescription>
               View and manage student certificates
               {filteredRecords.length !== records.length && (
@@ -73,21 +71,16 @@ export const RecordsTable = ({
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent"
                 />
-                <span>Loading records...</span>
+                <span>Loading certificates...</span>
               </div>
             </motion.div>
           ) : (
-            <div className="relative overflow-x-auto">
-              <Table>
-                <TableHeader />
-                <TableBody 
-                  records={records}
-                  filteredRecords={filteredRecords}
-                  getStatusColor={getStatusColor}
-                  onUpdateRecord={onUpdateRecord}
-                />
-              </Table>
-            </div>
+            <TableBody 
+              records={records}
+              filteredRecords={filteredRecords}
+              getStatusColor={getStatusColor}
+              onUpdateRecord={onUpdateRecord}
+            />
           )}
         </CardContent>
       </Card>
