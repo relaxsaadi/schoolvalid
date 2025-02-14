@@ -41,9 +41,9 @@ export const RecordsTable = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
           >
-            <CardTitle>Certificates Gallery</CardTitle>
+            <CardTitle>Student Records</CardTitle>
             <CardDescription>
-              View and manage student certificates
+              View and manage student records
               {filteredRecords.length !== records.length && (
                 ` (${filteredRecords.length} results)`
               )}
@@ -71,7 +71,7 @@ export const RecordsTable = ({
                   transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                   className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent"
                 />
-                <span>Loading certificates...</span>
+                <span>Loading records...</span>
               </div>
             </motion.div>
           ) : (
