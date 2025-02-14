@@ -42,6 +42,7 @@ export const DashboardNav = ({ sidebarOpen, setSidebarOpen }: DashboardNavProps)
             </Link>
             <Button
               variant="ghost"
+              size="icon"
               className="lg:hidden"
               onClick={() => setSidebarOpen(false)}
             >

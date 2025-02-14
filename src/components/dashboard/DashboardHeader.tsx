@@ -10,6 +10,12 @@ interface DashboardHeaderProps {
 }
 
 export const DashboardHeader = ({ children, setSidebarOpen, showTitle = true }: DashboardHeaderProps) => {
+  const handleOpenSidebar = () => {
+    if (setSidebarOpen) {
+      setSidebarOpen(true);
+    }
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-white border-b">
       <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -19,7 +25,7 @@ export const DashboardHeader = ({ children, setSidebarOpen, showTitle = true }: 
               variant="ghost"
               size="icon"
               className="lg:hidden"
-              onClick={() => setSidebarOpen(true)}
+              onClick={handleOpenSidebar}
             >
               <Menu className="h-5 w-5" />
               <span className="sr-only">Open sidebar</span>
@@ -30,7 +36,7 @@ export const DashboardHeader = ({ children, setSidebarOpen, showTitle = true }: 
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setSidebarOpen?.(true)}
+                onClick={handleOpenSidebar}
               >
                 <Menu className="h-5 w-5" />
               </Button>
