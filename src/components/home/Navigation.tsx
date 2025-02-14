@@ -1,6 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
+import { GraduationCap } from "lucide-react";
 
 export const Navigation = () => {
   const location = useLocation();
@@ -11,12 +12,8 @@ export const Navigation = () => {
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
         <div className="flex gap-6 md:gap-10">
           <Link to="/" className="flex items-center space-x-2 nav-link-scale">
-            <img 
-              src="https://storage.googleapis.com/msgsndr/R1MobQG4jgSbc6WgB6Wz/media/678a3b3c95673cec4691a6c5.png" 
-              alt="American Prograde Academy Logo" 
-              className="h-6 w-6 object-contain"
-            />
-            <span className="inline-block font-bold">American Prograde Academy</span>
+            <GraduationCap className="h-6 w-6 text-primary" />
+            <span className="inline-block font-bold">Schoolvalid</span>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-4">
@@ -40,4 +37,3 @@ export const Navigation = () => {
     </header>
   );
 };
-

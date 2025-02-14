@@ -36,14 +36,15 @@ export const DashboardNav = ({ sidebarOpen, setSidebarOpen }: DashboardNavProps)
         )}
       >
         <div className="flex flex-col h-full">
-          <div className="flex h-16 items-center justify-between px-4 border-b">
-            <Link to="/" className="text-xl font-semibold">
-              Your App
+          <div className="flex h-16 items-center gap-2 px-4 border-b">
+            <Link to="/" className="flex items-center space-x-2">
+              <GraduationCap className="h-8 w-8 text-primary" />
+              <span className="inline-block font-bold text-xl">Schoolvalid</span>
             </Link>
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="lg:hidden ml-auto"
               onClick={() => setSidebarOpen(false)}
             >
               <span className="sr-only">Close sidebar</span>
