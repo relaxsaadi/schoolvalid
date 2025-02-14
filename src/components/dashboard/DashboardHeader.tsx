@@ -27,13 +27,6 @@ export const DashboardHeader = ({ children, setSidebarOpen, showTitle = true }: 
           )}
           {showTitle && (
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSidebarOpen?.(true)}
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
               <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
             </div>
           )}
