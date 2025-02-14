@@ -141,7 +141,7 @@ export const StatsCards = ({ records }: StatsCardsProps) => {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4"
+        className="grid gap-8 mb-8 sm:grid-cols-2 lg:grid-cols-4"
       >
         {stats.map((stat, index) => (
           <StatCard
