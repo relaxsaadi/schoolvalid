@@ -8,8 +8,12 @@ interface SearchBarProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const SearchBar = ({ className, ...props }: SearchBarProps) => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+  };
+
   return (
-    <div className={cn("relative w-64 max-w-sm", className)}>
+    <form onSubmit={handleSubmit} className={cn("relative w-64 max-w-sm", className)}>
       <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
       <Input
         type="search"
@@ -17,6 +21,6 @@ export const SearchBar = ({ className, ...props }: SearchBarProps) => {
         className="pl-9"
         {...props}
       />
-    </div>
+    </form>
   );
 };
