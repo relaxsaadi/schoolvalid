@@ -11,7 +11,6 @@ export const useCertificates = () => {
     const { data: certificates, error: certificatesError } = await supabase
       .from('certificates')
       .select('*')
-      .eq('organization_id', organizationId)
       .order('created_at', { ascending: false });
 
     if (certificatesError) {
@@ -27,7 +26,6 @@ export const useCertificates = () => {
       .from('certificates')
       .insert({
         ...newRecord,
-        organization_id: organizationId,
         status: 'active',
         blockchain_hash: newRecord.blockchain_hash || 'pending',
         blockchain_timestamp: newRecord.blockchain_timestamp || new Date().toISOString(),
