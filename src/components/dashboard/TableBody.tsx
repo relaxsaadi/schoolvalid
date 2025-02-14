@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Pencil, FileImage } from "lucide-react";
 import { useState } from "react";
 import { UpdateRecordDialog } from "../student-records/UpdateRecordDialog";
+import { CertificateDetailsDialog } from "../student-records/CertificateDetailsDialog";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
@@ -24,10 +25,17 @@ interface TableBodyProps {
 export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRecord }: TableBodyProps) => {
   const [selectedRecord, setSelectedRecord] = useState<StudentRecord | null>(null);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
 
-  const handleUpdateClick = (record: StudentRecord) => {
+  const handleUpdateClick = (e: React.MouseEvent, record: StudentRecord) => {
+    e.stopPropagation(); // Prevent opening details dialog
     setSelectedRecord(record);
     setUpdateDialogOpen(true);
+  };
+
+  const handleCardClick = (record: StudentRecord) => {
+    setSelectedRecord(record);
+    setDetailsDialogOpen(true);
   };
 
   if (filteredRecords.length === 0) {
@@ -59,6 +67,8 @@ export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRe
                 }
               }}
               exit={{ opacity: 0, scale: 0.95 }}
+              onClick={() => handleCardClick(record)}
+              className="cursor-pointer group"
             >
               <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
                 <CardContent className="p-0">
@@ -78,7 +88,7 @@ export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRe
                       <Button
                         variant="secondary"
                         size="icon"
-                        onClick={() => handleUpdateClick(record)}
+                        onClick={(e) => handleUpdateClick(e, record)}
                         className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/80 backdrop-blur-sm hover:bg-white"
                       >
                         <Pencil className="h-4 w-4" />
@@ -115,12 +125,21 @@ export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRe
       </div>
 
       {selectedRecord && (
-        <UpdateRecordDialog
-          record={selectedRecord}
-          open={updateDialogOpen}
-          onOpenChange={setUpdateDialogOpen}
-          onUpdateRecord={(formData) => onUpdateRecord(selectedRecord.id, formData)}
-        />
+        <>
+          <UpdateRecordDialog
+            record={selectedRecord}
+            open={updateDialogOpen}
+            onOpenChange={setUpdateDialogOpen}
+            onUpdateRecord={(formData) => onUpdateRecord(selectedRecord.id, formData)}
+          />
+          <CertificateDetailsDialog
+            record={selectedRecord}
+            open={detailsDialogOpen}
+            onOpenChange={setDetailsDialogOpen}
+            onUpdateRecord={(formData) => onUpdateRecord(selectedRecord.id, formData)}
+            getStatusColor={getStatusColor}
+          />
+        </>
       )}
     </>
   );
