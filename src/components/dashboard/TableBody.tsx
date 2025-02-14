@@ -6,8 +6,6 @@ import { EmptyState } from "./EmptyState";
 import { Button } from "@/components/ui/button";
 import { 
   Pencil, 
-  FileImage, 
-  Download, 
   Mail, 
   QrCode,
   CalendarClock,
@@ -100,21 +98,18 @@ export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRe
           title: "Downloading certificates",
           description: `Preparing ${selectedRecords.size} certificates for download...`,
         });
-        // Implement bulk download logic
         break;
       case 'email':
         toast({
           title: "Sending certificates",
           description: `Preparing to email ${selectedRecords.size} certificates...`,
         });
-        // Implement bulk email logic
         break;
       case 'verify':
         toast({
           title: "Verifying certificates",
           description: `Verifying ${selectedRecords.size} certificates...`,
         });
-        // Implement bulk verification logic
         break;
     }
   };
@@ -142,14 +137,6 @@ export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRe
             <Button
               variant="outline"
               size="sm"
-              onClick={() => handleBulkAction('download')}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Download
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
               onClick={() => handleBulkAction('email')}
             >
               <Mail className="h-4 w-4 mr-2" />
@@ -167,7 +154,7 @@ export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRe
         </motion.div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+      <div className="grid grid-cols-1 gap-4 p-4">
         <AnimatePresence>
           {filteredRecords.map((record, index) => {
             const expirationInfo = getExpirationStatus(record.valid_through);
@@ -205,77 +192,59 @@ export const TableBody = ({ records, filteredRecords, getStatusColor, onUpdateRe
                   )}
                   onClick={() => handleCardClick(record)}
                 >
-                  <CardContent className="p-0">
-                    <div className="aspect-video relative">
-                      {record.diploma_image_url ? (
-                        <img
-                          src={record.diploma_image_url}
-                          alt={`Certificate for ${record.recipient_name}`}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                          <FileImage className="h-12 w-12 text-gray-400" />
-                        </div>
-                      )}
-                      <div className="absolute top-2 right-2 flex gap-2">
-                        <Button
-                          variant="secondary"
-                          size="icon"
-                          onClick={(e) => handleUpdateClick(e, record)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/80 backdrop-blur-sm hover:bg-white"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="secondary"
-                              size="icon"
-                              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/80 backdrop-blur-sm hover:bg-white"
-                            >
-                              <QrCode className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem>
-                              View QR Code
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              Download Certificate
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              Email Certificate
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                    <div className="p-4">
-                      <div className="flex items-start justify-between mb-2">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
                         <h3 className="font-semibold text-lg">{record.recipient_name}</h3>
-                        <ExpirationIcon className={cn("h-5 w-5", expirationInfo.color)} />
-                      </div>
-                      <div className="space-y-2">
                         <p className="text-sm text-muted-foreground">
                           Certificate: {record.certificate_number}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           Course: {record.course_name}
                         </p>
-                        <div className="flex items-center justify-between">
-                          <span className={cn(
-                            "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
-                            getStatusColor(record.status)
-                          )}>
-                            {record.status}
-                          </span>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <CalendarClock className="h-3 w-3" />
-                            <span>Expires: {format(new Date(record.valid_through), 'MMM d, yyyy')}</span>
-                          </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <ExpirationIcon className={cn("h-5 w-5", expirationInfo.color)} />
+                        <span className={cn(
+                          "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
+                          getStatusColor(record.status)
+                        )}>
+                          {record.status}
+                        </span>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <CalendarClock className="h-3 w-3" />
+                          <span>Expires: {format(new Date(record.valid_through), 'MMM d, yyyy')}</span>
                         </div>
                       </div>
+                    </div>
+                    <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        onClick={(e) => handleUpdateClick(e, record)}
+                        className="bg-white/80 backdrop-blur-sm hover:bg-white"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="secondary"
+                            size="icon"
+                            className="bg-white/80 backdrop-blur-sm hover:bg-white"
+                          >
+                            <QrCode className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem>
+                            View QR Code
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            Email Certificate
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </CardContent>
                 </Card>
