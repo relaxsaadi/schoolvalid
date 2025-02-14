@@ -15,6 +15,8 @@ export interface StudentRecord {
   blockchain_timestamp: string;
   issue_date: string;
   email: string;
+  diploma_image_url?: string | null;
 }
 
 export type NewStudentRecord = Omit<StudentRecord, 'id' | 'created_at'>;
+

@@ -115,6 +115,16 @@ export function AddRecordForm({ onSubmit, onClose }: AddRecordFormProps) {
       </div>
 
       <div className="grid gap-2">
+        <Label htmlFor="diploma_image_url">Diploma Image URL</Label>
+        <Input
+          id="diploma_image_url"
+          name="diploma_image_url"
+          type="url"
+          placeholder="Enter diploma image URL"
+        />
+      </div>
+
+      <div className="grid gap-2">
         <Label htmlFor="course_description">Course Description</Label>
         <Textarea
           id="course_description"
@@ -145,3 +155,4 @@ export function AddRecordForm({ onSubmit, onClose }: AddRecordFormProps) {
     </form>
   );
 }
+

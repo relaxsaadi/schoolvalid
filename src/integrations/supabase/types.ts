@@ -17,6 +17,7 @@ export type Database = {
           course_description: string | null
           course_name: string
           created_at: string
+          diploma_image_url: string | null
           email: string
           id: string
           issue_date: string
@@ -35,6 +36,7 @@ export type Database = {
           course_description?: string | null
           course_name: string
           created_at?: string
+          diploma_image_url?: string | null
           email: string
           id?: string
           issue_date?: string
@@ -53,6 +55,7 @@ export type Database = {
           course_description?: string | null
           course_name?: string
           created_at?: string
+          diploma_image_url?: string | null
           email?: string
           id?: string
           issue_date?: string
