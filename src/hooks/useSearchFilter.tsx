@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { StudentRecord } from "@/types/records";
 
 export const useSearchFilter = (records: StudentRecord[]) => {
@@ -10,30 +10,30 @@ export const useSearchFilter = (records: StudentRecord[]) => {
     
     const searchTerm = searchQuery.toLowerCase().trim();
     
-    // Only search through fields that exist
-    const searchableFields = [
+    // Fields to search through
+    const searchFields = [
       record.recipient_name,
       record.certificate_number,
       record.course_name,
       record.email,
-      record.provider
-    ].filter(Boolean); // Remove null/undefined values
+      record.provider,
+      record.status,
+    ].filter(Boolean);
     
-    // Convert each field to lowercase for case-insensitive search
-    const normalizedFields = searchableFields.map(field => 
-      field?.toLowerCase() || ''
+    return searchFields.some(field => 
+      field?.toLowerCase().includes(searchTerm)
     );
-    
-    // Check if any field contains the search term
-    return normalizedFields.some(field => field.includes(searchTerm));
   });
 
-  console.log('Search Query:', searchQuery); // Debug log
-  console.log('Filtered Records:', filteredRecords.length); // Debug log
+  const handleSearch = useCallback((value: string) => {
+    console.log('Search triggered with:', value);
+    setSearchQuery(value);
+  }, []);
 
   return {
     searchQuery,
     setSearchQuery,
     filteredRecords,
+    handleSearch
   };
 };

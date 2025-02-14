@@ -22,12 +22,12 @@ export const SearchBar = ({ className, value, onChange, ...props }: SearchBarPro
   };
 
   return (
-    <form onSubmit={handleSubmit} className={cn("relative w-64 max-w-sm", className)}>
-      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+    <form onSubmit={handleSubmit} className={cn("relative", className)}>
+      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 pointer-events-none" />
       <Input
         type="search"
-        placeholder="Search records..."
-        className="pl-9"
+        placeholder="Search certificates, recipients..."
+        className="pl-9 w-full"
         value={value}
         onChange={onChange}
         onKeyDown={handleKeyDown}

@@ -18,7 +18,7 @@ import { useEffect } from "react";
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { records, isLoading, error, handleAddRecord, handleUpdateRecord } = useDashboardRecords();
-  const { searchQuery, setSearchQuery, filteredRecords } = useSearchFilter(records);
+  const { searchQuery, handleSearch, filteredRecords } = useSearchFilter(records);
   const { toast } = useToast();
   
   useAuth();
@@ -56,12 +56,6 @@ const Dashboard = () => {
     checkOrganization();
   }, [toast]);
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    console.log('Search value:', value); // Debug log
-    setSearchQuery(value);
-  };
-
   return (
     <div className="flex h-screen bg-gray-50">
       <DashboardNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
@@ -70,7 +64,8 @@ const Dashboard = () => {
         <DashboardHeader>
           <SearchBar 
             value={searchQuery}
-            onChange={handleSearch}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full md:w-[300px] lg:w-[400px]"
           />
           <UserNav />
         </DashboardHeader>
