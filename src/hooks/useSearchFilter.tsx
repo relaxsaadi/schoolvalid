@@ -6,11 +6,19 @@ export const useSearchFilter = (records: StudentRecord[]) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredRecords = records.filter((record) => {
-    const searchTerm = searchQuery.toLowerCase();
-    return (
-      record.recipient_name.toLowerCase().includes(searchTerm) ||
-      record.certificate_number.toLowerCase().includes(searchTerm) ||
-      record.course_name.toLowerCase().includes(searchTerm)
+    if (!searchQuery.trim()) return true; // Show all records when search is empty
+    
+    const searchTerm = searchQuery.toLowerCase().trim();
+    const searchFields = [
+      record.recipient_name,
+      record.certificate_number,
+      record.course_name,
+      record.email,
+      record.provider
+    ];
+
+    return searchFields.some(field => 
+      field?.toLowerCase().includes(searchTerm)
     );
   });
 
@@ -20,3 +28,4 @@ export const useSearchFilter = (records: StudentRecord[]) => {
     filteredRecords,
   };
 };
+
