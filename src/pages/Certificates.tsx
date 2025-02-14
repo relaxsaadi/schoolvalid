@@ -49,7 +49,7 @@ const Certificates = () => {
       <DashboardNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 flex flex-col lg:pl-64">
-        <DashboardHeader>
+        <DashboardHeader setSidebarOpen={setSidebarOpen} showTitle={false}>
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
