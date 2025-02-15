@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardRecords } from "@/hooks/useDashboardRecords";
@@ -17,55 +16,54 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Search, Download, Shield, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
 const Certificates = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [verificationNumber, setVerificationNumber] = useState("");
-  const { records, isLoading, error, handleAddRecord, handleUpdateRecord } = useDashboardRecords();
-  const { searchQuery, handleSearch, filteredRecords } = useSearchFilter(records);
-  const { toast } = useToast();
-  
+  const {
+    records,
+    isLoading,
+    error,
+    handleAddRecord,
+    handleUpdateRecord
+  } = useDashboardRecords();
+  const {
+    searchQuery,
+    handleSearch,
+    filteredRecords
+  } = useSearchFilter(records);
+  const {
+    toast
+  } = useToast();
   useAuth();
-
   const handleQuickVerify = () => {
     if (!verificationNumber.trim()) {
       toast({
         title: "Verification Error",
         description: "Please enter a certificate number",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-    
     const certificate = records.find(r => r.certificate_number === verificationNumber);
     if (certificate) {
       toast({
         title: "Certificate Found",
         description: `Valid certificate for ${certificate.recipient_name}`,
-        variant: "default",
+        variant: "default"
       });
     } else {
       toast({
         title: "Certificate Not Found",
         description: "No matching certificate found in the system",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleBulkExport = () => {
-    const csvContent = [
-      ["Certificate Number", "Recipient Name", "Course Name", "Issue Date", "Status"].join(","),
-      ...records.map(record => [
-        record.certificate_number,
-        record.recipient_name,
-        record.course_name,
-        new Date(record.issue_date).toLocaleDateString(),
-        record.status
-      ].join(","))
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const csvContent = [["Certificate Number", "Recipient Name", "Course Name", "Issue Date", "Status"].join(","), ...records.map(record => [record.certificate_number, record.recipient_name, record.course_name, new Date(record.issue_date).toLocaleDateString(), record.status].join(","))].join("\n");
+    const blob = new Blob([csvContent], {
+      type: 'text/csv'
+    });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -74,15 +72,15 @@ const Certificates = () => {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
-
     toast({
       title: "Export Successful",
-      description: `Exported ${records.length} certificates to CSV`,
+      description: `Exported ${records.length} certificates to CSV`
     });
   };
-
   const containerVariants = {
-    hidden: { opacity: 0 },
+    hidden: {
+      opacity: 0
+    },
     visible: {
       opacity: 1,
       transition: {
@@ -90,9 +88,11 @@ const Certificates = () => {
       }
     }
   };
-
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: {
+      y: 20,
+      opacity: 0
+    },
     visible: {
       y: 0,
       opacity: 1,
@@ -103,50 +103,41 @@ const Certificates = () => {
       }
     }
   };
-
-  return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+  return <div className="flex h-screen overflow-hidden bg-gray-50">
       <DashboardNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 flex flex-col lg:pl-64">
         <DashboardHeader setSidebarOpen={setSidebarOpen} showTitle={false}>
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-            className="w-full max-w-md"
-          >
-            <SearchBar 
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full transition-all duration-300 focus-within:shadow-lg"
-            />
+          <motion.div initial={{
+          opacity: 0,
+          x: -20
+        }} animate={{
+          opacity: 1,
+          x: 0
+        }} transition={{
+          duration: 0.3
+        }} className="w-full max-w-md">
+            <SearchBar value={searchQuery} onChange={e => handleSearch(e.target.value)} className="w-full transition-all duration-300 focus-within:shadow-lg" />
           </motion.div>
           <UserNav />
         </DashboardHeader>
 
-        <motion.main
-          className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <motion.div 
-            className="mb-8"
-            variants={itemVariants}
-          >
-            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Certificates</h1>
+        <motion.main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8" variants={containerVariants} initial="hidden" animate="visible">
+          <motion.div className="mb-8" variants={itemVariants}>
+            <h1 className="text-3xl text-gray-900 mb-2 font-bold">Certificates</h1>
             <p className="text-base text-gray-500">
               Manage and view all certificates in your organization
             </p>
           </motion.div>
 
           <div className="grid gap-6 mb-8 grid-cols-1 md:grid-cols-2">
-            <motion.div
-              variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
+            <motion.div variants={itemVariants} whileHover={{
+            scale: 1.02
+          }} transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 20
+          }}>
               <Card className="overflow-hidden hover:shadow-lg transition-all duration-300">
                 <CardHeader className="bg-primary/5 border-b">
                   <CardTitle className="flex items-center gap-2">
@@ -156,12 +147,7 @@ const Certificates = () => {
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="flex gap-2">
-                    <Input
-                      placeholder="Enter certificate number..."
-                      value={verificationNumber}
-                      onChange={(e) => setVerificationNumber(e.target.value)}
-                      className="font-mono"
-                    />
+                    <Input placeholder="Enter certificate number..." value={verificationNumber} onChange={e => setVerificationNumber(e.target.value)} className="font-mono" />
                     <Button onClick={handleQuickVerify} className="shrink-0">
                       <Search className="h-4 w-4 mr-2" />
                       Verify
@@ -171,11 +157,13 @@ const Certificates = () => {
               </Card>
             </motion.div>
 
-            <motion.div
-              variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
+            <motion.div variants={itemVariants} whileHover={{
+            scale: 1.02
+          }} transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 20
+          }}>
               <Card className="overflow-hidden hover:shadow-lg transition-all duration-300">
                 <CardHeader className="bg-primary/5 border-b">
                   <CardTitle className="flex items-center gap-2">
@@ -198,41 +186,19 @@ const Certificates = () => {
             </motion.div>
           </div>
 
-          <motion.div 
-            variants={itemVariants}
-            className="mb-6"
-          >
-            <ActionButtons 
-              onAddRecord={handleAddRecord} 
-              records={records}
-            />
+          <motion.div variants={itemVariants} className="mb-6">
+            <ActionButtons onAddRecord={handleAddRecord} records={records} />
           </motion.div>
 
-          <motion.div 
-            variants={itemVariants}
-            className="mb-6"
-          >
+          <motion.div variants={itemVariants} className="mb-6">
             <CertificateDistributionChart records={records} />
           </motion.div>
 
-          <motion.div 
-            variants={itemVariants}
-            className="mt-6"
-          >
-            <RecordsTable
-              key={searchQuery}
-              records={records}
-              filteredRecords={filteredRecords}
-              isLoading={isLoading}
-              error={error}
-              getStatusColor={getStatusColor}
-              onUpdateRecord={handleUpdateRecord}
-            />
+          <motion.div variants={itemVariants} className="mt-6">
+            <RecordsTable key={searchQuery} records={records} filteredRecords={filteredRecords} isLoading={isLoading} error={error} getStatusColor={getStatusColor} onUpdateRecord={handleUpdateRecord} />
           </motion.div>
         </motion.main>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Certificates;
