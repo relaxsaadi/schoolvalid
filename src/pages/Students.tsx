@@ -11,11 +11,13 @@ import { TableBody } from "@/components/dashboard/TableBody";
 import { Button } from "@/components/ui/button";
 import { Plus, FileUp } from "lucide-react";
 import { StudentRecord } from "@/types/records";
+import { useDashboardRecords } from "@/hooks/useDashboardRecords";
+import { TableHeader } from "@/components/dashboard/TableHeader";
 
 const Students = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [records] = useState<StudentRecord[]>([]); // This will be replaced with actual data fetching
+  const { records, isLoading, error, handleAddRecord, handleUpdateRecord } = useDashboardRecords();
   
   useAuth();
 
@@ -62,16 +64,6 @@ const Students = () => {
                 className="w-full md:w-[400px] transition-all duration-300 focus-within:shadow-lg"
               />
             </motion.div>
-            <div className="flex gap-2">
-              <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Student
-              </Button>
-              <Button size="sm" variant="outline">
-                <FileUp className="h-4 w-4 mr-2" />
-                Import CSV
-              </Button>
-            </div>
           </div>
           <UserNav />
         </DashboardHeader>
@@ -86,10 +78,24 @@ const Students = () => {
             className="mb-8"
             variants={itemVariants}
           >
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Students</h1>
-            <p className="text-base text-gray-500">
-              Manage your students and track their progress
-            </p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Students</h1>
+                <p className="text-base text-gray-500">
+                  Manage your students and track their progress
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button className="bg-blue-600 hover:bg-blue-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Student
+                </Button>
+                <Button variant="outline">
+                  <FileUp className="h-4 w-4 mr-2" />
+                  Import CSV
+                </Button>
+              </div>
+            </div>
           </motion.div>
 
           <motion.div 
@@ -118,7 +124,7 @@ const Students = () => {
                     return 'text-gray-700 bg-gray-50 ring-gray-600/20';
                 }
               }}
-              onUpdateRecord={async () => {}} // This will be implemented later
+              onUpdateRecord={handleUpdateRecord}
             />
           </motion.div>
         </motion.main>
