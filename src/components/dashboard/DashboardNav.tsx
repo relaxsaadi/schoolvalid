@@ -38,7 +38,7 @@ export const DashboardNav = ({ sidebarOpen, setSidebarOpen }: DashboardNavProps)
         <div className="flex flex-col h-full">
           <div className="flex h-16 items-center gap-2 px-4 border-b">
             <Link to="/" className="flex items-center space-x-2">
-              <GraduationCap className="h-8 w-8 text-primary" />
+              <GraduationCap className="h-8 w-8 text-primary animate-bounce" />
               <span className="inline-block font-bold text-xl">Schoolvalid</span>
             </Link>
             <Button
