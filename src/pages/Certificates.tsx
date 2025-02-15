@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardRecords } from "@/hooks/useDashboardRecords";
@@ -11,17 +12,15 @@ import { SearchBar } from "@/components/dashboard/SearchBar";
 import { ActionButtons } from "@/components/dashboard/ActionButtons";
 import { motion } from "framer-motion";
 import { CertificateDistributionChart } from "@/components/certificates/CertificateDistributionChart";
-import { CertificateGallery } from "@/components/certificates/CertificateGallery";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, Download, Shield, AlertCircle, LayoutGrid, Table } from "lucide-react";
+import { Search, Download, Shield, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Certificates = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [verificationNumber, setVerificationNumber] = useState("");
-  const [viewMode, setViewMode] = useState<"table" | "gallery">("gallery");
   const { records, isLoading, error, handleAddRecord, handleUpdateRecord } = useDashboardRecords();
   const { searchQuery, handleSearch, filteredRecords } = useSearchFilter(records);
   const { toast } = useToast();
@@ -133,33 +132,13 @@ const Certificates = () => {
           animate="visible"
         >
           <motion.div 
-            className="mb-8 flex justify-between items-center"
+            className="mb-8"
             variants={itemVariants}
           >
-            <div>
-              <h1 className="text-3xl font-semibold text-gray-900 mb-2">Certificates</h1>
-              <p className="text-base text-gray-500">
-                Manage and view all certificates in your organization
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={viewMode === "gallery" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("gallery")}
-              >
-                <LayoutGrid className="h-4 w-4 mr-2" />
-                Gallery
-              </Button>
-              <Button
-                variant={viewMode === "table" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("table")}
-              >
-                <Table className="h-4 w-4 mr-2" />
-                Table
-              </Button>
-            </div>
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Certificates</h1>
+            <p className="text-base text-gray-500">
+              Manage and view all certificates in your organization
+            </p>
           </motion.div>
 
           <div className="grid gap-6 mb-8 grid-cols-1 md:grid-cols-2">
@@ -240,22 +219,15 @@ const Certificates = () => {
             variants={itemVariants}
             className="mt-6"
           >
-            {viewMode === "gallery" ? (
-              <CertificateGallery
-                records={filteredRecords}
-                onUpdateRecord={handleUpdateRecord}
-              />
-            ) : (
-              <RecordsTable
-                key={searchQuery}
-                records={records}
-                filteredRecords={filteredRecords}
-                isLoading={isLoading}
-                error={error}
-                getStatusColor={getStatusColor}
-                onUpdateRecord={handleUpdateRecord}
-              />
-            )}
+            <RecordsTable
+              key={searchQuery}
+              records={records}
+              filteredRecords={filteredRecords}
+              isLoading={isLoading}
+              error={error}
+              getStatusColor={getStatusColor}
+              onUpdateRecord={handleUpdateRecord}
+            />
           </motion.div>
         </motion.main>
       </div>
