@@ -17,7 +17,29 @@ export interface StudentRecord {
   email: string;
   diploma_image_url?: string | null;
   organization_id?: string;
+  phone?: string;
+  registration_date?: string;
+  organization?: string;
+  completion_rate?: number;
+  last_login?: string;
+  last_activity?: string;
+  enrolled_courses?: {
+    name: string;
+    progress: number;
+    status: 'active' | 'completed' | 'inactive';
+  }[];
+  certificates?: {
+    id: string;
+    name: string;
+    issueDate: string;
+    status: 'issued' | 'pending';
+  }[];
+  notes?: {
+    id: string;
+    content: string;
+    createdAt: string;
+    createdBy: string;
+  }[];
 }
 
 export type NewStudentRecord = Omit<StudentRecord, 'id' | 'created_at'>;
-
