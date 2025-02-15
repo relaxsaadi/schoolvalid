@@ -12,13 +12,74 @@ import { SearchBar } from "@/components/dashboard/SearchBar";
 import { ActionButtons } from "@/components/dashboard/ActionButtons";
 import { motion } from "framer-motion";
 import { CertificateDistributionChart } from "@/components/certificates/CertificateDistributionChart";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Search, Download, Shield, AlertCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Certificates = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [verificationNumber, setVerificationNumber] = useState("");
   const { records, isLoading, error, handleAddRecord, handleUpdateRecord } = useDashboardRecords();
   const { searchQuery, handleSearch, filteredRecords } = useSearchFilter(records);
+  const { toast } = useToast();
   
   useAuth();
+
+  const handleQuickVerify = () => {
+    if (!verificationNumber.trim()) {
+      toast({
+        title: "Verification Error",
+        description: "Please enter a certificate number",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const certificate = records.find(r => r.certificate_number === verificationNumber);
+    if (certificate) {
+      toast({
+        title: "Certificate Found",
+        description: `Valid certificate for ${certificate.recipient_name}`,
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Certificate Not Found",
+        description: "No matching certificate found in the system",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBulkExport = () => {
+    const csvContent = [
+      ["Certificate Number", "Recipient Name", "Course Name", "Issue Date", "Status"].join(","),
+      ...records.map(record => [
+        record.certificate_number,
+        record.recipient_name,
+        record.course_name,
+        new Date(record.issue_date).toLocaleDateString(),
+        record.status
+      ].join(","))
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `certificates-export-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: "Export Successful",
+      description: `Exported ${records.length} certificates to CSV`,
+    });
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -79,6 +140,63 @@ const Certificates = () => {
               Manage and view all certificates in your organization
             </p>
           </motion.div>
+
+          <div className="grid gap-6 mb-8 grid-cols-1 md:grid-cols-2">
+            <motion.div
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <Card className="overflow-hidden hover:shadow-lg transition-all duration-300">
+                <CardHeader className="bg-primary/5 border-b">
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-primary" />
+                    Quick Certificate Verification
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter certificate number..."
+                      value={verificationNumber}
+                      onChange={(e) => setVerificationNumber(e.target.value)}
+                      className="font-mono"
+                    />
+                    <Button onClick={handleQuickVerify} className="shrink-0">
+                      <Search className="h-4 w-4 mr-2" />
+                      Verify
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              variants={itemVariants}
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <Card className="overflow-hidden hover:shadow-lg transition-all duration-300">
+                <CardHeader className="bg-primary/5 border-b">
+                  <CardTitle className="flex items-center gap-2">
+                    <Download className="h-5 w-5 text-primary" />
+                    Bulk Export
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm text-muted-foreground">
+                      Export all certificates as CSV
+                    </p>
+                    <Button onClick={handleBulkExport} disabled={records.length === 0}>
+                      <Download className="h-4 w-4 mr-2" />
+                      Export ({records.length})
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
 
           <motion.div 
             variants={itemVariants}
