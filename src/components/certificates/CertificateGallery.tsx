@@ -58,7 +58,7 @@ export const CertificateGallery = ({ records }: CertificateGalleryProps) => {
                 </div>
               )}
               <div className="absolute top-2 right-2">
-                {record.status === 'valid' ? (
+                {record.status === 'active' ? (
                   <CheckCircle className="h-6 w-6 text-green-500" />
                 ) : (
                   <XCircle className="h-6 w-6 text-red-500" />
