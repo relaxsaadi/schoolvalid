@@ -53,23 +53,23 @@ export const StatsCards = ({ records }: StatsCardsProps) => {
 
   const stats = [
     {
-      title: "Total Certificates",
+      title: "Total Students",
       value: records.length,
-      description: "All issued certificates",
-      icon: Award,
+      description: "All registered students",
+      icon: Users,
       trend: `${records.length - expiredCertificates.length} active`,
       trendUp: true,
     },
     {
-      title: "Active vs Expired",
+      title: "Active vs Inactive",
       value: expiredPercentage,
-      description: `${expiredCertificates.length} expired certificates`,
+      description: `${expiredCertificates.length} inactive students`,
       icon: Clock,
       trend: `${100 - expiredPercentage}% active`,
       trendUp: expiredPercentage < 50,
     },
     {
-      title: "Recent Activity",
+      title: "Recent Registrations",
       value: recentCertificates.length,
       description: "Last 30 days",
       icon: TrendingUp,
@@ -77,45 +77,13 @@ export const StatsCards = ({ records }: StatsCardsProps) => {
       trendUp: growthRate > 0,
     },
     {
-      title: "Verification Rate",
-      value: verificationRate,
-      description: `${verifiedCertificates.length} verified`,
-      icon: ShieldCheck,
-      trend: "On blockchain",
+      title: "Average Completion",
+      value: Math.round(records.reduce((acc, r) => acc + (r.completion_rate || 0), 0) / records.length) || 0,
+      description: "Course completion rate",
+      icon: CheckCircle,
+      trend: "Overall progress",
       trendUp: true,
-    },
-    {
-      title: "Unique Students",
-      value: new Set(records.map(r => r.recipient_name)).size,
-      description: "Individual learners",
-      icon: Users,
-      trend: "Distinct recipients",
-      trendUp: true,
-    },
-    {
-      title: "Course Coverage",
-      value: Object.keys(courseCounts).length,
-      description: "Different courses",
-      icon: GraduationCap,
-      trend: "Unique courses",
-      trendUp: true,
-    },
-    {
-      title: "Pending Verifications",
-      value: records.filter(r => r.blockchain_hash === 'pending').length,
-      description: "Awaiting verification",
-      icon: Bell,
-      trend: "To be verified",
-      trendUp: false,
-    },
-    {
-      title: "Success Rate",
-      value: Math.round((records.filter(r => r.status === 'active').length / records.length) * 100) || 0,
-      description: "Completion rate",
-      icon: BadgeCheck,
-      trend: "Success rate",
-      trendUp: true,
-    },
+    }
   ];
 
   const container = {

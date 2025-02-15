@@ -14,6 +14,7 @@ export type Database = {
           blockchain_hash: string
           blockchain_timestamp: string
           certificate_number: string
+          completion_rate: number | null
           course_description: string | null
           course_name: string
           created_at: string
@@ -21,11 +22,16 @@ export type Database = {
           email: string | null
           id: string
           issue_date: string
+          last_activity: string | null
+          last_login: string | null
           normalized_recipient_name: string | null
+          organization: string | null
           organization_id: string | null
+          phone: string | null
           provider: string
           provider_description: string | null
           recipient_name: string
+          registration_date: string | null
           status: Database["public"]["Enums"]["certificate_status"]
           valid_through: string
           year_of_birth: number
@@ -34,6 +40,7 @@ export type Database = {
           blockchain_hash: string
           blockchain_timestamp?: string
           certificate_number: string
+          completion_rate?: number | null
           course_description?: string | null
           course_name: string
           created_at?: string
@@ -41,11 +48,16 @@ export type Database = {
           email?: string | null
           id?: string
           issue_date?: string
+          last_activity?: string | null
+          last_login?: string | null
           normalized_recipient_name?: string | null
+          organization?: string | null
           organization_id?: string | null
+          phone?: string | null
           provider?: string
           provider_description?: string | null
           recipient_name: string
+          registration_date?: string | null
           status?: Database["public"]["Enums"]["certificate_status"]
           valid_through: string
           year_of_birth: number
@@ -54,6 +66,7 @@ export type Database = {
           blockchain_hash?: string
           blockchain_timestamp?: string
           certificate_number?: string
+          completion_rate?: number | null
           course_description?: string | null
           course_name?: string
           created_at?: string
@@ -61,11 +74,16 @@ export type Database = {
           email?: string | null
           id?: string
           issue_date?: string
+          last_activity?: string | null
+          last_login?: string | null
           normalized_recipient_name?: string | null
+          organization?: string | null
           organization_id?: string | null
+          phone?: string | null
           provider?: string
           provider_description?: string | null
           recipient_name?: string
+          registration_date?: string | null
           status?: Database["public"]["Enums"]["certificate_status"]
           valid_through?: string
           year_of_birth?: number
@@ -106,6 +124,44 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      enrolled_courses: {
+        Row: {
+          course_name: string
+          created_at: string | null
+          id: string
+          progress: number | null
+          status: string | null
+          student_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          course_name: string
+          created_at?: string | null
+          id?: string
+          progress?: number | null
+          status?: string | null
+          student_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          course_name?: string
+          created_at?: string | null
+          id?: string
+          progress?: number | null
+          status?: string | null
+          student_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrolled_courses_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "certificates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       orders: {
         Row: {
@@ -304,6 +360,41 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_notes: {
+        Row: {
+          content: string
+          created_at: string | null
+          created_by: string | null
+          id: string
+          student_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          student_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          student_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_notes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "certificates"
             referencedColumns: ["id"]
           },
         ]
