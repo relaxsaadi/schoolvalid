@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useDashboardRecords } from "@/hooks/useDashboardRecords";
@@ -63,26 +62,13 @@ const Dashboard = () => {
       <DashboardNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 lg:pl-64">
-        <DashboardHeader>
-          <div className="flex-1 flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl font-bold">Certificates</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <SearchBar 
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full md:w-[300px] lg:w-[400px]"
-            />
-            <UserNav />
-          </div>
+        <DashboardHeader setSidebarOpen={setSidebarOpen} pageTitle="Dashboard">
+          <SearchBar 
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            className="w-full md:w-[300px] lg:w-[400px]"
+          />
+          <UserNav />
         </DashboardHeader>
 
         <main className="p-4 sm:p-6 lg:p-8">

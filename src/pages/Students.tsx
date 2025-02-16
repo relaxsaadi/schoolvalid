@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
@@ -49,22 +48,12 @@ const Students = () => {
       <DashboardNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 flex flex-col lg:pl-64">
-        <DashboardHeader setSidebarOpen={setSidebarOpen}>
-          <div className="flex items-center gap-4">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
-              className="flex-1"
-            >
-              <SearchBar 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search students by name, email, or ID..."
-                className="w-full md:w-[400px] transition-all duration-300 focus-within:shadow-lg"
-              />
-            </motion.div>
-          </div>
+        <DashboardHeader setSidebarOpen={setSidebarOpen} pageTitle="Students">
+          <SearchBar 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full md:w-[300px] lg:w-[400px]"
+          />
           <UserNav />
         </DashboardHeader>
 
