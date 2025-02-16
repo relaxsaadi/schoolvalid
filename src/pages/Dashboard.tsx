@@ -14,6 +14,8 @@ import { ActionButtons } from "@/components/dashboard/ActionButtons";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -62,12 +64,25 @@ const Dashboard = () => {
 
       <div className="flex-1 lg:pl-64">
         <DashboardHeader>
-          <SearchBar 
-            value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="w-full md:w-[300px] lg:w-[400px]"
-          />
-          <UserNav />
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+            <h1 className="text-xl font-bold hidden md:block">Certificates</h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <SearchBar 
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full md:w-[300px] lg:w-[400px]"
+            />
+            <UserNav />
+          </div>
         </DashboardHeader>
 
         <main className="p-4 sm:p-6 lg:p-8">
