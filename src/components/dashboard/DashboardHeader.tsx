@@ -18,23 +18,8 @@ export const DashboardHeader = ({ children, setSidebarOpen, showTitle = true }: 
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b">
-      <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-4">
-          {setSidebarOpen && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-              onClick={handleOpenSidebar}
-            >
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Open sidebar</span>
-            </Button>
-          )}
-        </div>
-        <div className="flex items-center gap-4">
-          {children}
-        </div>
+      <div className="flex h-16 items-center px-4 sm:px-6 lg:px-8">
+        {children}
       </div>
     </header>
   );
