@@ -7,10 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Building } from "lucide-react";
+import { Building, Upload, KeyRound, Bell, Moon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Settings = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -20,47 +23,142 @@ const Settings = () => {
     description: "",
     logo_url: "",
   });
+  const [profileUrl, setProfileUrl] = useState("");
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
     loadOrganizationData();
+    loadUserSettings();
   }, []);
 
-  const loadOrganizationData = async () => {
+  const loadUserSettings = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
+      if (!user) return;
 
-      // First get the user's profile with organization_id
-      const { data: profile, error: profileError } = await supabase
+      const { data: profile } = await supabase
         .from('profiles')
-        .select('organization_id')
+        .select('avatar_url, email_notifications, dark_mode')
         .eq('id', user.id)
         .single();
 
-      if (profileError) throw profileError;
-      if (!profile?.organization_id) throw new Error("No organization found");
+      if (profile) {
+        setProfileUrl(profile.avatar_url || '');
+        setEmailNotifications(profile.email_notifications ?? true);
+        setDarkMode(profile.dark_mode ?? false);
+      }
+    } catch (error) {
+      console.error('Error loading user settings:', error);
+    }
+  };
 
-      // Then get the organization details using the organization_id
-      const { data: organization, error: orgError } = await supabase
-        .from('organizations')
-        .select('*')
-        .eq('id', profile.organization_id)
-        .single();
+  const handleProfilePictureUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = event.target.files?.[0];
+      if (!file) return;
 
-      if (orgError) throw orgError;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
 
-      setOrganizationData({
-        name: organization.name || "",
-        description: organization.description || "",
-        logo_url: organization.logo_url || "",
+      // Upload image to storage
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/avatar.${fileExt}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfileUrl(publicUrl);
+      toast({
+        title: "Success",
+        description: "Profile picture updated successfully",
       });
     } catch (error) {
-      console.error('Error loading organization:', error);
+      console.error('Error uploading profile picture:', error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to load organization data",
+        description: "Failed to upload profile picture",
+      });
+    }
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const newPassword = (form.elements.namedItem('new-password') as HTMLInputElement).value;
+    const confirmPassword = (form.elements.namedItem('confirm-password') as HTMLInputElement).value;
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Passwords do not match",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Password updated successfully",
+      });
+      form.reset();
+    } catch (error) {
+      console.error('Error changing password:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update password",
+      });
+    }
+  };
+
+  const updateUserPreferences = async (emailNotifs: boolean, isDarkMode: boolean) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          email_notifications: emailNotifs,
+          dark_mode: isDarkMode,
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Preferences updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating preferences:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update preferences",
       });
     }
   };
@@ -116,12 +214,45 @@ const Settings = () => {
       <DashboardNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 lg:pl-64">
-        <DashboardHeader setSidebarOpen={setSidebarOpen} pageTitle="Organization Settings">
+        <DashboardHeader setSidebarOpen={setSidebarOpen} pageTitle="Settings">
           <UserNav />
         </DashboardHeader>
 
-        <main className="p-4 sm:p-6 lg:p-8">
+        <main className="p-4 sm:p-6 lg:p-8 space-y-6">
+          {/* Profile Picture Section */}
           <Card className="p-6">
+            <h2 className="text-lg font-semibold mb-4">Profile Picture</h2>
+            <div className="flex items-center gap-4">
+              <Avatar className="h-20 w-20">
+                <AvatarImage src={profileUrl} />
+                <AvatarFallback>
+                  {organizationData.name?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <Label htmlFor="picture" className="cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <Upload className="h-4 w-4" />
+                    <span>Upload new picture</span>
+                  </div>
+                </Label>
+                <Input
+                  id="picture"
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleProfilePictureUpload}
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Recommended: Square image, 1MB max
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Organization Settings */}
+          <Card className="p-6">
+            <h2 className="text-lg font-semibold mb-4">Organization Settings</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
                 <div className="space-y-2">
@@ -161,6 +292,77 @@ const Settings = () => {
                 {isLoading ? "Saving..." : "Save Changes"}
               </Button>
             </form>
+          </Card>
+
+          {/* Password Change Section */}
+          <Card className="p-6">
+            <h2 className="text-lg font-semibold mb-4">Change Password</h2>
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <div>
+                <Label htmlFor="new-password">New Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  name="new-password"
+                  required
+                  minLength={8}
+                />
+              </div>
+              <div>
+                <Label htmlFor="confirm-password">Confirm Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  name="confirm-password"
+                  required
+                  minLength={8}
+                />
+              </div>
+              <Button type="submit">
+                <KeyRound className="h-4 w-4 mr-2" />
+                Update Password
+              </Button>
+            </form>
+          </Card>
+
+          {/* Preferences Section */}
+          <Card className="p-6">
+            <h2 className="text-lg font-semibold mb-4">Preferences</h2>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="email-notifications">Email Notifications</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Receive email updates about your account
+                  </p>
+                </div>
+                <Switch
+                  id="email-notifications"
+                  checked={emailNotifications}
+                  onCheckedChange={(checked) => {
+                    setEmailNotifications(checked);
+                    updateUserPreferences(checked, darkMode);
+                  }}
+                />
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label htmlFor="dark-mode">Dark Mode</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Toggle dark mode theme
+                  </p>
+                </div>
+                <Switch
+                  id="dark-mode"
+                  checked={darkMode}
+                  onCheckedChange={(checked) => {
+                    setDarkMode(checked);
+                    updateUserPreferences(emailNotifications, checked);
+                  }}
+                />
+              </div>
+            </div>
           </Card>
         </main>
       </div>
