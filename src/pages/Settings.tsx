@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { UserNav } from "@/components/UserNav";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
@@ -9,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Building } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 
 const Settings = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -26,12 +28,27 @@ const Settings = () => {
 
   const loadOrganizationData = async () => {
     try {
-      const { data: organization, error } = await supabase
-        .from('organizations')
-        .select('*')
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // First get the user's profile with organization_id
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
         .single();
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+      if (!profile?.organization_id) throw new Error("No organization found");
+
+      // Then get the organization details using the organization_id
+      const { data: organization, error: orgError } = await supabase
+        .from('organizations')
+        .select('*')
+        .eq('id', profile.organization_id)
+        .single();
+
+      if (orgError) throw orgError;
 
       setOrganizationData({
         name: organization.name || "",
@@ -56,13 +73,25 @@ const Settings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
+      // Get user's organization_id first
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+      if (!profile?.organization_id) throw new Error("No organization found");
+
+      // Update the organization
       const { error } = await supabase
         .from('organizations')
         .update({
           name: organizationData.name,
           description: organizationData.description,
           logo_url: organizationData.logo_url,
-        });
+        })
+        .eq('id', profile.organization_id);
 
       if (error) throw error;
 
@@ -87,63 +116,52 @@ const Settings = () => {
       <DashboardNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 lg:pl-64">
-        <div className="sticky top-0 z-10 flex h-16 flex-shrink-0 border-b border-gray-200 bg-white">
-          <div className="flex flex-1 justify-end px-4">
-            <div className="ml-4 flex items-center md:ml-6">
-              <UserNav />
-            </div>
-          </div>
-        </div>
+        <DashboardHeader setSidebarOpen={setSidebarOpen} pageTitle="Organization Settings">
+          <UserNav />
+        </DashboardHeader>
 
         <main className="p-4 sm:p-6 lg:p-8">
-          <div className="flex flex-col space-y-6">
-            <div className="flex items-center space-x-2">
-              <Building className="h-6 w-6" />
-              <h1 className="text-2xl font-semibold tracking-tight">Organization Settings</h1>
-            </div>
-
-            <Card className="p-6">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Organization Name</Label>
-                    <Input
-                      id="name"
-                      value={organizationData.name}
-                      onChange={(e) => setOrganizationData(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="Enter organization name"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={organizationData.description}
-                      onChange={(e) => setOrganizationData(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Enter organization description"
-                      className="min-h-[100px]"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="logo">Logo URL</Label>
-                    <Input
-                      id="logo"
-                      value={organizationData.logo_url}
-                      onChange={(e) => setOrganizationData(prev => ({ ...prev, logo_url: e.target.value }))}
-                      placeholder="Enter logo URL"
-                    />
-                  </div>
+          <Card className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Organization Name</Label>
+                  <Input
+                    id="name"
+                    value={organizationData.name}
+                    onChange={(e) => setOrganizationData(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="Enter organization name"
+                    required
+                  />
                 </div>
 
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? "Saving..." : "Save Changes"}
-                </Button>
-              </form>
-            </Card>
-          </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={organizationData.description}
+                    onChange={(e) => setOrganizationData(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Enter organization description"
+                    className="min-h-[100px]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="logo">Logo URL</Label>
+                  <Input
+                    id="logo"
+                    value={organizationData.logo_url}
+                    onChange={(e) => setOrganizationData(prev => ({ ...prev, logo_url: e.target.value }))}
+                    placeholder="Enter logo URL"
+                  />
+                </div>
+              </div>
+
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Saving..." : "Save Changes"}
+              </Button>
+            </form>
+          </Card>
         </main>
       </div>
     </div>
