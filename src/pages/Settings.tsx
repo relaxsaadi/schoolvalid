@@ -28,21 +28,57 @@ const Settings = () => {
   const [darkMode, setDarkMode] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadOrganizationData();
-    loadUserSettings();
-  }, []);
+  const loadOrganizationData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // First get the user's profile with organization_id
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+      if (!profile?.organization_id) throw new Error("No organization found");
+
+      // Then get the organization details using the organization_id
+      const { data: organization, error: orgError } = await supabase
+        .from('organizations')
+        .select('*')
+        .eq('id', profile.organization_id)
+        .single();
+
+      if (orgError) throw orgError;
+
+      setOrganizationData({
+        name: organization.name || "",
+        description: organization.description || "",
+        logo_url: organization.logo_url || "",
+      });
+    } catch (error) {
+      console.error('Error loading organization:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load organization data",
+      });
+    }
+  };
 
   const loadUserSettings = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('avatar_url, email_notifications, dark_mode')
         .eq('id', user.id)
         .single();
+
+      if (error) throw error;
 
       if (profile) {
         setProfileUrl(profile.avatar_url || '');
@@ -51,6 +87,57 @@ const Settings = () => {
       }
     } catch (error) {
       console.error('Error loading user settings:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadOrganizationData();
+    loadUserSettings();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Get user's organization_id first
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('organization_id')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+      if (!profile?.organization_id) throw new Error("No organization found");
+
+      // Update the organization
+      const { error } = await supabase
+        .from('organizations')
+        .update({
+          name: organizationData.name,
+          description: organizationData.description,
+          logo_url: organizationData.logo_url,
+        })
+        .eq('id', profile.organization_id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Organization settings updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating organization:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update organization settings",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -160,52 +247,6 @@ const Settings = () => {
         title: "Error",
         description: "Failed to update preferences",
       });
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      // Get user's organization_id first
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('organization_id')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError) throw profileError;
-      if (!profile?.organization_id) throw new Error("No organization found");
-
-      // Update the organization
-      const { error } = await supabase
-        .from('organizations')
-        .update({
-          name: organizationData.name,
-          description: organizationData.description,
-          logo_url: organizationData.logo_url,
-        })
-        .eq('id', profile.organization_id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Organization settings updated successfully",
-      });
-    } catch (error) {
-      console.error('Error updating organization:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update organization settings",
-      });
-    } finally {
-      setIsLoading(false);
     }
   };
 
