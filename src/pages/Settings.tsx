@@ -27,7 +27,7 @@ const Settings = () => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const { toast } = useToast();
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   const loadOrganizationData = async () => {
     try {
@@ -75,19 +75,23 @@ const Settings = () => {
         .from('profiles')
         .select('avatar_url, email_notifications, dark_mode')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
       if (profile) {
         setProfileUrl(profile.avatar_url || '');
         setEmailNotifications(profile.email_notifications ?? true);
-        const isDarkMode = profile.dark_mode ?? false;
-        setDarkMode(isDarkMode);
-        setTheme(isDarkMode ? 'dark' : 'light');
+        setDarkMode(profile.dark_mode ?? false);
+        setTheme(profile.dark_mode ? 'dark' : 'light');
       }
     } catch (error) {
       console.error('Error loading user settings:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load user settings",
+      });
     }
   };
 
@@ -220,7 +224,14 @@ const Settings = () => {
   const updateUserPreferences = async (emailNotifs: boolean, isDarkMode: boolean) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "You must be logged in to update preferences",
+        });
+        return;
+      }
 
       const { error } = await supabase
         .from('profiles')
@@ -230,10 +241,15 @@ const Settings = () => {
         })
         .eq('id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Update error:', error);
+        throw error;
+      }
 
+      setDarkMode(isDarkMode);
+      setEmailNotifications(emailNotifs);
       setTheme(isDarkMode ? 'dark' : 'light');
-      
+
       toast({
         title: "Success",
         description: "Preferences updated successfully",
@@ -375,7 +391,6 @@ const Settings = () => {
                   id="email-notifications"
                   checked={emailNotifications}
                   onCheckedChange={(checked) => {
-                    setEmailNotifications(checked);
                     updateUserPreferences(checked, darkMode);
                   }}
                 />
@@ -392,7 +407,6 @@ const Settings = () => {
                   id="dark-mode"
                   checked={darkMode}
                   onCheckedChange={(checked) => {
-                    setDarkMode(checked);
                     updateUserPreferences(emailNotifications, checked);
                   }}
                 />
