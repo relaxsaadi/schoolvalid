@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { UserNav } from "@/components/UserNav";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
@@ -14,6 +13,7 @@ import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useTheme } from "next-themes";
 
 const Settings = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -27,13 +27,13 @@ const Settings = () => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
   const { toast } = useToast();
+  const { setTheme } = useTheme();
 
   const loadOrganizationData = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // First get the user's profile with organization_id
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('organization_id')
@@ -43,7 +43,6 @@ const Settings = () => {
       if (profileError) throw profileError;
       if (!profile?.organization_id) throw new Error("No organization found");
 
-      // Then get the organization details using the organization_id
       const { data: organization, error: orgError } = await supabase
         .from('organizations')
         .select('*')
@@ -83,7 +82,9 @@ const Settings = () => {
       if (profile) {
         setProfileUrl(profile.avatar_url || '');
         setEmailNotifications(profile.email_notifications ?? true);
-        setDarkMode(profile.dark_mode ?? false);
+        const isDarkMode = profile.dark_mode ?? false;
+        setDarkMode(isDarkMode);
+        setTheme(isDarkMode ? 'dark' : 'light');
       }
     } catch (error) {
       console.error('Error loading user settings:', error);
@@ -103,7 +104,6 @@ const Settings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Get user's organization_id first
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('organization_id')
@@ -113,7 +113,6 @@ const Settings = () => {
       if (profileError) throw profileError;
       if (!profile?.organization_id) throw new Error("No organization found");
 
-      // Update the organization
       const { error } = await supabase
         .from('organizations')
         .update({
@@ -149,7 +148,6 @@ const Settings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Upload image to storage
       const fileExt = file.name.split('.').pop();
       const filePath = `${user.id}/avatar.${fileExt}`;
 
@@ -159,12 +157,10 @@ const Settings = () => {
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
-      // Update profile
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: publicUrl })
@@ -236,6 +232,8 @@ const Settings = () => {
 
       if (error) throw error;
 
+      setTheme(isDarkMode ? 'dark' : 'light');
+      
       toast({
         title: "Success",
         description: "Preferences updated successfully",
@@ -260,7 +258,6 @@ const Settings = () => {
         </DashboardHeader>
 
         <main className="p-4 sm:p-6 lg:p-8 space-y-6">
-          {/* Profile Picture Section */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-4">Profile Picture</h2>
             <div className="flex items-center gap-4">
@@ -291,7 +288,6 @@ const Settings = () => {
             </div>
           </Card>
 
-          {/* Organization Settings */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-4">Organization Settings</h2>
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -335,7 +331,6 @@ const Settings = () => {
             </form>
           </Card>
 
-          {/* Password Change Section */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-4">Change Password</h2>
             <form onSubmit={handlePasswordChange} className="space-y-4">
@@ -366,7 +361,6 @@ const Settings = () => {
             </form>
           </Card>
 
-          {/* Preferences Section */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold mb-4">Preferences</h2>
             <div className="space-y-4">
