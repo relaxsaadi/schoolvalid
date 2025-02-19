@@ -1,3 +1,4 @@
+
 import { Card } from "@/components/ui/card";
 import { UserNav } from "@/components/UserNav";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
@@ -244,9 +245,11 @@ const Settings = () => {
 
       if (error) throw error;
 
+      // First update the theme
+      setTheme(isDarkMode ? 'dark' : 'light');
+      // Then update local state
       setDarkMode(isDarkMode);
       setEmailNotifications(emailNotifs);
-      setTheme(isDarkMode ? 'dark' : 'light');
 
       toast({
         title: "Success",
@@ -260,13 +263,14 @@ const Settings = () => {
         description: "Failed to update preferences",
       });
       
+      // Revert local state and theme on error
       setDarkMode(!isDarkMode);
       setTheme(!isDarkMode ? 'dark' : 'light');
     }
   };
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen bg-background">
       <DashboardNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 lg:pl-64">
