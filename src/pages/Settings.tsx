@@ -82,8 +82,9 @@ const Settings = () => {
       if (profile) {
         setProfileUrl(profile.avatar_url || '');
         setEmailNotifications(profile.email_notifications ?? true);
-        setDarkMode(profile.dark_mode ?? false);
-        setTheme(profile.dark_mode ? 'dark' : 'light');
+        const isDarkMode = profile.dark_mode ?? false;
+        setDarkMode(isDarkMode);
+        setTheme(isDarkMode ? 'dark' : 'light');
       }
     } catch (error) {
       console.error('Error loading user settings:', error);
@@ -241,10 +242,7 @@ const Settings = () => {
         })
         .eq('id', user.id);
 
-      if (error) {
-        console.error('Update error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       setDarkMode(isDarkMode);
       setEmailNotifications(emailNotifs);
@@ -261,11 +259,14 @@ const Settings = () => {
         title: "Error",
         description: "Failed to update preferences",
       });
+      
+      setDarkMode(!isDarkMode);
+      setTheme(!isDarkMode ? 'dark' : 'light');
     }
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-screen">
       <DashboardNav sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 lg:pl-64">
