@@ -151,22 +151,54 @@ const Settings = () => {
       const file = event.target.files?.[0];
       if (!file) return;
 
+      // Check file size (max 1MB)
+      if (file.size > 1024 * 1024) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "File size must be less than 1MB",
+        });
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Only image files are allowed",
+        });
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${user.id}/avatar.${fileExt}`;
+      // Show loading toast
+      toast({
+        title: "Uploading...",
+        description: "Your profile picture is being uploaded",
+      });
 
-      const { error: uploadError, data } = await supabase.storage
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
+
+      // Upload the file to Supabase storage
+      const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, file, { 
+          upsert: true,
+          contentType: file.type
+        });
 
       if (uploadError) throw uploadError;
 
+      // Get the public URL of the uploaded file
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
+      // Update the user's profile with the new avatar URL
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: publicUrl })
@@ -174,7 +206,9 @@ const Settings = () => {
 
       if (updateError) throw updateError;
 
+      // Update the local state
       setProfileUrl(publicUrl);
+
       toast({
         title: "Success",
         description: "Profile picture updated successfully",
