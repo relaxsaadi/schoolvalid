@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { UserNav } from "@/components/UserNav";
 import { DashboardNav } from "@/components/dashboard/DashboardNav";
@@ -29,6 +28,32 @@ const Settings = () => {
   const [darkMode, setDarkMode] = useState(false);
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+
+  const loadUserProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('avatar_url, email_notifications, dark_mode')
+        .eq('id', user.id)
+        .single();
+
+      if (error) throw error;
+
+      if (profile?.avatar_url) {
+        setProfileUrl(profile.avatar_url);
+        const timestamp = new Date().getTime();
+        setProfileUrl(`${profile.avatar_url}?t=${timestamp}`);
+      }
+      
+      setEmailNotifications(profile?.email_notifications ?? true);
+      setDarkMode(profile?.dark_mode ?? false);
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    }
+  };
 
   const loadOrganizationData = async () => {
     try {
@@ -67,39 +92,9 @@ const Settings = () => {
     }
   };
 
-  const loadUserSettings = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('avatar_url, email_notifications, dark_mode')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (profile) {
-        setProfileUrl(profile.avatar_url || '');
-        setEmailNotifications(profile.email_notifications ?? true);
-        const isDarkMode = profile.dark_mode ?? false;
-        setDarkMode(isDarkMode);
-        setTheme(isDarkMode ? 'dark' : 'light');
-      }
-    } catch (error) {
-      console.error('Error loading user settings:', error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to load user settings",
-      });
-    }
-  };
-
   useEffect(() => {
+    loadUserProfile();
     loadOrganizationData();
-    loadUserSettings();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -151,7 +146,6 @@ const Settings = () => {
       const file = event.target.files?.[0];
       if (!file) return;
 
-      // Check file size (max 1MB)
       if (file.size > 1024 * 1024) {
         toast({
           variant: "destructive",
@@ -161,7 +155,6 @@ const Settings = () => {
         return;
       }
 
-      // Check file type
       if (!file.type.startsWith('image/')) {
         toast({
           variant: "destructive",
@@ -174,7 +167,6 @@ const Settings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Show loading toast
       toast({
         title: "Uploading...",
         description: "Your profile picture is being uploaded",
@@ -183,7 +175,6 @@ const Settings = () => {
       const fileExt = file.name.split('.').pop();
       const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
 
-      // Upload the file to Supabase storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file, { 
@@ -193,12 +184,10 @@ const Settings = () => {
 
       if (uploadError) throw uploadError;
 
-      // Get the public URL of the uploaded file
       const { data: { publicUrl } } = supabase.storage
         .from('avatars')
         .getPublicUrl(filePath);
 
-      // Update the user's profile with the new avatar URL
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: publicUrl })
@@ -206,13 +195,16 @@ const Settings = () => {
 
       if (updateError) throw updateError;
 
-      // Update the local state
-      setProfileUrl(publicUrl);
+      const timestamp = new Date().getTime();
+      const urlWithTimestamp = `${publicUrl}?t=${timestamp}`;
+      setProfileUrl(urlWithTimestamp);
 
       toast({
         title: "Success",
         description: "Profile picture updated successfully",
       });
+
+      await loadUserProfile();
     } catch (error) {
       console.error('Error uploading profile picture:', error);
       toast({
@@ -279,9 +271,7 @@ const Settings = () => {
 
       if (error) throw error;
 
-      // First update the theme
       setTheme(isDarkMode ? 'dark' : 'light');
-      // Then update local state
       setDarkMode(isDarkMode);
       setEmailNotifications(emailNotifs);
 
@@ -297,7 +287,6 @@ const Settings = () => {
         description: "Failed to update preferences",
       });
       
-      // Revert local state and theme on error
       setDarkMode(!isDarkMode);
       setTheme(!isDarkMode ? 'dark' : 'light');
     }
