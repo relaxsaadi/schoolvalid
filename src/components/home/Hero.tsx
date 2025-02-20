@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRight, Users, FileText, Calendar, Filter, Download, Badge, Lock, RefreshCw, UserCog, ShieldCheck } from "lucide-react";
@@ -73,7 +74,7 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             >
               <Button 
                 size="lg" 
-                className="bg-white text-blue-600 hover:bg-white/90 transition-all duration-300 shadow-lg hover:scale-105"
+                className="bg-[#1EAEDB] text-white hover:bg-[#0FA0CE] transition-all duration-300 shadow-lg hover:scale-105"
                 onClick={onGetStarted}
               >
                 <span className="flex items-center font-semibold">
@@ -271,3 +272,4 @@ const features = [
     icon: Lock,
   }
 ];
+
