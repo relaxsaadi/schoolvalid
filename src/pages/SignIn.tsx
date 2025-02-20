@@ -84,7 +84,7 @@ const SignIn = () => {
       <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
         <div className="absolute inset-0 bg-brand-900" />
         <div className="relative z-20 flex items-center text-lg font-medium">
-          <GraduationCap className="mr-2 h-6 w-6 text-primary animate-bounce" />
+          <GraduationCap className="mr-2 h-6 w-6 text-[#1EAEDB] animate-bounce" />
           APGA
         </div>
         <div className="relative z-20 mt-auto">
@@ -134,13 +134,17 @@ const SignIn = () => {
                     required
                   />
                 </div>
-                <Button type="submit" disabled={isLoading}>
+                <Button 
+                  type="submit" 
+                  disabled={isLoading}
+                  className="bg-[#1EAEDB] hover:bg-[#1EAEDB]/90"
+                >
                   {isLoading ? "Signing in..." : "Sign In"}
                 </Button>
                 <Button 
                   type="button" 
                   variant="link" 
-                  className="px-0 font-normal"
+                  className="px-0 font-normal text-[#1EAEDB]"
                   onClick={handlePasswordReset}
                   disabled={isResettingPassword}
                 >
@@ -152,7 +156,7 @@ const SignIn = () => {
           <p className="px-8 text-center text-sm text-muted-foreground">
             <Link
               to="/sign-up"
-              className="hover:text-brand-900 underline underline-offset-4"
+              className="hover:text-[#1EAEDB] underline underline-offset-4"
             >
               Don't have an account? Sign up
             </Link>
