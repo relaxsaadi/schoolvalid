@@ -73,11 +73,11 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             >
               <Button 
                 size="lg" 
-                className="group relative overflow-hidden bg-white text-brand-500 hover:bg-white/90 transition-all duration-300 shadow-lg hover:scale-105"
+                className="group relative overflow-hidden bg-[#1EAEDB] text-white hover:bg-[#1EAEDB]/90 transition-all duration-300 shadow-lg hover:scale-105"
                 onClick={onGetStarted}
               >
                 <motion.div 
-                  className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-cyan-300/20 to-blue-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  className="absolute inset-0 bg-gradient-to-r from-[#33C3F0]/20 via-[#0FA0CE]/20 to-[#1EAEDB]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                   animate={{
                     backgroundPosition: ["0% 0%", "100% 0%"],
                   }}
