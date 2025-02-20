@@ -73,21 +73,10 @@ export const Hero = ({ onGetStarted }: HeroProps) => {
             >
               <Button 
                 size="lg" 
-                className="group relative overflow-hidden bg-[#1EAEDB] text-white hover:bg-[#1EAEDB]/90 transition-all duration-300 shadow-lg hover:scale-105"
+                className="bg-white text-blue-600 hover:bg-white/90 transition-all duration-300 shadow-lg hover:scale-105"
                 onClick={onGetStarted}
               >
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-r from-[#33C3F0]/20 via-[#0FA0CE]/20 to-[#1EAEDB]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                  animate={{
-                    backgroundPosition: ["0% 0%", "100% 0%"],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                  }}
-                />
-                <span className="relative z-10 flex items-center font-semibold">
+                <span className="flex items-center font-semibold">
                   Get Started 
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </span>
